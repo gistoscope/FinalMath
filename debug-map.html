@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Semantic Map Debugger</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    h1 { color: #4ec9b0; }
+    .input-section {
+      margin-bottom: 30px;
+      background: #252526;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    input {
+      width: 500px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #3c3c3c;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #0e639c;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    button:hover { background: #1177bb; }
+    .summary {
+      background: #252526;
+      padding: 15px;
+      margin: 20px 0;
+      border-left: 4px solid #4ec9b0;
+    }
+    .node {
+      border: 1px solid #3c3c3c;
+      padding: 15px;
+      margin: 10px 0;
+      background: #252526;
+      border-radius: 3px;
+    }
+    .node.has-actions {
+      background: #1e3a1e;
+      border-left: 4px solid #4ec9b0;
+    }
+    .action {
+      border-left: 3px solid #ce9178;
+      padding: 10px;
+      margin: 10px 0;
+      background: #2d2d30;
+    }
+    .role { color: #4fc1ff; font-weight: bold; }
+    .type { color: #4ec9b0; }
+    .error { color: #f48771; }
+    code {
+      background: #1e1e1e;
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: #ce9178;
+    }
+  </style>
+</head>
+<body>
+  <h1>🗺️ Semantic Map Debugger</h1>
+  
+  <div class="input-section">
+    <label>Enter LaTeX formula:</label><br/><br/>
+    <input 
+      type="text" 
+      id="latexInput" 
+      placeholder="Examples: 3+5, \frac{3}{5}, (3+5)*2"
+      value="3+5"
+    />
+    <button onclick="loadMap()">🔍 Load Map</button>
+    <button onclick="loadExample('3+5')">Example 1</button>
+    <button onclick="loadExample('\\frac{3}{5}')">Example 2</button>
+    <button onclick="loadExample('\\frac{3}{5}+\\frac{2}{5}')">Example 3</button>
+  </div>
+  
+  <div id="output"></div>
+  
+  <script>
+    function loadExample(latex) {
+      document.getElementById('latexInput').value = latex;
+      loadMap();
+    }
+    
+    async function loadMap() {
+      const latex = document.getElementById('latexInput').value;
+      const encoded = encodeURIComponent(latex);
+      const url = `http://localhost:4201/mapmaster-introspect?latex=${encoded}`;
+      
+      document.getElementById('output').innerHTML = '<p>Loading...</p>';
+      
+      try {
+        const response = await fetch(url);
+        const json = await response.json();
+        
+        if (!json.success) {
+          document.getElementById('output').innerHTML = 
+            `<p class="error">❌ Error: ${json.error || 'Unknown error'}</p>`;
+          return;
+        }
+        
+        displayMap(json.data);
+        
+      } catch (error) {
+        document.getElementById('output').innerHTML = 
+          `<p class="error">❌ Network Error: ${error.message}</p>
+           <p>Make sure backend server is running on port 4205</p>`;
+      }
+    }
+    
+    function displayMap(map) {
+      let html = '';
+      
+      // Summary
+      html += '<div class="summary">';
+      html += `<h2>📊 Summary</h2>`;
+      html += `<p><strong>Formula:</strong> <code>${map.latex}</code></p>`;
+      html += `<p><strong>Map ID:</strong> ${map.id}</p>`;
+      html += `<p><strong>Root Node:</strong> ${map.rootNodeId}</p>`;
+      html += `<p><strong>Total Nodes:</strong> ${map.nodes.length}</p>`;
+      html += `<p><strong>Total Actions:</strong> ${map.actions.length}</p>`;
+      html += '</div>';
+      
+      // Nodes
+      html += '<h2>🔷 Nodes (${map.nodes.length})</h2>';
+      map.nodes.forEach(node => {
+        const hasActions = node.actionIds.length > 0;
+        const className = hasActions ? 'node has-actions' : 'node';
+        
+        html += `<div class="${className}">`;
+        html += `<div style="margin-bottom: 10px;">`;
+        html += `<strong style="font-size: 18px;">${node.id}</strong> `;
+        
+        if (hasActions) {
+          html += `<span style="color: #4ec9b0;">✓ Interactive</span>`;
+        }
+        
+        html += `</div>`;
+        
+        html += `<table style="width: 100%; border-collapse: collapse;">`;
+        html += `<tr><td style="width: 150px;"><strong>Type:</strong></td><td><span class="type">${node.syntacticType}</span></td></tr>`;
+        html += `<tr><td><strong>Role:</strong></td><td><span class="role">${node.role}</span></td></tr>`;
+        html += `<tr><td><strong>LaTeX:</strong></td><td><code>${node.latex}</code></td></tr>`;
+        html += `<tr><td><strong>Path:</strong></td><td>${node.path}</td></tr>`;
+        html += `<tr><td><strong>Parent:</strong></td><td>${node.parentId || '<em>none (root)</em>'}</td></tr>`;
+        html += `<tr><td><strong>Children:</strong></td><td>${node.childIds.join(', ') || '<em>none</em>'}</td></tr>`;
+        html += `<tr><td><strong>Actions:</strong></td><td>${node.actionIds.join(', ') || '<em>none</em>'}</td></tr>`;
+        html += `<tr><td><strong>Selectable:</strong></td><td>${node.flags.selectable ? '✓ Yes' : '✗ No'}</td></tr>`;
+        html += `</table>`;
+        
+        html += '</div>';
+      });
+      
+      // Actions
+      html += `<h2>⚡ Actions (${map.actions.length})</h2>`;
+      
+      if (map.actions.length === 0) {
+        html += '<p><em>No actions available for this formula</em></p>';
+      }
+      
+      map.actions.forEach(action => {
+        html += `<div class="action">`;
+        html += `<div style="margin-bottom: 10px;">`;
+        html += `<strong style="font-size: 18px;">${action.id}</strong>`;
+        html += `</div>`;
+        
+        html += `<table style="width: 100%;">`;
+        html += `<tr><td style="width: 150px;"><strong>Target Node:</strong></td><td>${action.targetNodeId}</td></tr>`;
+        html += `<tr><td><strong>Invariant:</strong></td><td>${action.invariantId}</td></tr>`;
+        html += `<tr><td><strong>Primitive:</strong></td><td>${action.primitiveId}</td></tr>`;
+        html += `<tr><td><strong>Result:</strong></td><td><code>${action.resultLatex}</code></td></tr>`;
+        html += `</table>`;
+        
+        html += '</div>';
+      });
+      
+      document.getElementById('output').innerHTML = html;
+    }
+    
+    // Auto-load on page load
+    window.onload = () => loadMap();
+  </script>
+</body>
+</html>
