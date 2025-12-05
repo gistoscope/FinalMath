@@ -613,6 +613,74 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const btnDownloadSnapshot = document.getElementById("btn-download-snapshot");
+  if (btnDownloadSnapshot) {
+    btnDownloadSnapshot.addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://localhost:4101/debug/step-snapshot/latest");
+        if (res.status === 404) {
+          alert("No step snapshot available (perform a step first).");
+          return;
+        }
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}`);
+        }
+        const json = await res.json();
+        const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `step-snapshot-${json.id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        console.error(e);
+        alert("Failed to download snapshot: " + e.message);
+      }
+    });
+  }
+
+  const btnDownloadSession = document.getElementById("btn-download-session");
+  if (btnDownloadSession) {
+    btnDownloadSession.addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://localhost:4101/debug/step-snapshot/session");
+        if (!res.ok) {
+          throw new Error(`Error ${res.status}`);
+        }
+        const json = await res.json();
+        const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+        a.download = `session-log-${timestamp}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (e) {
+        console.error(e);
+        alert("Failed to download session log: " + e.message);
+      }
+    });
+  }
+
+  const btnResetSession = document.getElementById("btn-reset-session");
+  if (btnResetSession) {
+    btnResetSession.addEventListener("click", async () => {
+      try {
+        const res = await fetch("http://localhost:4101/debug/step-snapshot/reset", { method: "POST" });
+        if (res.ok) {
+          alert("Session log reset.");
+        } else {
+          alert("Failed to reset session log.");
+        }
+      } catch (e) {
+        console.error(e);
+        alert("Failed to reset session log: " + e.message);
+      }
+    });
+  }
+
   if (container) {
     // Helper: find SurfaceNode by DOM element (bubbling up)
     function findNodeByElement(target) {

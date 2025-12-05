@@ -67166,9 +67166,3996 @@
           "targetPath": "term[0]",
           "expressionBefore": "\\frac{1 + 3}{7}",
           "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764899941816-2vf5n",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:01.816Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899942921-a3bb8",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:02.921Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764899945384-pfbgq",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:05.384Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899946415-4ula6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T01:59:06.415Z",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764899947199-bywx8",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:07.199Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899950951-ry5q9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T01:59:10.951Z",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764899953687-7esbp",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:13.687Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899966775-epnvq",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:26.775Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899967712-sqpcy",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T01:59:27.712Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764899969846-he9w0",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:29.847Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764899970855-dzqho",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:59:30.855Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764900065081-ur09h",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:05.081Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900066656-2du8t",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:06.656Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900072944-o18wm",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:12.944Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900074184-mwn9m",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:14.184Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900076744-ariyi",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:16.744Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900078801-6vlzi",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:18.801Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900079704-wml0m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:19.704Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900080824-adeeq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:20.824Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900081680-ci70u",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:21.680Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900082369-t2y54",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:22.369Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900083321-4l6w0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:23.321Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900084873-f3rix",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:24.873Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900085560-cxmyn",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:25.560Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900086593-r9yrc",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:26.593Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900091072-1r804",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:31.072Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900092609-75gdx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:32.609Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900100680-6vp5a",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:40.681Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900101384-hncom",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:41.384Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900104506-0m0iu",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:44.506Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900105096-xe1j6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:45.096Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900105633-45agt",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:45.633Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900106793-6hqnf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:46.793Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900108745-ld7ub",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:48.745Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900110352-b2ab6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:50.352Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900111608-5v1lv",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:51.608Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900112920-jd7vj",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:52.920Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900113864-2sxya",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:53.864Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900115504-6xpfx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:55.504Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900116120-mhbcc",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:56.120Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900116648-7rld7",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:56.648Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900117857-5ohis",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:01:57.857Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900118920-xh1pf",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:01:58.920Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900120784-4rupl",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:00.784Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900121408-wejm0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:01.408Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900128057-xfbsr",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:08.057Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900129576-ckrta",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:09.576Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900131640-gtw8e",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:11.641Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900132560-cfs1m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:12.560Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900133912-86p4d",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:13.912Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900135008-rf9ru",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:15.008Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900136833-ytu66",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:16.833Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900138080-rg9tz",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:18.080Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900141480-ngalu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:21.480Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900148193-akpvq",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:28.193Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900148881-jzxkt",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:28.881Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900150520-qsn75",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:30.520Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900151105-0ihp2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:31.105Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900151576-06lpe",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:31.576Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900152057-ps80y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:32.057Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900152482-7cqvo",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:32.482Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900152864-d5lh8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:32.864Z",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900153696-b2eck",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:33.696Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900154800-0h8pt",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:34.800Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900156567-nn0lv",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:02:36.567Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900158592-dnasw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:38.592Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900159968-68lc2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:02:39.968Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900225818-0noro",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:03:45.818Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900227057-uddum",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:03:47.057Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764900318993-5y54m",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:05:18.994Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900320322-hclqb",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:05:20.322Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900364882-qo0hn",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:04.882Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900366097-nkbsp",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:06.097Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900367074-f92rw",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:07.074Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900368050-xwwpv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:08.050Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900368785-qgqa2",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:08.785Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900369481-moipw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:09.481Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900370098-vy3mx",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:10.098Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900370570-ytzix",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:10.570Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900371026-0b4nv",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:11.026Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900371418-dosgf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:11.418Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900371858-uhyp9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:11.858Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900372314-lcc24",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:12.314Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900372770-gdxmd",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:12.770Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900373161-ba8zd",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:13.161Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900398562-aux33",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:38.562Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900399290-56um6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:06:39.290Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900401090-shryq",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:41.090Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764900401745-al937",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:41.745Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900415947-6xtni",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:06:55.947Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764900420410-xccka",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:07:00.410Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900421633-igp8v",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:07:01.633Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764900424075-zy54l",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:07:04.075Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901237079-ilqg5",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:37.079Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764901238366-xacod",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:38.366Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764901240558-3s4o2",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:40.558Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764901252672-var9u",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:52.672Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764901253503-v0ogi",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:53.503Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764901256183-5iwwl",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:56.183Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764901258559-w3b3k",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:58.559Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\frac{6}{2} + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764901259719-cwgwg",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T02:20:59.719Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764901260967-62eiy",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:21:00.967Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901262519-ei1ah",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:21:02.519Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901263598-h8k74",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:21:03.598Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901268039-e82um",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:21:08.039Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901268983-zygr4",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:21:08.983Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901556297-skaap",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:25:56.297Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901557104-575se",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:25:57.104Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901557689-4uk8b",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:25:57.689Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901581217-tk4h0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:21.217Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901582280-afc2l",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:22.280Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901583223-jrsqv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:23.223Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901583809-t6kn2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:23.809Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901584200-o2y91",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:24.200Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901585856-nhj4w",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:25.856Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901586705-h7881",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:26.705Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901587273-vctb8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:27.273Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901588881-0pmpz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:28.881Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901590112-encrz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:30.112Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901591640-x09ct",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:31.640Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901592712-ap0or",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:32.712Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901594162-vkrga",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:34.162Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901596337-kl8vj",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:36.337Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901597904-o7rug",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:37.904Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901601456-5gien",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:41.456Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901603738-oj8f2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:43.738Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901605473-8v4r0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:45.473Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901607168-8r3jq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:47.168Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901608400-zwnlp",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:48.400Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901609856-0u283",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:26:49.856Z",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901697194-gtr9y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:28:17.194Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764901698209-lx7fz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:28:18.209Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902497408-9bg7y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:41:37.408Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902504661-9xzbb",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:41:44.661Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902506221-x8bg9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:41:46.221Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902507254-aw6y9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:41:47.254Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764905014597-exdkb",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:23:34.597Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764905015557-m5y6h",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:23:35.557Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764905016613-6bbyg",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:23:36.613Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764907126298-ff8dx",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:58:46.298Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1764907174337-nrqci",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:59:34.337Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "1/7+1/3",
+          "expressionAfter": "0.14285714285714285 + \\frac{1}{3}"
+        },
+        {
+          "stepId": "step-1764907179497-ta1oj",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:59:39.497Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{1}{3}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764907290993-krmpe",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:01:30.993Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764907307944-0pyu0",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:01:47.944Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764907356354-xbqk6",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:02:36.354Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.14285714285714285 + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908274255-jifj8",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:17:54.255Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1764908530312-nknjg",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:22:10.312Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908531704-cjdqv",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:22:11.704Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764908627370-uaoap",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:23:47.370Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908630641-vtmx3",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:23:50.641Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764908728049-3x3fo",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:25:28.049Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908729417-fymku",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:25:29.417Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764908732384-3ad54",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:25:32.384Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908733905-pmtm2",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:25:33.905Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764908735777-vnhz3",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:25:35.777Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764908736961-lc0cr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:25:36.961Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764908738584-maopa",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:25:38.584Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764908739768-59c7l",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:25:39.768Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764908803610-gz5vw",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:26:43.610Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908805810-isdmu",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:26:45.810Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764908841153-3m1uh",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:27:21.153Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764908842385-pr6lq",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:27:22.385Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909630374-wn5i7",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:30.374Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909631549-w4p9j",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:31.549Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909634214-ibbmn",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:34.214Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909635118-tjaf6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:40:35.118Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764909636190-9whpw",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:36.190Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909639277-lgyl2",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:39.277Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909641973-rmbw9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:40:41.973Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909644045-wfk1e",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:40:44.045Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764909645198-nj7rw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:40:45.198Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764909710551-qwssi",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:41:50.551Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909712437-mofly",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:41:52.437Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909714503-nm1xa",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:41:54.503Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909715583-eguy8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:41:55.583Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764909717246-jvrdb",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:41:57.246Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764909718111-pjzff",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:41:58.111Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764909721151-hfzut",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:42:01.151Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910686101-aqhdf",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:06.101Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910687244-57err",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:07.244Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910689293-k4gmc",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:09.293Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910690067-do8i2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:58:10.067Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764910691460-4biti",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:11.460Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910693620-57l9v",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:13.620Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910696316-4wfiw",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:16.316Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910698307-v7dqn",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:58:18.307Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764910698996-tntqw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:58:18.996Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764910700291-g9ydl",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T04:58:20.291Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764910735620-4clau",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:55.620Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910736533-4hd6r",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T04:58:56.533Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910868856-6ud66",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:08.856Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910869877-dmpfe",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:09.877Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910873046-zbt5k",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:13.046Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910873558-3xiby",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:01:13.558Z",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764910875414-dhf8p",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:15.414Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910876245-u0vrg",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:16.245Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910878230-53hly",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:01:18.230Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910945094-pa5hn",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:02:25.094Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910946350-hupa8",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:02:26.350Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764910949607-iy5vl",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:02:29.607Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764910950702-7ix1r",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:02:30.702Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[1]",
+          "expressionBefore": "3 + \\frac{12}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912726976-lncje",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:06.976Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764912736956-mawt7",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:16.956Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\frac{1}{2} + \\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "0.5 + \\frac{1}{3} + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912739453-z35xe",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:19.453Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "0.5 + \\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{3} + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912742182-sdg6t",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:22.182Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "0.3333333333333333 + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912744164-ybq38",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:24.164Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.3333333333333333 + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912754188-54yay",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:34.188Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912755627-4s9j6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:35.627Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912757283-csgs5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:37.283Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912759724-a2mli",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:32:39.724Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912761531-3zewf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:41.532Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912762812-dnqsf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:42.812Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912765374-t55ki",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:45.374Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912766603-wnsic",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:46.603Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912767163-cqr2v",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:47.163Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912770066-s5sls",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:50.066Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912771650-k2kif",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:51.650Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912772460-ucsoh",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:32:52.460Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912780770-25irs",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:00.770Z",
+          "expressionBefore": "-\\left(\\frac{3}{4}-\\frac{1}{8}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912782252-14vdp",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:02.252Z",
+          "expressionBefore": "-\\left(\\frac{3}{4}-\\frac{1}{8}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912783268-i2t37",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:03.268Z",
+          "expressionBefore": "-\\left(\\frac{3}{4}-\\frac{1}{8}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912789715-upanp",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:33:09.715Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912792155-srxcr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:12.155Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912794690-p6efu",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:33:14.690Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912796074-kqnpz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:16.074Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912797115-olgq0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:17.115Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912798298-8wtaq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:18.298Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912799458-1nslx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:19.458Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912807050-kaxeq",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:33:27.050Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912809387-0mcfs",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:29.387Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912810298-zm94z",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:30.298Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912811243-4jn86",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:31.243Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912829356-nwgp9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:33:49.356Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764912830306-exz3j",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:50.307Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912831370-krkhl",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:51.370Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912831946-ofnag",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:51.946Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912833931-qaucx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:53.931Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912834779-3niyv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:33:54.779Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912843571-tsoso",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:03.571Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{3}+\\frac{2}{5}",
+          "expressionAfter": "0.3333333333333333 + \\frac{2}{5}"
+        },
+        {
+          "stepId": "step-1764912845499-dnfn9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:05.499Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.3333333333333333 + \\frac{2}{5}",
+          "expressionAfter": "\\frac{2}{5}"
+        },
+        {
+          "stepId": "step-1764912854731-df4l6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:14.731Z",
+          "expressionBefore": "\\frac{1}{1+\\frac{1}{2}}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912855348-ecfnk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:15.348Z",
+          "expressionBefore": "\\frac{1}{1+\\frac{1}{2}}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912856027-6or4q",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:16.027Z",
+          "expressionBefore": "\\frac{1}{1+\\frac{1}{2}}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912857538-kjwk3",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:17.538Z",
+          "expressionBefore": "\\frac{1}{1+\\frac{1}{2}}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912866275-rafdc",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:26.275Z",
+          "expressionBefore": "\\frac{1}{2} + \\frac{1}{3} + \\frac{1}{6}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912867268-0jj20",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:27.268Z",
+          "expressionBefore": "\\frac{1}{2} + \\frac{1}{3} + \\frac{1}{6}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912868291-42rxp",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:28.291Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0].term[0]",
+          "expressionBefore": "\\frac{1}{2} + \\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "0.5 + \\frac{1}{3} + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912870795-aj6fq",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:30.795Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "0.5 + \\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{3} + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912872828-9zoy6",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:32.828Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "0.3333333333333333 + \\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912875018-ckzrf",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:35.018Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "0.3333333333333333 + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{6}"
+        },
+        {
+          "stepId": "step-1764912883459-q2lha",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:43.459Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912885155-6j9z9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:45.155Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912886627-67uv5",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:34:46.627Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912888450-xyfrv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:48.450Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912889546-ozhla",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:34:49.546Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912911266-n729m",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:35:11.266Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764912945996-13018",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:35:45.996Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912949804-umhp1",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:35:49.804Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764912951836-mp5a5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:35:51.836Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912953596-bjza2",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:35:53.596Z",
+          "expressionBefore": "9 - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912976075-xgcw2",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:36:16.075Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764912977684-o1vlh",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:36:17.684Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912979156-cikon",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:36:19.156Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914241216-ed19f",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:57:21.216Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764914249311-fv783",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:57:29.311Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\left(\\frac{6}{2}+\\frac{12}{2}\\right)-\\left(\\frac{5}{7}+\\frac{2}{7}\\right)",
+          "expressionAfter": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})"
+        },
+        {
+          "stepId": "step-1764914252852-j52w6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:32.852Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914254150-0p73m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:34.150Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914255214-j2w8v",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:35.214Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914256038-sh534",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:36.038Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914257076-gbd7e",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:37.076Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914258107-ij4bz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:38.107Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914258949-x8910",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:38.949Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914259886-wywg8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:39.886Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914261132-7xcuk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:41.132Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914261946-4qufb",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:41.946Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914263509-hbbl7",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:57:43.509Z",
+          "expressionBefore": "\\frac{18}{2} - (\\frac{5}{7} + \\frac{2}{7})",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914273935-9aon8",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:57:53.935Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764914275398-fx6wb",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:57:55.398Z",
+          "invariantRuleId": "R.INT_SUB",
+          "targetPath": "root",
+          "expressionBefore": "5 - 1",
+          "expressionAfter": "4"
+        },
+        {
+          "stepId": "step-1764914282997-iq6fe",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:02.997Z",
+          "expressionBefore": "\\left(1-\\frac{1}{3}\\right)\\cdot\\frac{3}{4}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914283941-hkznk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:03.941Z",
+          "expressionBefore": "\\left(1-\\frac{1}{3}\\right)\\cdot\\frac{3}{4}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914285445-eyv0s",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:05.445Z",
+          "expressionBefore": "\\left(1-\\frac{1}{3}\\right)\\cdot\\frac{3}{4}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914286909-qb4cy",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:06.909Z",
+          "expressionBefore": "\\left(1-\\frac{1}{3}\\right)\\cdot\\frac{3}{4}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914298364-n47ic",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:18.364Z",
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914299164-ubgqk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:19.164Z",
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914301052-wxapi",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:21.052Z",
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914302116-pyvqu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:22.116Z",
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914303443-sd2xg",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:23.443Z",
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914314084-v6uun",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:34.084Z",
+          "expressionBefore": "\\frac{1}{2} + \\left(\\frac{3}{4} - \\frac{1}{1+\\frac{1}{2}}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914315227-fmio5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:35.227Z",
+          "expressionBefore": "\\frac{1}{2} + \\left(\\frac{3}{4} - \\frac{1}{1+\\frac{1}{2}}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914316460-udnba",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:36.460Z",
+          "expressionBefore": "\\frac{1}{2} + \\left(\\frac{3}{4} - \\frac{1}{1+\\frac{1}{2}}\\right)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914324652-br5rq",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:58:44.652Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764914331172-winxh",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:51.172Z",
+          "expressionBefore": "\\frac{5}{9} - \\frac{2}{9}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914332435-g5c9b",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:52.435Z",
+          "expressionBefore": "\\frac{5}{9} - \\frac{2}{9}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914333268-2scw7",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:58:53.268Z",
+          "expressionBefore": "\\frac{5}{9} - \\frac{2}{9}",
+          "errorCode": "no-candidates"
         }
       ]
     },
     "createdAt": 1764704941122
+  },
+  {
+    "id": "test-session",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764897812994-3dkn9",
+          "candidateId": "cand-invalid",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T01:23:32.994Z",
+          "invariantRuleId": "rule.unknown",
+          "targetPath": "root",
+          "expressionBefore": "1+1"
+        },
+        {
+          "stepId": "step-1764906291731-wg0nx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:44:51.731Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764906355260-jgh2y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:45:55.260Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764906426976-cf2ln",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:47:06.976Z",
+          "invariantRuleId": "rule-1",
+          "targetPath": "root",
+          "expressionBefore": "2+3"
+        },
+        {
+          "stepId": "step-1764906466445-30k0y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T03:47:46.445Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764911431646-640n2",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:10:31.646Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911431678-j100d",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:10:31.678Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "0.7142857142857143 + \\frac{2}{7}"
+        },
+        {
+          "stepId": "step-1764911431701-4ljm4",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:10:31.701Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911431725-ts3hn",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:10:31.725Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "expressionAfter": "0.7142857142857143 + 3"
+        },
+        {
+          "stepId": "step-1764911431747-m6hxf",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:10:31.747Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911534085-qtq1y",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:12:14.085Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764911534117-9o6yq",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:12:14.117Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764911534139-nsv0d",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:12:14.139Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911534159-mgenp",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:12:14.159Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "expressionAfter": "0.7142857142857143 + 3"
+        },
+        {
+          "stepId": "step-1764911534182-cz8bb",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:12:14.182Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764911620826-bcfhx",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:13:40.826Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "0.14285714285714285 + \\frac{3}{7}"
+        },
+        {
+          "stepId": "step-1764911620858-bbzkh",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:13:40.858Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764911620882-rck74",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:13:40.882Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911620904-jk03w",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:13:40.904Z",
+          "invariantRuleId": "R.INT_DIV_EXACT",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "expressionAfter": "0.7142857142857143 + 3"
+        },
+        {
+          "stepId": "step-1764911620925-8id90",
+          "candidateId": "cand-cat-2",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:13:40.925Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764911777401-ita8h",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:16:17.401Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764911777426-3y0fm",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:16:17.426Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764911777448-pxc0v",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:16:17.448Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911777472-gz9zu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:16:17.472Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764911777484-0umd9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:16:17.484Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764911928229-0xbd6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:18:48.229Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764911928252-1dcjw",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:18:48.252Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764911928274-b2vya",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:18:48.274Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764911928298-42000",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:18:48.298Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764911928312-beeo4",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:18:48.312Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        }
+      ]
+    },
+    "createdAt": 1764897812970
+  },
+  {
+    "id": "debug-session",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764902246635-i3u89",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:37:26.635Z",
+          "expressionBefore": "2 + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902246647-aekkz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:37:26.647Z",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902259096-ln5yu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:37:39.096Z",
+          "expressionBefore": "2 + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764902259117-fsojh",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T02:37:39.117Z",
+          "expressionBefore": "(6/2 + 12/2) - (5/7 + 2/7)",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1764902246618
+  },
+  {
+    "id": "test-session-1764906495335",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764906495358-rb1fj",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:48:15.358Z",
+          "invariantRuleId": "rule-1",
+          "targetPath": "root",
+          "expressionBefore": "2+3"
+        }
+      ]
+    },
+    "createdAt": 1764906495344
+  },
+  {
+    "id": "test-session-1764906537663",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764906537687-e8pkg",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:48:57.687Z",
+          "invariantRuleId": "rule-1",
+          "targetPath": "root",
+          "expressionBefore": "2+3"
+        }
+      ]
+    },
+    "createdAt": 1764906537672
+  },
+  {
+    "id": "test-session-1764906577931",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764906577957-jpqaw",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:49:37.957Z",
+          "invariantRuleId": "rule-1",
+          "targetPath": "root",
+          "expressionBefore": "2+3"
+        }
+      ]
+    },
+    "createdAt": 1764906577941
+  },
+  {
+    "id": "test-session-1764906609893",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764906609918-8mu5m",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T03:50:09.918Z",
+          "invariantRuleId": "rule-1",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        }
+      ]
+    },
+    "createdAt": 1764906609902
+  },
+  {
+    "id": "test-session-1",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764912066203-8x0rz",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:21:06.203Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764912165658-bnzid",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:22:45.658Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912292833-auhf3",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:24:52.833Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764912333714-s1hli",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:25:33.714Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912567421-yr2jm",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:29:27.421Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764913781102-d6ov1",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:49:41.102Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913863325-spd9d",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.325Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764913911615-e4kfk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:51.615Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913957059-wasxh",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.059Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1764914019992-zz2jw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:53:39.992Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914052024-b0ipy",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.024Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764912066185
+  },
+  {
+    "id": "test-session-2",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764912066239-l54gd",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:21:06.239Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764912165680-5fos9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:22:45.680Z",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912292868-52rvc",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:24:52.868Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764912333742-1qe1s",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:25:33.742Z",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912567450-bi3sx",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:29:27.450Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764913781126-8lkh9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:49:41.126Z",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913863353-kvcnt",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.353Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764913911638-c9p9t",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:51.638Z",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913957085-63iaf",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.085Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        },
+        {
+          "stepId": "step-1764914020389-r12rr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:53:40.390Z",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914052051-2ngdg",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.051Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + \\frac{2}{7}",
+          "expressionAfter": "\\frac{7}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764912066227
+  },
+  {
+    "id": "test-session-3",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764912066275-up270",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:21:06.275Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764912165693-2nde9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:22:45.693Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912292898-5d3i6",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:24:52.898Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764912333752-txouv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:25:33.752Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912567474-mkmwb",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:29:27.474Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "expressionAfter": "\\frac{26}{7}"
+        },
+        {
+          "stepId": "step-1764913781138-p6izk",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:49:41.138Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913863376-7zhkq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:03.376Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913911648-5rzo3",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:51.648Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913957106-wtias",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:52:37.106Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914020401-3uykj",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:53:40.401Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914052073-8f88k",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:54:12.073Z",
+          "expressionBefore": "3 + \\frac{5}{7}",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1764912066263
+  },
+  {
+    "id": "test-session-4",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764912066314-yswx4",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:21:06.314Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764912165706-p2bkt",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:22:45.706Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912292939-1qi7b",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:24:52.939Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1764912333765-kv1ww",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:25:33.765Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912567496-2uppr",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:29:27.496Z",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "expressionAfter": "\\frac{26}{7}"
+        },
+        {
+          "stepId": "step-1764913781150-4xn7b",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:49:41.150Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913863388-0xeon",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:03.388Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913911659-guqq9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:51.659Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913957117-hduuw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:52:37.117Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914020414-h5zco",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:53:40.414Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914052085-20zxt",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:54:12.085Z",
+          "expressionBefore": "\\frac{5}{7} + 3",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1764912066303
+  },
+  {
+    "id": "test-session-5",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764912066347-hok3h",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:21:06.347Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764912165720-wfhah",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:22:45.720Z",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912292965-o4iir",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:24:52.965Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764912333792-eih90",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:25:33.792Z",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764912567518-vsxfs",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:29:27.518Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764913781164-pbi1f",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:49:41.164Z",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913863401-qbvct",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.401Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764913911672-0t0li",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:51.672Z",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764913957127-cokpn",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.127Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        },
+        {
+          "stepId": "step-1764914020429-cglt8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:53:40.429Z",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1764914052096-ep0x0",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.096Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{6}{2} + \\frac{12}{2}",
+          "expressionAfter": "\\frac{18}{2}"
+        }
+      ]
+    },
+    "createdAt": 1764912066336
+  },
+  {
+    "id": "test-session-1764913781175-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913781186-menwu",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:49:41.186Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        }
+      ]
+    },
+    "createdAt": 1764913781175
+  },
+  {
+    "id": "test-session-1764913781209-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913781219-v0xdt",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:49:41.219Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764913781209
+  },
+  {
+    "id": "test-session-1764913781238-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913781249-oepoc",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:49:41.249Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764913781238
+  },
+  {
+    "id": "test-session-1764913863423-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913863433-2d7ha",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.433Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764913863454-vkhsf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-05T05:51:03.454Z",
+          "expressionBefore": "5 - 1",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1764913863423
+  },
+  {
+    "id": "test-session-1764913863471-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913863482-vetjg",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.482Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764913863471
+  },
+  {
+    "id": "test-session-1764913863502-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913863512-o1xmh",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:03.512Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764913863502
+  },
+  {
+    "id": "test-session-1764913911682-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913911693-49iio",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:51.693Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764913911715-2s6by",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:51.715Z",
+          "invariantRuleId": "R.INT_SUB",
+          "targetPath": "root",
+          "expressionBefore": "5 - 1",
+          "expressionAfter": "4"
+        }
+      ]
+    },
+    "createdAt": 1764913911682
+  },
+  {
+    "id": "test-session-1764913911733-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913911744-0funs",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:51.744Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764913911733
+  },
+  {
+    "id": "test-session-1764913911766-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913911776-ylza2",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:51:51.776Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764913911766
+  },
+  {
+    "id": "test-session-1764913957149-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913957159-moig9",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.159Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764913957182-ioum6",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.182Z",
+          "invariantRuleId": "R.INT_SUB",
+          "targetPath": "root",
+          "expressionBefore": "5 - 1",
+          "expressionAfter": "4"
+        }
+      ]
+    },
+    "createdAt": 1764913957149
+  },
+  {
+    "id": "test-session-1764913957204-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913957214-0rchs",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.214Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764913957204
+  },
+  {
+    "id": "test-session-1764913957234-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764913957243-dnn8y",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:52:37.243Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764913957234
+  },
+  {
+    "id": "test-session-1764914020442-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914020455-6exg6",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:53:40.455Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764914020482-sfs8w",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:53:40.482Z",
+          "invariantRuleId": "R.INT_SUB",
+          "targetPath": "root",
+          "expressionBefore": "5 - 1",
+          "expressionAfter": "4"
+        }
+      ]
+    },
+    "createdAt": 1764914020442
+  },
+  {
+    "id": "test-session-1764914020506-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914020519-zfsf8",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:53:40.519Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764914020506
+  },
+  {
+    "id": "test-session-1764914020545-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914020555-g1s56",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:53:40.555Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764914020545
+  },
+  {
+    "id": "test-session-1764914052118-reg1",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914052129-mds69",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.129Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 + 3 - 1",
+          "expressionAfter": "5 - 1"
+        },
+        {
+          "stepId": "step-1764914052148-z7ecm",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.148Z",
+          "invariantRuleId": "R.INT_SUB",
+          "targetPath": "root",
+          "expressionBefore": "5 - 1",
+          "expressionAfter": "4"
+        }
+      ]
+    },
+    "createdAt": 1764914052118
+  },
+  {
+    "id": "test-session-1764914052169-reg2",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914052179-gje9x",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.179Z",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1764914052169
+  },
+  {
+    "id": "test-session-1764914052198-reg3",
+    "userId": "user1",
+    "role": "course1",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1764914052209-5upux",
+          "candidateId": "cand-cat-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-05T05:54:12.209Z",
+          "invariantRuleId": "R.INT_ADD",
+          "targetPath": "term[0]",
+          "expressionBefore": "3 + 6 - (\\frac{5}{7} + \\frac{2}{7})",
+          "expressionAfter": "9 - (\\frac{5}{7} + \\frac{2}{7})"
+        }
+      ]
+    },
+    "createdAt": 1764914052198
   }
 ]

@@ -19,7 +19,20 @@ export class PrimitiveRunner {
         try {
             let newAst: AstNode | undefined;
 
-            if (resultPattern && bindings) {
+            // Force legacy execution for primitives that require arithmetic simplification
+            // which generic pattern execution (substitution only) cannot handle yet.
+            const forceLegacy = [
+                "P.FRAC_ADD_SAME",
+                "P.FRAC_SUB_SAME",
+                "P.INT_PLUS_FRAC",
+                "P.INT_MINUS_FRAC",
+                "P.FRAC_ADD_DIFF",
+                "P.FRAC_SUB_DIFF",
+                "P4.FRAC_ADD_BASIC",
+                "P4.FRAC_SUB_BASIC"
+            ].includes(primitiveId);
+
+            if (resultPattern && bindings && !forceLegacy) {
                 // Use Generic Pattern Execution
                 newAst = this.generateResultFromPattern(ast, targetPath, resultPattern, bindings);
             } else {
@@ -148,6 +161,11 @@ export class PrimitiveRunner {
     }
 
     private static applyPrimitive(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
+        // Mixed Operations (Check specific IDs first to avoid P.INT_ prefix match)
+        if (id === "P.INT_PLUS_FRAC" || id === "P.INT_MINUS_FRAC") {
+            return this.runMixedOp(root, target, id, path);
+        }
+
         // Integer Operations
         if (id.startsWith("P.INT_")) return this.runIntegerOp(root, target, id, path);
 
@@ -258,6 +276,62 @@ export class PrimitiveRunner {
                 return undefined;
         }
 
+        // Mixed Operations
+        if (id === "P.INT_PLUS_FRAC" || id === "P.INT_MINUS_FRAC") {
+            return this.runMixedOp(root, target, id, path);
+        }
+
+        return undefined;
+    }
+
+    private static runMixedOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
+        console.log(`[PrimitiveRunner] runMixedOp id=${id} path=${path} targetType=${target?.type}`);
+        if (target?.type !== "binaryOp") return undefined;
+
+        console.log(`[PrimitiveRunner] left=${target.left.type} right=${target.right.type}`);
+
+        // Case 1: Integer + Fraction (a + b/c)
+        if (target.left.type === "integer" && target.right.type === "fraction") {
+            const a = parseInt(target.left.value, 10);
+            const b = parseInt(target.right.numerator, 10);
+            const c = parseInt(target.right.denominator, 10);
+            console.log(`[PrimitiveRunner] Case 1: a=${a} b=${b} c=${c}`);
+
+            if (id === "P.INT_PLUS_FRAC") {
+                // a + b/c -> (a*c + b)/c
+                return replaceNodeAt(root, path, {
+                    type: "fraction",
+                    numerator: (a * c + b).toString(),
+                    denominator: c.toString()
+                });
+            }
+            if (id === "P.INT_MINUS_FRAC") {
+                // a - b/c -> (a*c - b)/c
+                return replaceNodeAt(root, path, {
+                    type: "fraction",
+                    numerator: (a * c - b).toString(),
+                    denominator: c.toString()
+                });
+            }
+        }
+
+        // Case 2: Fraction + Integer (b/c + a)
+        if (target.left.type === "fraction" && target.right.type === "integer") {
+            const b = parseInt(target.left.numerator, 10);
+            const c = parseInt(target.left.denominator, 10);
+            const a = parseInt(target.right.value, 10);
+            console.log(`[PrimitiveRunner] Case 2: a=${a} b=${b} c=${c}`);
+
+            if (id === "P.INT_PLUS_FRAC") {
+                // b/c + a -> (b + a*c)/c
+                return replaceNodeAt(root, path, {
+                    type: "fraction",
+                    numerator: (b + a * c).toString(),
+                    denominator: c.toString()
+                });
+            }
+        }
+
         return undefined;
     }
 
@@ -346,10 +420,12 @@ export class PrimitiveRunner {
         let newFrac: { n: number, d: number } | null = null;
 
         switch (id) {
+            case "P.FRAC_ADD_SAME":
             case "P.FRAC_ADD_SAME_DEN":
                 if (d1 !== d2) return undefined;
                 newFrac = { n: n1 + n2, d: d1 };
                 break;
+            case "P.FRAC_SUB_SAME":
             case "P.FRAC_SUB_SAME_DEN":
                 if (d1 !== d2) return undefined;
                 newFrac = { n: n1 - n2, d: d1 };

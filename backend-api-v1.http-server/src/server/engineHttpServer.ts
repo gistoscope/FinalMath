@@ -21,6 +21,7 @@ import {
 } from "./HandlerPostHintRequest.js";
 import { handleGetStudentProgress } from "./HandlerReporting.js";
 import type { EngineStepResponse, UndoStepResponse, HintResponse } from "../protocol/backend-step.types.js";
+import { StepSnapshotStore } from "../debug/StepSnapshotStore.js";
 
 import type { Logger } from "pino";
 
@@ -157,6 +158,32 @@ export function createEngineHttpServer(
 
       if (req.method === "GET" && url === "/api/teacher/student-progress") {
         await handleGetStudentProgress(req, res);
+        return;
+      }
+
+      if (req.method === "GET" && req.url === "/debug/step-snapshot/latest") {
+        const snapshot = StepSnapshotStore.getLatest();
+        if (snapshot) {
+          res.writeHead(200, { "Content-Type": "application/json" });
+          res.end(JSON.stringify(snapshot));
+        } else {
+          res.writeHead(404, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "No step snapshot available" }));
+        }
+        return;
+      }
+
+      if (req.method === "GET" && req.url === "/debug/step-snapshot/session") {
+        const snapshots = StepSnapshotStore.getSessionSnapshots();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(snapshots));
+        return;
+      }
+
+      if (req.method === "POST" && req.url === "/debug/step-snapshot/reset") {
+        StepSnapshotStore.resetSession();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", message: "Step snapshot session reset" }));
         return;
       }
 

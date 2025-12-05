@@ -34,6 +34,8 @@ import {
 } from "../engine/index";
 import { SessionService } from "../session/session.service";
 import type { UserRole, HintRequest, HintResponse } from "../protocol/backend-step.types";
+import { isLocalToSelection } from "./locality";
+import { StepSnapshotStore } from "../debug/StepSnapshotStore.js";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
@@ -60,7 +62,8 @@ export interface OrchestratorStepResult {
     engineResult: EngineStepExecutionResult | null;
     status: OrchestratorStepStatus;
     debugInfo?: {
-        allCandidates: unknown[];
+        allCandidates?: unknown[];
+        [key: string]: unknown;
     } | null;
 }
 
@@ -98,6 +101,64 @@ export async function runOrchestratorStep(
 
     // 3. Call MapMaster
     const mapResult = mapMasterGenerate(mapInput);
+    console.log(`[Orchestrator] MapMaster found ${mapResult.candidates.length} candidates`);
+
+    // 3b. Enforce Locality (Stage-1)
+    // Filter out candidates that are not local to the selection.
+    // Note: If selectionPath is missing, isLocalToSelection returns true (fallback).
+    mapResult.candidates = mapResult.candidates.filter(c => {
+        const isLocal = isLocalToSelection(req.selectionPath, mapResult.resolvedSelectionPath, c);
+        return isLocal;
+    });
+    console.log(`[Orchestrator] After locality filter: ${mapResult.candidates.length} candidates`);
+
+    // 3c. Operator Anchoring (Stage-1 Fix)
+    // If the user clicked on a binary operator (+, -), we want to anchor the candidates to that operator.
+    // This prevents sub-expression candidates (like INT_DIV_EXACT on a fraction) from being chosen.
+    const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
+    const { getOperatorAnchorPath } = await import("./locality");
+    const ast = parseExpression(req.expressionLatex);
+
+    if (ast && mapResult.resolvedSelectionPath) {
+        const anchorPath = getOperatorAnchorPath(ast, mapResult.resolvedSelectionPath, getNodeAt);
+        if (anchorPath) {
+
+            const anchoredCandidates = mapResult.candidates.filter(c => c.targetPath === anchorPath);
+            if (anchoredCandidates.length > 0) {
+                mapResult.candidates = anchoredCandidates;
+            } else {
+                // console.log(`[Orchestrator] No candidates found for anchor ${anchorPath}, falling back to locality.`);
+            }
+        }
+    }
+
+    // 3d. Stage-1 Strict Primitives (Atomic Mode)
+    // We enforce a strict set of allowed primitives for Stage-1.
+    const STAGE1_ATOMIC_MODE = true; // Config flag
+    if (STAGE1_ATOMIC_MODE) {
+        const ALLOWED_PRIMITIVES = new Set([
+            "P.INT_ADD",
+            "P.INT_SUB",
+            "P.FRAC_ADD_SAME",
+            // "P.ADD_ZERO", // Optional harmless ones
+            // "P.REDUNDANT_BRACKETS"
+        ]);
+
+        mapResult.candidates = mapResult.candidates.filter(c => {
+            const primId = c.primitiveIds[0];
+            // Explicit exclusions
+            if (primId === "P.INT_DIV_EXACT" || primId === "P.INT_PLUS_FRAC") return false;
+
+            // Allow list
+            if (ALLOWED_PRIMITIVES.has(primId)) return true;
+
+            // Allow if it's not explicitly excluded? 
+            // The prompt says "Filter candidates again to keep ONLY those with invariantRuleId in the Stage-1 whitelist."
+            // But we might have other valid ones like P.PAREN_REMOVE.
+            // Let's be strict for now as requested.
+            return false;
+        });
+    }
 
     // 4. Build StepMasterInput
     let policy = ctx.policy;
@@ -116,6 +177,7 @@ export async function runOrchestratorStep(
 
     // 5. Call StepMaster
     const stepResult = stepMasterDecide(stepInput);
+    console.log(`[Orchestrator] StepMaster chosen: ${stepResult.decision.status === "chosen" ? stepResult.decision.chosenCandidateId : "none"}`);
 
     // 6. Update History
     history = appendStepFromResult(history, stepResult, req.expressionLatex);
@@ -125,6 +187,7 @@ export async function runOrchestratorStep(
 
     // 8. Handle Decision
     if (stepResult.decision.status === "no-candidates") {
+        captureSnapshot(req, mapResult, "no-candidates");
         return {
             status: "no-candidates",
             engineResult: null,
@@ -147,6 +210,28 @@ export async function runOrchestratorStep(
             };
         }
 
+        // STAGE 1 ENFORCEMENT: Primitive Validation
+        // We strictly require that the applied step corresponds to a valid, known primitive.
+        const primaryPrimitiveId = chosenCandidate.primitiveIds[0];
+        const primitiveDef = ctx.invariantRegistry.getPrimitiveById(primaryPrimitiveId);
+        console.log(`[Orchestrator] Validating primitive ${primaryPrimitiveId}: found=${!!primitiveDef}`);
+
+        if (!primaryPrimitiveId || !primitiveDef) {
+            // Invalid or unknown primitive. Reject the step.
+            // We treat this as "no-candidates" (effectively no step applied) but with debug info.
+            captureSnapshot(req, mapResult, "no-candidates", chosenCandidate, null, "invalid-primitive-id");
+            return {
+                status: "no-candidates",
+                engineResult: null,
+                history,
+                debugInfo: {
+                    ...buildDebugInfo(policy, mapResult),
+                    reason: "invalid-primitive-id",
+                    invalidId: primaryPrimitiveId
+                }
+            };
+        }
+
         // 8. Execute via Engine
         const engineResult = await executeStepViaEngine(chosenCandidate, mapInput);
 
@@ -157,6 +242,7 @@ export async function runOrchestratorStep(
                 await SessionService.updateHistory(req.sessionId, history);
             }
 
+            captureSnapshot(req, mapResult, "step-applied", chosenCandidate, engineResult);
             return {
                 status: "step-applied",
                 engineResult,
@@ -168,6 +254,7 @@ export async function runOrchestratorStep(
             history = updateLastStep(history, { errorCode: engineResult.errorCode });
             await SessionService.updateHistory(req.sessionId, history);
 
+            captureSnapshot(req, mapResult, "engine-error", chosenCandidate, engineResult);
             return {
                 status: "engine-error",
                 engineResult,
@@ -177,7 +264,10 @@ export async function runOrchestratorStep(
         }
     }
 
+
+
     // Fallback
+    captureSnapshot(req, mapResult, "no-candidates");
     return {
         status: "no-candidates",
         engineResult: null,
@@ -240,6 +330,7 @@ export async function generateHint(
     const mapInput: MapMasterInput = {
         expressionLatex: req.expressionLatex,
         selectionPath: req.selectionPath,
+        operatorIndex: req.operatorIndex,
         invariantSetIds: [targetSet.id],
         registry: ctx.invariantRegistry,
     };
@@ -270,4 +361,28 @@ export async function generateHint(
     }
 
     return { status: "no-hint" };
+}
+
+function captureSnapshot(
+    req: OrchestratorStepRequest,
+    mapResult: { candidates: any[], resolvedSelectionPath?: string },
+    status: string,
+    chosenCandidate?: any,
+    engineResult?: any,
+    error?: string
+) {
+    StepSnapshotStore.setLatest({
+        id: `step-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        inputLatex: req.expressionLatex,
+        outputLatex: engineResult?.newExpressionLatex,
+        selectionPath: req.selectionPath,
+        selectionAstPath: mapResult.resolvedSelectionPath,
+        engineResponseStatus: status,
+        chosenCandidate,
+        allCandidates: mapResult.candidates,
+        error: error || (engineResult?.ok === false ? engineResult.errorCode : undefined)
+    });
+    // Also append to session history
+    StepSnapshotStore.appendSnapshot(StepSnapshotStore.getLatest()!);
 }

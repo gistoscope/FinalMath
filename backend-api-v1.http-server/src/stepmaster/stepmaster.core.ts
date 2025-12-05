@@ -36,10 +36,18 @@ export interface StepMasterResult {
  *  - Else -> pick the first one (simple student policy)
  */
 export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
-    const { candidates, history } = input;
+    const { candidates, history, policy } = input;
+    console.log(`[StepMaster] Deciding among ${candidates.length} candidates. Last step exists: ${!!history.lastStep}`);
 
-    // 1. Filter out looping candidates
-    const validCandidates = candidates.filter(candidate => !isCandidateRepetitive(candidate, history));
+    // 1. Filter out repetitive/looping steps
+    const validCandidates = candidates.filter(c => {
+        if (isCandidateRepetitive(c, history)) {
+            console.log(`[StepMaster] Candidate ${c.id} rejected: repetitive`);
+            return false;
+        }
+        return true;
+    });
+    console.log(`[StepMaster] Valid candidates: ${validCandidates.length}`);
 
     if (validCandidates.length === 0) {
         return {
@@ -51,16 +59,16 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
         };
     }
 
-    // 2. Apply Policy: Choose the first valid candidate
-    // (In the future, we might sort by priority, etc.)
-    const chosen = validCandidates[0];
+    // 2. Prioritize (simple strategy: pick first)
+    const best = validCandidates[0];
+    console.log(`[StepMaster] Chosen: ${best.id}`);
 
     return {
         input,
         decision: {
             status: "chosen",
-            chosenCandidateId: chosen.id,
-        },
+            chosenCandidateId: best.id
+        }
     };
 }
 

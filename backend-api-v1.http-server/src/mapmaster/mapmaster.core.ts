@@ -16,6 +16,7 @@ import type {
 import { parseExpression, getNodeByOperatorIndex, getNodeAt } from "./ast";
 import { Matchers } from "./rules/index";
 import { GenericPatternMatcher } from "./GenericPatternMatcher";
+import { buildClickContext, selectPrimitivesForClick } from "./primitive-catalog";
 
 export interface MapMasterInput {
     expressionLatex: string;
@@ -39,6 +40,7 @@ export interface MapMasterCandidate {
 
 export interface MapMasterResult {
     candidates: MapMasterCandidate[];
+    resolvedSelectionPath?: string;
 }
 
 /**
@@ -86,9 +88,22 @@ export function mapMasterGenerate(input: MapMasterInput): MapMasterResult {
             let matched = false;
 
             // Iterate over paths (child first, then parent)
-            // We want to collect candidates from both levels.
             for (const pathToCheck of pathsToCheck) {
                 if (matched) break;
+
+                // STAGE 1 ENFORCEMENT:
+                // For basic arithmetic operators (+, -, *, /), we ONLY use the catalog.
+                // We check if the node at pathToCheck is a binaryOp of these types.
+                // If so, we skip the legacy matcher loop and rely on the catalog block below.
+                const nodeAtTarget = getNodeAt(ast, pathToCheck);
+                const isBasicArithmetic = nodeAtTarget?.type === "binaryOp" &&
+                    ["+", "-", "*", "/"].includes(nodeAtTarget.op);
+
+                if (isBasicArithmetic) {
+                    // Skip legacy matchers for this node.
+                    // We will handle it in the "Catalog-based Candidate Generation" block.
+                    continue;
+                }
 
                 for (const primId of rule.primitiveIds) {
                     const primitive = registry.getPrimitiveById(primId);
@@ -147,6 +162,48 @@ export function mapMasterGenerate(input: MapMasterInput): MapMasterResult {
         }
     }
 
+    // 4. (New) Catalog-based Candidate Generation
+    // We try to build a ClickContext from the selection and find matching primitives.
+
+    for (const pathToCheck of pathsToCheck) {
+        const clickContext = buildClickContext(ast, pathToCheck);
+        console.log(`[MapMaster] Checking path=${pathToCheck} context=`, clickContext);
+        if (clickContext) {
+            const catalogEntries = selectPrimitivesForClick(clickContext);
+            console.log(`[MapMaster] Catalog entries for ${pathToCheck}:`, catalogEntries.map(e => e.primitiveId));
+
+            // Deterministic Selection:
+            // If multiple entries match, we sort by priority (descending) and then by primitiveId (asc).
+            catalogEntries.sort((a, b) => {
+                const pA = a.priority ?? 0;
+                const pB = b.priority ?? 0;
+                if (pA !== pB) return pB - pA;
+                return a.primitiveId.localeCompare(b.primitiveId);
+            });
+
+            for (const entry of catalogEntries) {
+                // Helper: find rule by primitive ID
+                const rules = registry.findRulesByPrimitiveId(entry.primitiveId);
+                console.log(`[MapMaster] Rules for ${entry.primitiveId}:`, rules.map(r => r.id));
+                if (rules.length > 0) {
+                    const rule = rules[0];
+
+                    // Check if we already have this candidate (deduplication)
+                    const exists = candidates.some(c => c.targetPath === pathToCheck && c.primitiveIds.includes(entry.primitiveId));
+                    if (exists) continue;
+
+                    candidates.push({
+                        id: `cand-cat-${candidates.length + 1}` as MapMasterCandidateId,
+                        invariantRuleId: rule.id,
+                        primitiveIds: [entry.primitiveId],
+                        targetPath: pathToCheck,
+                        description: entry.description || rule.description,
+                    });
+                }
+            }
+        }
+    }
+
     // Sort candidates: Prioritize parent matches (root) over child matches
     // Also specifically lower priority of simplification primitives if needed
     candidates.sort((a, b) => {
@@ -158,5 +215,6 @@ export function mapMasterGenerate(input: MapMasterInput): MapMasterResult {
         return 0;
     });
 
-    return { candidates };
+    console.log(`[MapMaster] Final candidates:`, candidates.map(c => c.primitiveIds));
+    return { candidates, resolvedSelectionPath: resolvedPath || undefined };
 }

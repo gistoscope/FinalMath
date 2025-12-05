@@ -99,6 +99,47 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (method === "GET" && (url === "/debug/step-snapshot/latest" || url === "/debug/step-snapshot/session")) {
+    const backendUrl = new URL(url, config.backendBaseUrl);
+
+    http.get(backendUrl, (backendRes) => {
+      res.writeHead(backendRes.statusCode || 500, {
+        ...CORS_HEADERS,
+        "Content-Type": backendRes.headers["content-type"] || "application/json",
+      });
+      backendRes.pipe(res);
+    }).on("error", (err) => {
+      res.writeHead(500, {
+        ...CORS_HEADERS,
+        "Content-Type": "application/json",
+      });
+      res.end(JSON.stringify({ error: "backend-proxy-error", details: String(err) }));
+    });
+    return;
+  }
+
+  if (method === "POST" && url === "/debug/step-snapshot/reset") {
+    const backendUrl = new URL(url, config.backendBaseUrl);
+    const proxyReq = http.request(backendUrl, { method: "POST" }, (backendRes) => {
+      res.writeHead(backendRes.statusCode || 500, {
+        ...CORS_HEADERS,
+        "Content-Type": backendRes.headers["content-type"] || "application/json",
+      });
+      backendRes.pipe(res);
+    });
+
+    proxyReq.on("error", (err) => {
+      res.writeHead(500, {
+        ...CORS_HEADERS,
+        "Content-Type": "application/json",
+      });
+      res.end(JSON.stringify({ error: "backend-proxy-error", details: String(err) }));
+    });
+
+    req.pipe(proxyReq);
+    return;
+  }
+
   res.writeHead(404, {
     "Content-Type": "text/plain",
     ...CORS_HEADERS,
