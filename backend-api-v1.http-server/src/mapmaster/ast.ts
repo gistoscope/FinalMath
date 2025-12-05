@@ -5,7 +5,7 @@
  * supporting integers, fractions, mixed numbers, and binary operations.
  */
 
-export type NodeType = "integer" | "fraction" | "mixed" | "binaryOp" | "variable" | "group";
+export type NodeType = "integer" | "fraction" | "mixed" | "binaryOp" | "variable";
 
 export interface BaseNode {
     type: NodeType;
@@ -41,130 +41,7 @@ export interface VariableNode extends BaseNode {
     name: string;
 }
 
-export interface GroupNode extends BaseNode {
-    type: "group";
-    content: AstNode;
-    isLeftRight?: boolean;
-}
-
-export type AstNode = IntegerNode | FractionNode | MixedNumberNode | BinaryOpNode | VariableNode | GroupNode;
-
-// ... Tokenizer (unchanged) ...
-
-// ... Parser (unchanged) ...
-
-// ... Path Traversal Helpers ...
-
-export function getNodeAt(ast: AstNode, path: string): AstNode | undefined {
-    if (path === "root") return ast;
-
-    const parts = path.split(".");
-    let current: AstNode = ast;
-
-    for (const part of parts) {
-        if (part === "root") continue;
-
-        if (current.type === "group") {
-            if (part === "content") {
-                current = current.content;
-                continue;
-            }
-            return undefined;
-        }
-
-        if (current.type !== "binaryOp" && current.type !== "mixed") {
-            return undefined;
-        }
-
-        if (current.type === "binaryOp") {
-            if (part === "term[0]") {
-                current = current.left;
-            } else if (part === "term[1]") {
-                current = current.right;
-            } else {
-                return undefined;
-            }
-        } else if (current.type === "mixed") {
-            return undefined;
-        }
-    }
-
-    return current;
-}
-
-export function getNodeByOperatorIndex(ast: AstNode, targetIndex: number): { node: AstNode, path: string } | undefined {
-    let currentIndex = 0;
-    let found: { node: AstNode, path: string } | undefined;
-
-    function traverse(node: AstNode, path: string) {
-        if (found) return;
-
-        if (node.type === "group") {
-            traverse(node.content, path === "root" ? "content" : `${path}.content`);
-            return;
-        }
-
-        const isOp = node.type === "binaryOp" || node.type === "fraction";
-
-        if (node.type === "binaryOp") {
-            traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
-            if (found) return;
-
-            if (currentIndex === targetIndex) {
-                found = { node, path };
-                return;
-            }
-            currentIndex++;
-
-            traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
-            return;
-        }
-
-        if (node.type === "fraction") {
-            if (currentIndex === targetIndex) {
-                found = { node, path };
-                return;
-            }
-            currentIndex++;
-            return;
-        }
-
-        // Removed Mixed and Integer counting to match Viewer logic
-    }
-
-    traverse(ast, "root");
-    return found;
-}
-
-// ... Code Generation (unchanged) ...
-
-export function replaceNodeAt(ast: AstNode, path: string, newNode: AstNode): AstNode {
-    if (path === "root") return newNode;
-
-    const parts = path.split(".");
-
-    function update(node: AstNode, parts: string[]): AstNode {
-        if (parts.length === 0) return newNode;
-
-        const part = parts[0];
-        const remaining = parts.slice(1);
-
-        if (node.type === "group" && part === "content") {
-            return { ...node, content: update(node.content, remaining) };
-        }
-
-        if (node.type === "binaryOp") {
-            if (part === "term[0]") {
-                return { ...node, left: update(node.left, remaining) };
-            } else if (part === "term[1]") {
-                return { ...node, right: update(node.right, remaining) };
-            }
-        }
-        return node;
-    }
-
-    return update(ast, parts.filter(p => p !== "root"));
-}
+export type AstNode = IntegerNode | FractionNode | MixedNumberNode | BinaryOpNode | VariableNode;
 
 // --- Tokenizer ---
 
@@ -292,55 +169,35 @@ export function parseExpression(latex: string): AstNode | undefined {
 
         if (token.type === "NUMBER") {
             consume();
-
-            // Check for Mixed Number: NUMBER followed by \frac
-            if (peek()?.type === "COMMAND" && peek()?.value === "frac") {
-                consume(); // \frac
-
-                // Parse Numerator
-                if (peek()?.type !== "LBRACE") throw new Error("Expected { after \\frac");
-                consume(); // {
-                const numToken = consume();
-                if (numToken?.type !== "NUMBER") throw new Error("Expected number in mixed fraction numerator");
-                if (peek()?.type !== "RBRACE") throw new Error("Expected }");
-                consume(); // }
-
-                // Parse Denominator
-                if (peek()?.type !== "LBRACE") throw new Error("Expected { for mixed fraction denominator");
-                consume(); // {
-                const denToken = consume();
-                if (denToken?.type !== "NUMBER") throw new Error("Expected number in mixed fraction denominator");
-                if (peek()?.type !== "RBRACE") throw new Error("Expected }");
-                consume(); // }
-
-                return {
-                    type: "mixed",
-                    whole: token.value,
-                    numerator: numToken.value,
-                    denominator: denToken.value
-                };
-            }
-
             // Check for lookahead slash for fraction
             if (peek()?.type === "SLASH") {
-                const next = processedTokens[pos + 1]; // peek next next
-                if (next && (next.type === "NUMBER" || next.type === "IDENTIFIER")) {
-                    consume(); // /
-                    const den = consume(); // number or identifier
-
-                    if (den?.type === "IDENTIFIER") {
-                        return {
-                            type: "fraction",
-                            numerator: token.value,
-                            denominator: den.value
-                        };
-                    }
+                consume(); // /
+                const den = consume();
+                if (den?.type !== "NUMBER" && den?.type !== "IDENTIFIER") throw new Error("Expected denominator");
+                // Allow variable in denominator for patterns like 1/a
+                if (den.type === "IDENTIFIER") {
                     return {
                         type: "fraction",
                         numerator: token.value,
-                        denominator: den!.value
+                        denominator: den.value // This is a bit weird, fraction usually expects numbers. 
+                        // But for patterns, we might want "1/a". 
+                        // Actually, "1/a" is a division of integer 1 by variable a.
+                        // Standard fraction node expects string values.
+                        // Let's stick to strict fractions (num/num) for "fraction" type, 
+                        // and treat 1/a as binaryOp(/) if we can.
+                        // But wait, our parser eagerly consumes slash for fractions.
+                        // If we want "a/b" to be a fraction pattern, we need to handle it.
+                        // But "a/b" is structurally a division.
+                        // "1/2" is a value.
+                        // Let's restrict "fraction" type to ONLY numeric literals.
+                        // Everything else with "/" is a binaryOp.
                     };
                 }
+                return {
+                    type: "fraction",
+                    numerator: token.value,
+                    denominator: den.value
+                };
             }
             return { type: "integer", value: token.value };
         }
@@ -356,6 +213,7 @@ export function parseExpression(latex: string): AstNode | undefined {
             const next = peek();
             if (next?.type === "NUMBER") {
                 consume();
+                // Check for lookahead slash for negative fraction? -1/2
                 if (peek()?.type === "SLASH") {
                     consume();
                     const den = consume();
@@ -376,12 +234,13 @@ export function parseExpression(latex: string): AstNode | undefined {
             const expr = parseAddSub();
             if (peek()?.type !== "RPAREN") throw new Error("Expected )");
             consume();
-            return { type: "group", content: expr };
+            return expr;
         }
 
+        // Mixed number token (custom type we might add in preprocess)
         if (token.type === "MIXED" as any) {
             consume();
-            const parts = token.value.split("_");
+            const parts = token.value.split("_"); // Hacky encoding
             return {
                 type: "mixed",
                 whole: parts[0],
@@ -393,36 +252,53 @@ export function parseExpression(latex: string): AstNode | undefined {
         if (token.type === "COMMAND") {
             consume();
             if (token.value === "left") {
+                // Expect LPAREN or similar
+                // Actually, \left is usually followed by ( or [ or \{ or |
+                // For now, let's just consume the next token if it's a bracket/paren
+                // and treat it as LPAREN for parsing purposes if it is (.
                 const next = peek();
                 if (next?.type === "LPAREN") {
                     consume(); // (
                     const expr = parseAddSub();
+                    // Expect \right then RPAREN
                     const rightCmd = peek();
                     if (rightCmd?.type === "COMMAND" && rightCmd.value === "right") {
                         consume(); // \right
                         const rParen = peek();
                         if (rParen?.type === "RPAREN") {
                             consume(); // )
-                            return { type: "group", content: expr, isLeftRight: true };
+                            return expr; // Return inner expression, effectively ignoring \left( ... \right) wrapper
                         }
                         throw new Error("Expected ) after \\right");
                     }
                     throw new Error("Expected \\right after \\left(...)");
                 }
+                // Handle other delimiters if needed, e.g. \left| ... \right|
                 throw new Error(`Unsupported delimiter after \\left: ${next?.value}`);
             }
             if (token.value === "frac") {
+                // Expect { num } { den }
                 if (peek()?.type !== "LBRACE") throw new Error("Expected { after \\frac");
                 consume(); // {
-                const num = parseAddSub();
+                const num = parseAddSub(); // Allow expressions in numerator
                 if (peek()?.type !== "RBRACE") throw new Error("Expected } after numerator");
                 consume(); // }
 
                 if (peek()?.type !== "LBRACE") throw new Error("Expected { for denominator");
                 consume(); // {
-                const den = parseAddSub();
+                const den = parseAddSub(); // Allow expressions in denominator
                 if (peek()?.type !== "RBRACE") throw new Error("Expected } after denominator");
                 consume(); // }
+
+                // Simplify: if num/den are integers, store as string values in FractionNode
+                // If they are expressions, we might need a more complex FractionNode or just fail for now?
+                // The current FractionNode expects strings for num/den.
+                // If we want to support \frac{1+2}{3}, we need to change FractionNode or use BinaryOp(/).
+                // But P.FRAC_ADD_SAME expects "fraction" type.
+                // Let's assume for now they are simple values (Integer or Variable).
+
+                // Simplify: if num/den are integers/vars, store as FractionNode
+                // If they are expressions, return BinaryOp(/)
 
                 let simpleNum = "";
                 let simpleDen = "";
@@ -548,7 +424,139 @@ function preprocessMixedNumbers(tokens: Token[]): Token[] {
     return result;
 }
 
+// --- Path Traversal Helpers ---
 
+export function getNodeAt(ast: AstNode, path: string): AstNode | undefined {
+    if (path === "root") return ast;
+
+    // Path format: "term[0].term[1]" etc.
+    // We need to map this to our AST.
+    // Our AST is binary. "term[0]" usually means left, "term[1]" means right.
+
+    const parts = path.split(".");
+    let current: AstNode = ast;
+
+    for (const part of parts) {
+        if (part === "root") continue;
+
+        if (current.type !== "binaryOp" && current.type !== "mixed") {
+            // Can't traverse into integer or fraction (unless we define children for them?)
+            // For mixed, we might want to traverse?
+            // "term[0]" of mixed could be whole?
+            // Let's stick to binary ops for now.
+            return undefined;
+        }
+
+        if (current.type === "binaryOp") {
+            if (part === "term[0]") {
+                current = current.left;
+            } else if (part === "term[1]") {
+                current = current.right;
+            } else {
+                return undefined;
+            }
+        } else if (current.type === "mixed") {
+            // Maybe support selecting parts of mixed number?
+            // For now, assume mixed number is a leaf for "term" traversal, 
+            // unless we define a schema for it.
+            return undefined;
+        }
+    }
+
+    return current;
+}
+
+export function getNodeByOperatorIndex(ast: AstNode, targetIndex: number): { node: AstNode, path: string } | undefined {
+    let currentIndex = 0;
+    let found: { node: AstNode, path: string } | undefined;
+
+    function traverse(node: AstNode, path: string) {
+        if (found) return;
+
+        // Check if this node is an operator slot
+        // Matches surface-map.js logic: BinaryOp, Fraction
+        // We don't have Relation or MinusBinary distinct types, they are binaryOp.
+        const isOp = node.type === "binaryOp" || node.type === "fraction";
+
+        // Pre-order or In-order?
+        // surface-map.js sorts by (left, top).
+        // AST structure usually follows left-to-right.
+        // So we should visit Left, then Self, then Right?
+        // Or Self then Children?
+        // surface-map.js sorts atoms.
+        // For 2+3: 2(Num), +(Op), 3(Num).
+        // + is at index 0.
+        // In AST: binaryOp(+). Left=2, Right=3.
+        // If we visit binaryOp first, it gets index 0.
+        // If we visit Left(2), it's not op.
+        // So Pre-order seems correct for the operator itself relative to operands?
+        // Wait, for 1/2 + 3/4:
+        // 1/2 (Frac, idx 0), + (Op, idx 1), 3/4 (Frac, idx 2).
+        // AST: binaryOp(+). Left=Frac(1/2), Right=Frac(3/4).
+        // If Pre-order: binaryOp is 0. Left is 1. Right is 2.
+        // This assumes + is BEFORE 1/2? No, + is visually between.
+        // But `surface-map.js` sorts by LEFT coordinate.
+        // 1/2 is left of +. + is left of 3/4.
+        // So order: Left Child, Self, Right Child (In-order).
+
+        // In-order traversal for binaryOp!
+
+        if (node.type === "binaryOp") {
+            traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
+            if (found) return;
+
+            // Visit Self
+            if (currentIndex === targetIndex) {
+                found = { node, path };
+                return;
+            }
+            currentIndex++;
+
+            traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
+            return;
+        }
+
+        // For Fraction: it's a leaf in terms of operators (usually).
+        // Unless it contains operators in num/den?
+        // Our AST Fraction has string num/den. So it's a leaf.
+        if (node.type === "fraction") {
+            // Visit Self
+            if (currentIndex === targetIndex) {
+                found = { node, path };
+                return;
+            }
+            currentIndex++;
+            return;
+        }
+
+        // For Mixed: A B/C.
+        // Visually: A, then Fraction B/C.
+        // So Mixed node effectively contains a Fraction.
+        // If we count the mixed node as the fraction operator?
+        if (node.type === "mixed") {
+            if (currentIndex === targetIndex) {
+                found = { node, path };
+                return;
+            }
+            currentIndex++;
+            return;
+        }
+
+        // Integer: count as indexable node
+        if (node.type === "integer") {
+            if (currentIndex === targetIndex) {
+                found = { node, path };
+                return;
+            }
+            currentIndex++;
+            return;
+        }
+
+    }
+
+    traverse(ast, "root");
+    return found;
+}
 
 // --- Code Generation ---
 
@@ -561,13 +569,6 @@ export function toLatex(node: AstNode): string {
     }
     if (node.type === "mixed") {
         return `${node.whole} \\frac{${node.numerator}}{${node.denominator}}`;
-    }
-    if (node.type === "group") {
-        const inner = toLatex(node.content);
-        if (node.isLeftRight) {
-            return `\\left(${inner}\\right)`;
-        }
-        return `(${inner})`;
     }
     if (node.type === "binaryOp") {
         // Special handling for Division -> \frac
@@ -630,4 +631,32 @@ function shouldParen(parentOp: string, child: AstNode, isRightChild: boolean): b
     return false;
 }
 
+export function replaceNodeAt(ast: AstNode, path: string, newNode: AstNode): AstNode {
+    if (path === "root") return newNode;
 
+    const parts = path.split(".");
+    // We need to traverse and reconstruct or mutate.
+    // Since we want to be safe, let's reconstruct (immutable update) or just mutate if we are careful.
+    // For this stub engine, mutation is easier but we need parent pointer.
+    // Reconstruct is safer.
+
+    // Recursive helper
+    function update(node: AstNode, parts: string[]): AstNode {
+        if (parts.length === 0) return newNode;
+
+        const part = parts[0];
+        const remaining = parts.slice(1);
+
+        if (node.type === "binaryOp") {
+            if (part === "term[0]") {
+                return { ...node, left: update(node.left, remaining) };
+            } else if (part === "term[1]") {
+                return { ...node, right: update(node.right, remaining) };
+            }
+        }
+        // TODO: Handle mixed numbers if we support traversing them
+        return node;
+    }
+
+    return update(ast, parts.filter(p => p !== "root"));
+}

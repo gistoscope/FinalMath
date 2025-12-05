@@ -112,7 +112,6 @@ async function handleApplyStep(request: EngineRequest): Promise<EngineResponse> 
             source: "backend-entry-step",
             status: "step-applied",
           },
-          appliedRuleId: json.appliedRuleId,
         },
       };
     }

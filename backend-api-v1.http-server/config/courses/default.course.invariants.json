@@ -88,7 +88,6 @@
       "tags": [],
       "pattern": "a/b + c/d",
       "resultPattern": "(a*d + c*b) / (b*d)",
-      "condition": "b != d",
       "description": "Сложение дробей с разными знаменателями"
     },
     {

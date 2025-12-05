@@ -22,11 +22,6 @@ export class GenericPatternMatcher {
     }
 
     private matchNode(pattern: AstNode, target: AstNode, bindings: Bindings, allowedTypes?: Set<string>): boolean {
-        // 0. Unwrap GroupNode in target (Transparency)
-        if (target.type === "group") {
-            return this.matchNode(pattern, target.content, bindings, allowedTypes);
-        }
-
         // 1. Variable Binding
         if (pattern.type === "variable") {
             const varName = pattern.name;
@@ -106,18 +101,6 @@ export class GenericPatternMatcher {
     }
 
     private areNodesEqual(a: AstNode, b: AstNode): boolean {
-        // Unwrap groups for comparison (Transparency)
-        if (a.type === "group") return this.areNodesEqual(a.content, b);
-        if (b.type === "group") return this.areNodesEqual(a, b.content);
-
-        // Handle Fraction vs BinaryOp /
-        if (a.type === "fraction" && b.type === "binaryOp" && b.op === "/") {
-            return this.areNodesEqual(this.fractionToBinary(a), b);
-        }
-        if (b.type === "fraction" && a.type === "binaryOp" && a.op === "/") {
-            return this.areNodesEqual(a, this.fractionToBinary(b));
-        }
-
         // Simple structural equality
         if (a.type !== b.type) return false;
 
@@ -140,40 +123,4 @@ export class GenericPatternMatcher {
         }
         return false;
     }
-
-    public checkCondition(bindings: Bindings, condition: string): boolean {
-        // Simple parser for "var1 != var2"
-        const parts = condition.split('!=');
-        if (parts.length === 2) {
-            const leftVar = parts[0].trim();
-            const rightVar = parts[1].trim();
-
-            const leftNode = bindings[leftVar];
-            const rightNode = bindings[rightVar];
-
-            if (leftNode && rightNode) {
-                return !this.areNodesEqual(leftNode, rightNode);
-            }
-        }
-        // If condition format is unknown or vars missing, default to true (safe) or false?
-        // For now, if we can't evaluate, we assume condition is NOT met to be safe (or maybe true?)
-        // Actually, if condition is "b != d" and we have b and d, we check.
-        // If we don't have them, it's an error in the rule definition.
-        return true;
-    }
-
-    private fractionToBinary(frac: any): AstNode {
-        // Use parseExpression to hydrate the numerator/denominator strings
-        // If parse fails (unlikely for valid AST), fallback to integer node as a safe default
-        const left = parseExpression(frac.numerator) || { type: "integer", value: frac.numerator };
-        const right = parseExpression(frac.denominator) || { type: "integer", value: frac.denominator };
-
-        return {
-            type: "binaryOp",
-            op: "/",
-            left: left as AstNode,
-            right: right as AstNode
-        };
-    }
 }
-

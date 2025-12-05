@@ -16,11 +16,9 @@ import {
 } from "../mapmaster/index";
 import {
     stepMasterDecide,
-    stepMasterDecideFromMap,
     createDefaultStudentPolicy,
     type StepPolicyConfig,
     type StepMasterInput,
-    type StepMasterMapInput,
 } from "../stepmaster/index";
 import {
     createEmptyHistory,
@@ -36,8 +34,6 @@ import {
 } from "../engine/index";
 import { SessionService } from "../session/session.service";
 import type { UserRole, HintRequest, HintResponse } from "../protocol/backend-step.types";
-import { MapBuilder } from "../mapmaster/map-builder";
-import { parseExpression } from "../mapmaster/ast";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
@@ -100,21 +96,10 @@ export async function runOrchestratorStep(
         registry: ctx.invariantRegistry,
     };
 
-    // 3. Call MapMaster (Generates candidates)
+    // 3. Call MapMaster
     const mapResult = mapMasterGenerate(mapInput);
 
-    // 4. Build Map (Phase 2)
-    const ast = parseExpression(req.expressionLatex);
-    if (!ast) {
-        return {
-            status: "engine-error",
-            engineResult: { ok: false, errorCode: "parse-error" },
-            history,
-        };
-    }
-    const semanticMap = MapBuilder.build(req.expressionLatex, ast, mapResult.candidates);
-
-    // 5. Build StepMasterInput
+    // 4. Build StepMasterInput
     let policy = ctx.policy;
 
     // RBAC Check: Only teachers can use teacher.debug
@@ -123,24 +108,22 @@ export async function runOrchestratorStep(
         policy = createDefaultStudentPolicy();
     }
 
-    const stepInput: StepMasterMapInput = {
+    const stepInput: StepMasterInput = {
         candidates: mapResult.candidates,
         history: getSnapshot(history),
         policy: policy,
-        selectionPath: req.selectionPath, // Pass selectionPath
-        map: semanticMap
     };
 
-    // 6. Call StepMaster (Map-based)
-    const stepResult = stepMasterDecideFromMap(stepInput);
+    // 5. Call StepMaster
+    const stepResult = stepMasterDecide(stepInput);
 
-    // 7. Update History
+    // 6. Update History
     history = appendStepFromResult(history, stepResult, req.expressionLatex);
 
-    // 8. Save History to Session Service
+    // 7. Save History to Session Service
     await SessionService.updateHistory(req.sessionId, history);
 
-    // 9. Handle Decision
+    // 8. Handle Decision
     if (stepResult.decision.status === "no-candidates") {
         return {
             status: "no-candidates",
@@ -164,7 +147,7 @@ export async function runOrchestratorStep(
             };
         }
 
-        // 10. Execute via Engine
+        // 8. Execute via Engine
         const engineResult = await executeStepViaEngine(chosenCandidate, mapInput);
 
         if (engineResult.ok) {
@@ -203,10 +186,12 @@ export async function runOrchestratorStep(
 }
 
 function buildDebugInfo(policy: StepPolicyConfig, mapResult: { candidates: unknown[] }) {
-    // ALWAYS return candidates for debugging purposes (User Request)
-    return {
-        allCandidates: mapResult.candidates
-    };
+    if (policy.id === "teacher.debug") {
+        return {
+            allCandidates: mapResult.candidates
+        };
+    }
+    return null;
 }
 
 /**
@@ -262,26 +247,17 @@ export async function generateHint(
     // 3. Call MapMaster
     const mapResult = mapMasterGenerate(mapInput);
 
-    // 4. Build Map (Phase 2)
-    const ast = parseExpression(req.expressionLatex);
-    if (!ast) {
-        return { status: "error", error: "parse-error" };
-    }
-    const semanticMap = MapBuilder.build(req.expressionLatex, ast, mapResult.candidates);
-
-    // 5. Build StepMasterInput
-    const stepInput: StepMasterMapInput = {
+    // 4. Build StepMasterInput
+    const stepInput: StepMasterInput = {
         candidates: mapResult.candidates,
         history: getSnapshot(history),
         policy: ctx.policy,
-        map: semanticMap,
-        selectionPath: req.selectionPath
     };
 
-    // 6. Call StepMaster (Map-based)
-    const stepResult = stepMasterDecideFromMap(stepInput);
+    // 5. Call StepMaster
+    const stepResult = stepMasterDecide(stepInput);
 
-    // 7. Return Hint
+    // 6. Return Hint
     if (stepResult.decision.status === "chosen") {
         const chosenId = stepResult.decision.chosenCandidateId;
         const chosenCandidate = mapResult.candidates.find(c => c.id === chosenId);

@@ -45,9 +45,6 @@ export interface PrimitiveDefinition {
 
   /** Result pattern, e.g. "calc(a+b)" or "(a+b)/c". */
   resultPattern?: string;
-
-  /** Optional condition, e.g. "b != d". */
-  condition?: string;
 }
 
 /**
@@ -308,14 +305,6 @@ export function validateInvariantModel(input: unknown): InvariantModelValidation
         code: 'INVALID_PRIMITIVE_FIELD',
         path: `${path}.resultPattern`,
         message: 'Primitive resultPattern must be a non‑empty string if present',
-      });
-    }
-
-    if (p.condition !== undefined && (typeof p.condition !== 'string' || p.condition === '')) {
-      issues.push({
-        code: 'INVALID_PRIMITIVE_FIELD',
-        path: `${path}.condition`,
-        message: 'Primitive condition must be a non‑empty string if present',
       });
     }
 

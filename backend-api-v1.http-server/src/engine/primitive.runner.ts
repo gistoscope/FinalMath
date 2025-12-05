@@ -144,13 +144,6 @@ export class PrimitiveRunner {
             return { ...node, numerator: num, denominator: den };
         }
 
-        if (node.type === "group") {
-            return {
-                ...node,
-                content: this.substituteVariables(node.content, bindings)
-            };
-        }
-
         return node;
     }
 

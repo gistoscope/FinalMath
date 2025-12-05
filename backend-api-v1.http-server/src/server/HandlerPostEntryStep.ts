@@ -126,7 +126,6 @@ export async function HandlerPostEntryStep(
       status: result.status,
       expressionLatex: responseLatex,
       debugInfo: result.debugInfo,
-      appliedRuleId: result.engineResult?.appliedRuleId,
     };
 
   } catch (error) {

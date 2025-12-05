@@ -23,7 +23,6 @@ export interface EngineStepExecutionResult {
     ok: boolean;
     newExpressionLatex?: string;
     errorCode?: string;
-    appliedRuleId?: string;
 }
 
 /**
@@ -44,26 +43,7 @@ export async function executeStepViaEngine(
 
     try {
         // Delegate directly to the robust PrimitiveRunner (Local Engine)
-        const result = await PrimitiveRunner.run(request);
-
-        // Pass through the applied rule ID (invariant or primitive)
-        // If the runner returns specific applied primitives, we could use that,
-        // but for now we trust the candidate's invariantRuleId.
-        const appliedRuleId = candidate.invariantRuleId || candidate.primitiveIds[0];
-
-        if (result.ok) {
-            return {
-                ok: true,
-                newExpressionLatex: result.newExpressionLatex,
-                appliedRuleId,
-            };
-        } else {
-            return {
-                ok: false,
-                errorCode: result.errorCode || "no-step",
-            };
-        }
-
+        return PrimitiveRunner.run(request);
     } catch (error) {
         return {
             ok: false,

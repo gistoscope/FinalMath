@@ -25,7 +25,6 @@ export interface EngineStepResponse {
   debugInfo?: {
     allCandidates: unknown[];
   } | null;
-  appliedRuleId?: string;
 }
 
 export interface UndoStepRequest {

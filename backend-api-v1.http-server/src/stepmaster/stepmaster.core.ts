@@ -8,8 +8,6 @@
 import type { MapMasterCandidate, MapMasterCandidateId } from "../mapmaster/index";
 import type { StepHistorySnapshot } from "./stepmaster.history-service";
 import type { StepPolicyConfig } from "./stepmaster.policy";
-import { SemanticMap } from "../mapmaster/semantic-map.types";
-import { StepMasterMapAdapter } from "./stepmaster-map.adapter";
 
 export type StepMasterDecisionStatus = "chosen" | "no-candidates";
 
@@ -17,11 +15,6 @@ export interface StepMasterInput {
     candidates: MapMasterCandidate[];
     history: StepHistorySnapshot;
     policy: StepPolicyConfig;
-    selectionPath?: string | null; // Added selectionPath
-}
-
-export interface StepMasterMapInput extends StepMasterInput {
-    map: SemanticMap;
 }
 
 export interface StepMasterDecision {
@@ -39,36 +32,14 @@ export interface StepMasterResult {
  *
  * TzV1.1 strategy:
  *  - Filter out candidates that are "repetitive" or "looping" based on history.
- *  - Filter out candidates that do not match the selectionPath (Broken Locality Fix).
  *  - If no candidates remain -> "no-candidates"
  *  - Else -> pick the first one (simple student policy)
  */
 export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
-    const { candidates, history, selectionPath } = input;
+    const { candidates, history } = input;
 
     // 1. Filter out looping candidates
-    let validCandidates = candidates.filter(candidate => !isCandidateRepetitive(candidate, history));
-
-    // 2. Filter by selectionPath (Broken Locality Fix)
-    if (selectionPath) {
-        validCandidates = validCandidates.filter(candidate => {
-            // Keep if exact match
-            if (candidate.targetPath === selectionPath) return true;
-
-            // Keep if candidate targets root (bubbling up to global rules)
-            if (candidate.targetPath === "root") return true;
-
-            // Keep if selection is root (allows actions on all children)
-            if (selectionPath === "root") return true;
-
-            // Keep if selection is a parent of candidate (e.g. clicking '+' allows simplifying '6/2' child)
-            // Logic: candidate.targetPath starts with selectionPath + "."
-            if (candidate.targetPath.startsWith(selectionPath + ".")) return true;
-
-            // Otherwise discard (e.g. clicking '5/7' discards '6/2' simplification)
-            return false;
-        });
-    }
+    const validCandidates = candidates.filter(candidate => !isCandidateRepetitive(candidate, history));
 
     if (validCandidates.length === 0) {
         return {
@@ -80,7 +51,7 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
         };
     }
 
-    // 3. Apply Policy: Choose the first valid candidate
+    // 2. Apply Policy: Choose the first valid candidate
     // (In the future, we might sort by priority, etc.)
     const chosen = validCandidates[0];
 
@@ -94,69 +65,45 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
 }
 
 /**
- * New Map-based decision logic (Phase 2)
- */
-export function stepMasterDecideFromMap(input: StepMasterMapInput): StepMasterResult {
-    const { candidates, history, map, selectionPath } = input;
-
-    // 1. Get allowed actions from Semantic Map
-    const allowedActions = StepMasterMapAdapter.getActionsForSelection({
-        map,
-        selectionPath: selectionPath || null
-    });
-
-    // 2. Filter candidates based on allowed actions
-    // We match candidates to actions by invariantId and targetNode (via path or id)
-    // The Adapter returns SemanticActions. We need to find which candidates correspond to these actions.
-    // SemanticAction has `invariantId` and `targetNodeId`.
-    // MapMasterCandidate has `invariantRuleId` and `targetPath`.
-    // We need to map targetNodeId back to path or use path from node.
-
-    const allowedCandidateIds = new Set<string>();
-
-    for (const action of allowedActions) {
-        // Find the node for this action
-        const node = map.nodes.find(n => n.id === action.targetNodeId);
-        if (!node) continue;
-
-        // Find candidates that match this action's invariant and node's path
-        const matchingCandidates = candidates.filter(c =>
-            c.invariantRuleId === action.invariantId &&
-            c.targetPath === node.path
-        );
-
-        matchingCandidates.forEach(c => allowedCandidateIds.add(c.id));
-    }
-
-    let validCandidates = candidates.filter(c => allowedCandidateIds.has(c.id));
-
-    // 3. Filter out looping candidates (same as before)
-    validCandidates = validCandidates.filter(candidate => !isCandidateRepetitive(candidate, history));
-
-    if (validCandidates.length === 0) {
-        return {
-            input,
-            decision: {
-                status: "no-candidates",
-                chosenCandidateId: null,
-            },
-        };
-    }
-
-    // 4. Apply Policy: Choose the first valid candidate
-    const chosen = validCandidates[0];
-
-    return {
-        input,
-        decision: {
-            status: "chosen",
-            chosenCandidateId: chosen.id,
-        },
-    };
-}
-
-/**
  * Check if a candidate repeats the last step.
+ * 
+ * Heuristic:
+ * - If the last step applied the same rule to the same target path, it's a loop.
+ * - Ideally, we should check if the *result* of the step leads to a previous state, 
+ *   but we don't know the result yet.
+ * - So we rely on "don't do the exact same thing twice in a row".
+ * - Actually, "same rule at same path" might be valid if the state changed (e.g. simplify again).
+ * - But for V1.1, let's prevent "A -> B -> A" loops if possible.
+ * - Since we only have history of *steps*, not states (in the snapshot passed here, though snapshot has steps),
+ *   we can check if the last step was the "inverse" or if we are just repeating.
+ * 
+ * For now, a very simple check:
+ * - If the last step used rule X on path Y, don't use rule X on path Y again immediately?
+ *   No, that prevents valid repeated applications (e.g. simplify 2/4 then 3/6 if they were at same path? No, path would change or content change).
+ * 
+ * Let's implement a specific check for the "3/1 * 1" loop.
+ * If we just did "3 -> 3/1", we don't want to do "3/1 -> 3" (if we had such a rule).
+ * 
+ * But the user requirement says: "Filter out candidates that repeat the last step".
+ * This usually means "don't apply the same rule to the same location if it didn't change anything".
+ * But MapMaster only proposes applicable rules.
+ * 
+ * Let's assume "repetitive" means "we just did this exact step".
+ * But we can't do the exact same step because the state changed (unless the step was a no-op).
+ * 
+ * Maybe "looping" means "we are undoing the last step"?
+ * e.g. "3/1 -> 3" after "3 -> 3/1".
+ * 
+ * For this task, let's implement a placeholder `isCandidateRepetitive` that returns false,
+ * unless we identify a specific loop pattern we want to block.
+ * 
+ * Wait, the prompt says: "ensure that StepMaster accepts StepHistorySnapshot to avoid repeating just executed steps".
+ * 
+ * Let's check if the candidate is identical to the last step's intent.
+ * If `lastStep.ruleId === candidate.ruleId` and `lastStep.path === candidate.path`, 
+ * it might be a loop if the rule is idempotent or if the previous application failed to change state enough to disable the rule.
+ * 
+ * Let's block it if it matches the last step exactly.
  */
 function isCandidateRepetitive(candidate: MapMasterCandidate, history: StepHistorySnapshot): boolean {
     if (!history.lastStep) return false;

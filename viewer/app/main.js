@@ -46,23 +46,12 @@ let currentLatex = TESTS[0];
 
 let current = null;
 let lastHoverNode = null;
-const historyLog = []; // Math History Log
 
 // Selection engine state
 const selectionState = {
   mode: "none",           // "none" | "single" | "multi" | "rect"
   primaryId: null,
   selectedIds: new Set(),
-};
-
-// Global debug state (accessible by DisplayAdapter)
-const debugState = {
-  lastClientEvent: null,
-  lastEngineRequest: null,
-  lastEngineResponse: null,
-  lastTsa: null,
-  tsaLog: [],
-  lastAction: null, // Temporary storage for the cause of the action
 };
 
 // C4: FileBus (in-browser demo)
@@ -76,17 +65,6 @@ const displayAdapter = new DisplayAdapter(
   (evt) => {
     // 1) Publish into FileBus (for future EngineAdapter / Recorder)
     fileBus.publishClientEvent(evt);
-
-    // Capture action for history log
-    if (evt.type === "click" && evt.surfaceNodeId) {
-      if (typeof debugState !== "undefined") {
-        debugState.lastAction = {
-          targetId: evt.surfaceNodeId,
-          timestamp: new Date().toISOString()
-        };
-      }
-    }
-
     // 2) Mirror into local recorder for JSONL export
     eventRecorder.handleEvent(evt);
   }
@@ -132,12 +110,6 @@ function renderFormula() {
     displayMode: true,
     output: "html",
   });
-
-  // Sync Math Inspector
-  const inspectorTextarea = document.getElementById("math-inspector-latex");
-  if (inspectorTextarea) {
-    inspectorTextarea.value = currentLatex;
-  }
 
   return container;
 }
@@ -283,8 +255,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const elStudentHint = document.getElementById("tsa-student-hint");
 
   if (elDbgClient && elDbgReq && elDbgRes) {
-    // debugState is now global
-
+    const debugState = {
+      lastClientEvent: null,
+      lastEngineRequest: null,
+      lastEngineResponse: null,
+      lastTsa: null,
+      tsaLog: [],
+    };
 
     const formatClientEvent = (ev) => {
       if (!ev) return "—";
@@ -513,25 +490,6 @@ document.addEventListener("DOMContentLoaded", () => {
               const newLatex = res.result.latex;
               if (newLatex && typeof newLatex === "string") {
                 currentLatex = newLatex;
-
-                // Add to History Log
-                // Add to History Log
-                const historyEntry = {
-                  step: historyLog.length + 1,
-                  timestamp: new Date().toISOString(),
-                  latex: currentLatex,
-                  status: status, // Replaces "trigger"
-                  actionTarget: debugState.lastAction ? debugState.lastAction.targetId : null,
-                  appliedRule: res.result.appliedRuleId || (res.result.meta && res.result.meta.ruleId) || null,
-                  interaction: debugState.lastClientEvent ? debugState.lastClientEvent.type : null,
-                  errorInfo: status === "engine-error" ? (res.error || null) : null,
-                  resultingLatex: currentLatex
-                };
-                historyLog.push(historyEntry);
-
-                // Clear last action after logging
-                debugState.lastAction = null;
-
                 renderFormula();
                 buildAndShowMap();
               }
@@ -562,25 +520,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (elStudentHint) {
         elStudentHint.textContent = formatStudentHint(debugState.lastTsa);
-      }
-
-      // Render Candidate List
-      const elCandidateList = document.getElementById("candidate-list");
-      if (elCandidateList) {
-        const candidates = debugState.lastEngineResponse?.result?.meta?.debugInfo?.allCandidates;
-        if (Array.isArray(candidates) && candidates.length > 0) {
-          elCandidateList.innerHTML = candidates.map((c, i) => {
-            const ruleId = c.ruleId || "unknown";
-            const desc = c.description || "";
-            const strategy = c.strategy || "";
-            return `<div style="margin-bottom: 4px; border-bottom: 1px solid #dcfce7; padding-bottom: 4px;">
-              <strong>#${i + 1}</strong> [${ruleId}] <span style="color:#047857">${desc}</span> 
-              <em style="color:#6b7280">(${strategy})</em>
-            </div>`;
-          }).join("");
-        } else {
-          elCandidateList.textContent = "No candidates found (or debug info missing).";
-        }
       }
     });
   }
@@ -669,42 +608,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const a = document.createElement("a");
       a.href = url;
       a.download = "filebus-messages.jsonl";
-      a.click();
-      URL.revokeObjectURL(url);
-    });
-  }
-
-  // Math Inspector Buttons
-  const btnCopyLatex = document.getElementById("btn-copy-latex");
-  if (btnCopyLatex) {
-    btnCopyLatex.addEventListener("click", () => {
-      const inspectorTextarea = document.getElementById("math-inspector-latex");
-      if (inspectorTextarea) {
-        inspectorTextarea.select();
-        navigator.clipboard.writeText(inspectorTextarea.value).then(() => {
-          const originalText = btnCopyLatex.textContent;
-          btnCopyLatex.textContent = "Copied!";
-          setTimeout(() => {
-            btnCopyLatex.textContent = originalText;
-          }, 2000);
-        });
-      }
-    });
-  }
-
-  const btnDownloadHistory = document.getElementById("btn-download-history");
-  if (btnDownloadHistory) {
-    btnDownloadHistory.addEventListener("click", () => {
-      if (historyLog.length === 0) {
-        alert("History is empty. Perform some steps first.");
-        return;
-      }
-      const data = JSON.stringify(historyLog, null, 2);
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "math-history.json";
       a.click();
       URL.revokeObjectURL(url);
     });

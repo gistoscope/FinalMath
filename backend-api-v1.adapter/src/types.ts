@@ -41,7 +41,6 @@ export interface EngineResult {
   latex: string;
   highlights?: string[];
   meta?: Record<string, unknown>;
-  appliedRuleId?: string;
 }
 
 export interface EngineErrorPayload {
@@ -68,7 +67,6 @@ export interface BackendEntryStepResponse {
   status: BackendEntryStepStatus;
   expressionLatex: string;
   debugInfo?: unknown | null;
-  appliedRuleId?: string;
 }
 
 export type BackendHintStatus = "hint-found" | "no-hint" | "error";

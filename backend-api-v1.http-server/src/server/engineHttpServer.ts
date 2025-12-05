@@ -20,7 +20,6 @@ import {
   handlePostHintRequest,
 } from "./HandlerPostHintRequest.js";
 import { handleGetStudentProgress } from "./HandlerReporting.js";
-import { HandlerGetMapIntrospect } from "./HandlerGetMapIntrospect.js";
 import type { EngineStepResponse, UndoStepResponse, HintResponse } from "../protocol/backend-step.types.js";
 
 import type { Logger } from "pino";
@@ -158,21 +157,6 @@ export function createEngineHttpServer(
 
       if (req.method === "GET" && url === "/api/teacher/student-progress") {
         await handleGetStudentProgress(req, res);
-        return;
-      }
-
-      if (req.method === "GET" && url === "/mapmaster-introspect") {
-        const queryParams: Record<string, string> = {};
-        const queryString = rawUrl.split("?")[1];
-        if (queryString) {
-          const params = new URLSearchParams(queryString);
-          params.forEach((value, key) => {
-            queryParams[key] = value;
-          });
-        }
-
-        const response = await HandlerGetMapIntrospect(queryParams, handlerDeps);
-        sendJson(res, response.success ? 200 : 400, response);
         return;
       }
 

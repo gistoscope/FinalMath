@@ -76,8 +76,7 @@ describe('PrimitiveRunner with Patterns', () => {
         };
 
         const result = PrimitiveRunner.run(req as any);
-
         expect(result.ok).toBe(true);
-        expect(result.newExpressionLatex).toBe('\\frac{(1 + 3)}{7}');
+        expect(result.newExpressionLatex).toBe('(1 + 3) / 7');
     });
 });
