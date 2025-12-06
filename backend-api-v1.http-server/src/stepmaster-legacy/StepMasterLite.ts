@@ -1,3 +1,5 @@
+// LEGACY: StepMasterLite (do not use in new code).
+// Kept only for historical reference and experiments.
 /**
  * StepMasterLite — Stage 5.x
  *

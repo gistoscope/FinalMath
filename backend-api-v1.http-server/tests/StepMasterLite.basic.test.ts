@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 
-import { choosePrimitiveId } from "../src/stepmaster/StepMasterLite.js";
-import type { StepMasterPolicyContext } from "../src/stepmaster/StepMasterLite.js";
+import { choosePrimitiveId } from "../src/stepmaster-legacy/StepMasterLite.js";
+import type { StepMasterPolicyContext } from "../src/stepmaster-legacy/StepMasterLite.js";
 import type { MapMasterCandidateLite } from "../src/mapmaster/MapMasterLite.js";
 
 const makeContext = (

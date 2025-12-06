@@ -42,6 +42,7 @@ export interface HintRequest {
   courseId: string;
   expressionLatex: string;
   selectionPath: string | null;
+  operatorIndex?: number;
 }
 
 export interface HintResponse {

@@ -53,13 +53,26 @@ export function isLocalToSelection(
 export function getOperatorAnchorPath(
     ast: any, // AstNode
     selectionAstPath: string | undefined,
+    selectionPath: string | null,
+    operatorIndex: number | undefined,
     getNodeAt: (ast: any, path: string) => any
 ): string | null {
-    if (!selectionAstPath) return null;
+    // If we have an explicit operator index, we trust the resolved path IF it's a binary op.
+    if (typeof operatorIndex === "number" && selectionAstPath) {
+        const node = getNodeAt(ast, selectionAstPath);
+        if (node && node.type === "binaryOp") {
+            return selectionAstPath;
+        }
+    }
 
-    const node = getNodeAt(ast, selectionAstPath);
-    if (node && node.type === "binaryOp") {
-        return selectionAstPath;
+    // Fallback: if selectionPath explicitly targets an operator token (e.g. ends in .op)
+    // This handles cases where operatorIndex might be missing but UI is specific.
+    if (selectionPath && (selectionPath.endsWith(".op") || selectionPath.includes(".op."))) {
+        // If selectionAstPath is defined and is binaryOp, return it.
+        if (selectionAstPath) {
+            const node = getNodeAt(ast, selectionAstPath);
+            if (node && node.type === "binaryOp") return selectionAstPath;
+        }
     }
 
     return null;

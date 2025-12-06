@@ -74,6 +74,7 @@ export async function runOrchestratorStep(
     ctx: OrchestratorContext,
     req: OrchestratorStepRequest
 ): Promise<OrchestratorStepResult> {
+    console.error("DEBUG: runOrchestratorStep STARTED");
     // 1. Load history from Session Service
     let history = await SessionService.getHistory(req.sessionId, req.userId, req.userRole);
 
@@ -101,64 +102,88 @@ export async function runOrchestratorStep(
 
     // 3. Call MapMaster
     const mapResult = mapMasterGenerate(mapInput);
-    console.log(`[Orchestrator] MapMaster found ${mapResult.candidates.length} candidates`);
+    console.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates for expression "${req.expressionLatex}" using set "${targetSet.id}"`);
+    if (mapResult.candidates.length === 0) {
+        console.log(`[Orchestrator] Active rules in set: ${targetSet.rules.map(r => r.id).join(', ')}`);
+    }
+
 
     // 3b. Enforce Locality (Stage-1)
     // Filter out candidates that are not local to the selection.
     // Note: If selectionPath is missing, isLocalToSelection returns true (fallback).
+    // 3b. Enforce Locality (Stage-1)
+    // Filter out candidates that are not local to the selection.
+    // Note: If selectionPath is missing, isLocalToSelection returns true (fallback).
+    console.log(`[Orchestrator] Candidates before locality: ${mapResult.candidates.length}`);
     mapResult.candidates = mapResult.candidates.filter(c => {
         const isLocal = isLocalToSelection(req.selectionPath, mapResult.resolvedSelectionPath, c);
+        if (!isLocal) console.log(`[Orchestrator] Filtered by locality: ${c.id}`);
         return isLocal;
     });
-    console.log(`[Orchestrator] After locality filter: ${mapResult.candidates.length} candidates`);
+    console.log(`[Orchestrator] Candidates after locality: ${mapResult.candidates.length}`);
+
 
     // 3c. Operator Anchoring (Stage-1 Fix)
     // If the user clicked on a binary operator (+, -), we want to anchor the candidates to that operator.
-    // This prevents sub-expression candidates (like INT_DIV_EXACT on a fraction) from being chosen.
     const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
+
     const { getOperatorAnchorPath } = await import("./locality");
+    const { primitiveCatalog } = await import("../mapmaster/primitive-catalog");
+
     const ast = parseExpression(req.expressionLatex);
 
-    if (ast && mapResult.resolvedSelectionPath) {
-        const anchorPath = getOperatorAnchorPath(ast, mapResult.resolvedSelectionPath, getNodeAt);
-        if (anchorPath) {
+    let operatorAnchorPath: string | null = null;
+    if (ast) {
+        operatorAnchorPath = getOperatorAnchorPath(
+            ast,
+            mapResult.resolvedSelectionPath,
+            req.selectionPath,
+            req.operatorIndex,
+            getNodeAt
+        );
 
-            const anchoredCandidates = mapResult.candidates.filter(c => c.targetPath === anchorPath);
+        if (operatorAnchorPath) {
+            console.log(`[Orchestrator] Anchoring to path: ${operatorAnchorPath}`);
+            const anchoredCandidates = mapResult.candidates.filter(c => c.targetPath === operatorAnchorPath);
+            // If we have candidates for the anchor, strictly enforce it.
             if (anchoredCandidates.length > 0) {
                 mapResult.candidates = anchoredCandidates;
             } else {
-                // console.log(`[Orchestrator] No candidates found for anchor ${anchorPath}, falling back to locality.`);
+                // If explicit operator click but no candidates, we should probably return no-candidates
+                // rather than applying something random.
+                mapResult.candidates = [];
             }
         }
     }
+    console.log(`[Orchestrator] Candidates after anchoring: ${mapResult.candidates.length}`);
 
     // 3d. Stage-1 Strict Primitives (Atomic Mode)
-    // We enforce a strict set of allowed primitives for Stage-1.
+    // We enforce a strict set of allowed primitives for Stage-1 based on Operation Classes.
     const STAGE1_ATOMIC_MODE = true; // Config flag
     if (STAGE1_ATOMIC_MODE) {
-        const ALLOWED_PRIMITIVES = new Set([
-            "P.INT_ADD",
-            "P.INT_SUB",
-            "P.FRAC_ADD_SAME",
-            // "P.ADD_ZERO", // Optional harmless ones
-            // "P.REDUNDANT_BRACKETS"
-        ]);
-
         mapResult.candidates = mapResult.candidates.filter(c => {
             const primId = c.primitiveIds[0];
-            // Explicit exclusions
-            if (primId === "P.INT_DIV_EXACT" || primId === "P.INT_PLUS_FRAC") return false;
 
-            // Allow list
-            if (ALLOWED_PRIMITIVES.has(primId)) return true;
+            // Find metadata in catalog
+            const catalogEntry = primitiveCatalog.find(p => p.primitiveId === primId);
 
-            // Allow if it's not explicitly excluded? 
-            // The prompt says "Filter candidates again to keep ONLY those with invariantRuleId in the Stage-1 whitelist."
-            // But we might have other valid ones like P.PAREN_REMOVE.
-            // Let's be strict for now as requested.
-            return false;
+            if (!catalogEntry) {
+                console.log(`[Orchestrator] Filtered by strict primitives (not found): ${primId}`);
+                return false;
+            }
+
+            if (catalogEntry.stage !== "stage1") {
+                console.log(`[Orchestrator] Filtered by strict primitives (wrong stage): ${primId} (${catalogEntry.stage})`);
+                return false;
+            }
+
+            // Optional: Check Operation Type Symmetry if we knew the clicked operator type.
+            // But strict stage1 check + anchoring should be enough for now.
+
+            return true;
         });
     }
+    console.log(`[Orchestrator] Candidates after strict primitives: ${mapResult.candidates.length}`);
 
     // 4. Build StepMasterInput
     let policy = ctx.policy;
@@ -175,9 +200,11 @@ export async function runOrchestratorStep(
         policy: policy,
     };
 
+    console.log(`[Orchestrator] Calling StepMaster with ${stepInput.candidates.length} candidates.`);
+
     // 5. Call StepMaster
     const stepResult = stepMasterDecide(stepInput);
-    console.log(`[Orchestrator] StepMaster chosen: ${stepResult.decision.status === "chosen" ? stepResult.decision.chosenCandidateId : "none"}`);
+
 
     // 6. Update History
     history = appendStepFromResult(history, stepResult, req.expressionLatex);
@@ -187,6 +214,7 @@ export async function runOrchestratorStep(
 
     // 8. Handle Decision
     if (stepResult.decision.status === "no-candidates") {
+        console.log(`[Orchestrator] StepMaster returned no-candidates. Reason: ${JSON.stringify(stepResult.decision)}`);
         captureSnapshot(req, mapResult, "no-candidates");
         return {
             status: "no-candidates",
@@ -212,9 +240,11 @@ export async function runOrchestratorStep(
 
         // STAGE 1 ENFORCEMENT: Primitive Validation
         // We strictly require that the applied step corresponds to a valid, known primitive.
-        const primaryPrimitiveId = chosenCandidate.primitiveIds[0];
+        // Use primitives from StepMaster decision if available, otherwise fallback to candidate.
+        const primitivesToApply = stepResult.primitivesToApply?.map(p => p.id) || chosenCandidate.primitiveIds;
+        const primaryPrimitiveId = primitivesToApply[0];
         const primitiveDef = ctx.invariantRegistry.getPrimitiveById(primaryPrimitiveId);
-        console.log(`[Orchestrator] Validating primitive ${primaryPrimitiveId}: found=${!!primitiveDef}`);
+
 
         if (!primaryPrimitiveId || !primitiveDef) {
             // Invalid or unknown primitive. Reject the step.
@@ -263,8 +293,6 @@ export async function runOrchestratorStep(
             };
         }
     }
-
-
 
     // Fallback
     captureSnapshot(req, mapResult, "no-candidates");

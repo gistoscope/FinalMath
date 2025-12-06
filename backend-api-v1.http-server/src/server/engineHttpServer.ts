@@ -64,7 +64,17 @@ export function createEngineHttpServer(
       // POST /api/entry-step (TzV1.1)
       // We also support /engine/step for backward compatibility if needed, 
       // but TZ specifies /api/entry-step.
-      if (req.method === "POST" && (url === "/api/entry-step" || url === "/engine/step" || url === "/api/undo-step" || url === "/api/hint-request" || url === "/api/register" || url === "/api/login")) {
+      if (req.method === "POST" && (
+        url === "/api/entry-step" ||
+        url === "/engine/step" ||
+        url === "/api/undo-step" ||
+        url === "/api/hint-request" ||
+        url === "/api/register" ||
+        url === "/api/login" ||
+        url === "/api/ast-debug" ||
+        url === "/api/mapmaster-debug" ||
+        url === "/api/step-debug"
+      )) {
         let body = "";
 
         req.on("data", (chunk: Buffer | string) => {
@@ -110,6 +120,21 @@ export function createEngineHttpServer(
             }
             else if (url === "/api/hint-request") {
               response = await handlePostHintRequest(parsedBody, handlerDeps);
+            }
+            else if (url === "/api/ast-debug") {
+              const { handlePostAstDebug } = await import("./HandlerPostAstDebug.js");
+              await handlePostAstDebug(req, res, parsedBody);
+              return; // Handler sends response
+            }
+            else if (url === "/api/mapmaster-debug") {
+              const { handlePostMapMasterDebug } = await import("./HandlerPostMapMasterDebug.js");
+              await handlePostMapMasterDebug(req, res, parsedBody);
+              return; // Handler sends response
+            }
+            else if (url === "/api/step-debug") {
+              const { handlePostStepDebug } = await import("./HandlerPostStepDebug.js");
+              await handlePostStepDebug(req, res, parsedBody);
+              return; // Handler sends response
             }
             // POST /api/register
             // else if (url === "/api/register") {

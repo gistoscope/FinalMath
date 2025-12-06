@@ -43,6 +43,11 @@ export interface PrimitiveCatalogEntry {
     // Metadata
     description: string;
     priority?: number; // Higher wins
+
+    // Systemic Classification (Stage-1)
+    operationType?: "add" | "sub" | "mul" | "div";
+    domainClass?: "int-int" | "frac-same-den" | "frac-diff-den" | "int-plus-frac" | "dec-dec" | "other";
+    stage?: "stage1" | "stage2" | "stage3" | "other";
 }
 
 /**
@@ -56,28 +61,40 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
         lhsKind: ["int", "one", "zero"],
         rhsKind: ["int", "one", "zero"],
         primitiveId: "P.INT_ADD",
-        description: "Integer Addition"
+        description: "Integer Addition",
+        operationType: "add",
+        domainClass: "int-int",
+        stage: "stage1"
     },
     {
         op: "-",
         lhsKind: ["int", "one", "zero"],
         rhsKind: ["int", "one", "zero"],
         primitiveId: "P.INT_SUB",
-        description: "Integer Subtraction"
+        description: "Integer Subtraction",
+        operationType: "sub",
+        domainClass: "int-int",
+        stage: "stage1"
     },
     {
         op: "*",
         lhsKind: ["int", "one", "zero"],
         rhsKind: ["int", "one", "zero"],
         primitiveId: "P.INT_MUL",
-        description: "Integer Multiplication"
+        description: "Integer Multiplication",
+        operationType: "mul",
+        domainClass: "int-int",
+        stage: "stage1"
     },
     {
         op: "/",
         lhsKind: ["int", "one", "zero"],
         rhsKind: ["int", "one", "zero"],
         primitiveId: "P.INT_DIV_EXACT", // Heuristic: assume exact first
-        description: "Integer Division (Exact)"
+        description: "Integer Division (Exact)",
+        operationType: "div",
+        domainClass: "int-int",
+        stage: "stage1"
     },
     // Note: P.INT_DIV_FRAC (5) is usually an alternative if exact fails, 
     // or we can just list it with lower priority? 
@@ -89,8 +106,11 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
         lhsKind: "frac",
         rhsKind: "frac",
         sameDenominator: true,
-        primitiveId: "P.FRAC_ADD_SAME",
-        description: "Fraction Add (Same Denominator)"
+        primitiveId: "P.FRAC_ADD_SAME_DEN",
+        description: "Fraction Add (Same Denominator)",
+        operationType: "add",
+        domainClass: "frac-same-den",
+        stage: "stage1"
     },
     {
         op: "-",
@@ -98,21 +118,30 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
         rhsKind: "frac",
         sameDenominator: true,
         primitiveId: "P.FRAC_SUB_SAME",
-        description: "Fraction Sub (Same Denominator)"
+        description: "Fraction Sub (Same Denominator)",
+        operationType: "sub",
+        domainClass: "frac-same-den",
+        stage: "stage1"
     },
     {
         op: "*",
         lhsKind: "frac",
         rhsKind: "frac",
         primitiveId: "P.FRAC_MUL",
-        description: "Fraction Multiplication"
+        description: "Fraction Multiplication",
+        operationType: "mul",
+        domainClass: "frac-diff-den", // or just frac-frac
+        stage: "stage1"
     },
     {
         op: "/",
         lhsKind: "frac",
         rhsKind: "frac",
         primitiveId: "P.FRAC_DIV",
-        description: "Fraction Division"
+        description: "Fraction Division",
+        operationType: "div",
+        domainClass: "frac-diff-den",
+        stage: "stage1"
     },
 
     // --- C. Decimals ---
@@ -248,21 +277,38 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
  * Select matching primitives for a given context.
  */
 export function selectPrimitivesForClick(ctx: ClickContext): PrimitiveCatalogEntry[] {
+
     return primitiveCatalog.filter(entry => {
+        // Debug specific entry
+        const isTarget = entry.primitiveId === "P.FRAC_SUB_SAME";
+
         // 1. Op Match
-        if (entry.op !== ctx.op) return false;
+        if (entry.op !== ctx.op) {
+
+            return false;
+        }
 
         // 2. LHS Match
-        if (!matchKind(entry.lhsKind, ctx.lhsKind)) return false;
+        if (!matchKind(entry.lhsKind, ctx.lhsKind)) {
+
+            return false;
+        }
 
         // 3. RHS Match
-        if (!matchKind(entry.rhsKind, ctx.rhsKind)) return false;
+        if (!matchKind(entry.rhsKind, ctx.rhsKind)) {
+
+            return false;
+        }
 
         // 4. Extra Conditions
-        if (entry.sameDenominator !== undefined && entry.sameDenominator !== ctx.sameDenominator) return false;
+        if (entry.sameDenominator !== undefined && entry.sameDenominator !== ctx.sameDenominator) {
+
+            return false;
+        }
         if (entry.hasZero !== undefined && entry.hasZero !== ctx.hasZero) return false;
         if (entry.hasOne !== undefined && entry.hasOne !== ctx.hasOne) return false;
         if (entry.hasParens !== undefined && entry.hasParens !== ctx.hasParens) return false;
+
 
         return true;
     });

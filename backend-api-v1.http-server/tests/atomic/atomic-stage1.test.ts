@@ -19,6 +19,8 @@ describe("Stage-1 Atomic Behavior", () => {
     });
 
     it("FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7", async () => {
+        console.log("--- TEST START: FRAC_ADD_SAME 1/7 + 3/7 ---");
+        await SessionService.createSession("test-session-1", "user1", "student");
         const res = await runOrchestratorStep(ctx, {
             sessionId: "test-session-1",
             courseId: "default",
@@ -33,6 +35,8 @@ describe("Stage-1 Atomic Behavior", () => {
     });
 
     it("FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7", async () => {
+        console.log("--- TEST START: FRAC_ADD_SAME 5/7 + 2/7 ---");
+        await SessionService.createSession("test-session-2", "user1", "student");
         const res = await runOrchestratorStep(ctx, {
             sessionId: "test-session-2",
             courseId: "default",
@@ -43,6 +47,21 @@ describe("Stage-1 Atomic Behavior", () => {
 
         expect(res.status).toBe("step-applied");
         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{7}{7}");
+    });
+
+    it("FRAC_SUB_SAME: 5/7 - 2/7 -> 3/7", async () => {
+        console.log("--- TEST START: FRAC_SUB_SAME 5/7 - 2/7 ---");
+        await SessionService.createSession("test-session-2b", "user1", "student");
+        const res = await runOrchestratorStep(ctx, {
+            sessionId: "test-session-2b",
+            courseId: "default",
+            expressionLatex: "\\frac{5}{7} - \\frac{2}{7}",
+            selectionPath: "root",
+            userRole: "student",
+        });
+
+        expect(res.status).toBe("step-applied");
+        expect(res.engineResult?.newExpressionLatex).toBe("\\frac{3}{7}");
     });
 
     it("INT_PLUS_FRAC: 3 + 5/7 -> no-candidates (Stage-1 Strict)", async () => {
@@ -71,11 +90,14 @@ describe("Stage-1 Atomic Behavior", () => {
     });
 
     it("INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)", async () => {
-        // 6/2 + 12/2
-        // Click on '+' (root)
-        // Should NOT apply INT_DIV_EXACT to 6/2 or 12/2
-        // Should apply FRAC_ADD_SAME if applicable.
-
+        // Scenario: 6/2 + 12/2.
+        // Click on '+'.
+        // INT_DIV_EXACT applies to '/' (division).
+        // It should NOT be a candidate for '+'.
+        // However, FRAC_ADD_SAME *should* apply if they are fractions with same denominator.
+        // We use \frac to ensure they are parsed as fractions.
+        console.log("--- TEST START: INT_DIV_EXACT ---");
+        await SessionService.createSession("test-session-5", "user1", "student");
         const res = await runOrchestratorStep(ctx, {
             sessionId: "test-session-5",
             courseId: "default",
@@ -84,24 +106,15 @@ describe("Stage-1 Atomic Behavior", () => {
             userRole: "student",
         });
 
-        // If FRAC_ADD_SAME is chosen:
-        if (res.status === "step-applied") {
-            expect(res.engineResult?.newExpressionLatex).toBe("\\frac{18}{2}");
-        } else {
-            // If FRAC_ADD_SAME is NOT chosen (e.g. maybe 6/2 is treated as int?), 
-            // at least ensure it's NOT INT_DIV_EXACT (which would change one fraction).
-            // But we really want FRAC_ADD_SAME.
-            // If it returns no-candidates, that's also "safe" regarding INT_DIV_EXACT, 
-            // but suboptimal.
-            // Let's assert step-applied for now.
-            expect(res.status).toBe("step-applied");
-        }
+        // We expect FRAC_ADD_SAME to apply.
+        expect(res.status).toBe("step-applied");
+        // 6/2 + 12/2 = 18/2
+        expect(res.engineResult?.newExpressionLatex).toBe("\\frac{18}{2}");
     });
 
     test("Regression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)", async () => {
-        let history = createEmptyHistory();
         const sessionId = `test-session-${Date.now()}-reg1`;
-        await SessionService.createSession(sessionId, "user1", "course1");
+        await SessionService.createSession(sessionId, "user1", "student");
 
         // Step 1: Click "+"
         let res = await runOrchestratorStep(ctx, {
@@ -131,7 +144,7 @@ describe("Stage-1 Atomic Behavior", () => {
 
     test("Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)", async () => {
         const sessionId = `test-session-${Date.now()}-reg2`;
-        await SessionService.createSession(sessionId, "user1", "course1");
+        await SessionService.createSession(sessionId, "user1", "student");
 
         const res = await runOrchestratorStep(ctx, {
             sessionId,
@@ -147,7 +160,7 @@ describe("Stage-1 Atomic Behavior", () => {
 
     test("Regression: 3 + 6 - (5/7 + 2/7) anchoring", async () => {
         const sessionId = `test-session-${Date.now()}-reg3`;
-        await SessionService.createSession(sessionId, "user1", "course1");
+        await SessionService.createSession(sessionId, "user1", "student");
 
         const res = await runOrchestratorStep(ctx, {
             sessionId,

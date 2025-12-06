@@ -25,6 +25,7 @@ export interface StepMasterDecision {
 export interface StepMasterResult {
     input: StepMasterInput;
     decision: StepMasterDecision;
+    primitivesToApply: { id: string }[];
 }
 
 /**
@@ -56,6 +57,7 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
                 status: "no-candidates",
                 chosenCandidateId: null,
             },
+            primitivesToApply: []
         };
     }
 
@@ -63,12 +65,16 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
     const best = validCandidates[0];
     console.log(`[StepMaster] Chosen: ${best.id}`);
 
+    // Map primitive IDs to objects
+    const primitivesToApply = best.primitiveIds.map(id => ({ id }));
+
     return {
         input,
         decision: {
             status: "chosen",
             chosenCandidateId: best.id
-        }
+        },
+        primitivesToApply
     };
 }
 

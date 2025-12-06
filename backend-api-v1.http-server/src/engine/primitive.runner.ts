@@ -125,7 +125,6 @@ export class PrimitiveRunner {
             // My parser change:
             // if (den.type === "IDENTIFIER") return { type: "fraction", numerator: token.value, denominator: den.value }
             // This puts "a" into denominator string.
-
             // So if we have a fraction node with variable names in strings?
             // That's messy.
             // Better: `resultPattern` "a/b" should be parsed as binaryOp if a,b are vars.
@@ -285,17 +284,13 @@ export class PrimitiveRunner {
     }
 
     private static runMixedOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        console.log(`[PrimitiveRunner] runMixedOp id=${id} path=${path} targetType=${target?.type}`);
         if (target?.type !== "binaryOp") return undefined;
-
-        console.log(`[PrimitiveRunner] left=${target.left.type} right=${target.right.type}`);
 
         // Case 1: Integer + Fraction (a + b/c)
         if (target.left.type === "integer" && target.right.type === "fraction") {
             const a = parseInt(target.left.value, 10);
             const b = parseInt(target.right.numerator, 10);
             const c = parseInt(target.right.denominator, 10);
-            console.log(`[PrimitiveRunner] Case 1: a=${a} b=${b} c=${c}`);
 
             if (id === "P.INT_PLUS_FRAC") {
                 // a + b/c -> (a*c + b)/c
@@ -320,7 +315,6 @@ export class PrimitiveRunner {
             const b = parseInt(target.left.numerator, 10);
             const c = parseInt(target.left.denominator, 10);
             const a = parseInt(target.right.value, 10);
-            console.log(`[PrimitiveRunner] Case 2: a=${a} b=${b} c=${c}`);
 
             if (id === "P.INT_PLUS_FRAC") {
                 // b/c + a -> (b + a*c)/c
