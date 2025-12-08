@@ -9,8 +9,8 @@ function buildMapFromLatex(latex: string, stage = 1) {
     return buildPrimitiveMap(ast, stage, trimmed);
 }
 
-describe.skip("PrimitiveMapBuilder", () => {
-    it("builds a ready FRAC_ADD_SAME_DEN_STAGE1 primitive for 1/7 + 3/7", () => {
+describe("PrimitiveMapBuilder", () => {
+    it("builds a ready P.FRAC_ADD_SAME_DEN primitive for 1/7 + 3/7", () => {
         const map = buildMapFromLatex("\\frac{1}{7} + \\frac{3}{7}");
 
         expect(map.operatorCount).toBe(1);
@@ -18,11 +18,11 @@ describe.skip("PrimitiveMapBuilder", () => {
 
         const entry = map.entries[0];
 
-        expect(entry.primitiveId).toBe("FRAC_ADD_SAME_DEN_STAGE1");
+        expect(entry.primitiveId).toBe("P.FRAC_ADD_SAME_DEN");
         expect(entry.status).toBe("ready");
     });
 
-    it("builds a ready FRAC_ADD_SAME_DEN_STAGE1 primitive for 4/7 + 5/7", () => {
+    it("builds a ready P.FRAC_ADD_SAME_DEN primitive for 4/7 + 5/7", () => {
         const map = buildMapFromLatex("\\frac{4}{7} + \\frac{5}{7}");
 
         expect(map.operatorCount).toBe(1);
@@ -30,7 +30,7 @@ describe.skip("PrimitiveMapBuilder", () => {
 
         const entry = map.entries[0];
 
-        expect(entry.primitiveId).toBe("FRAC_ADD_SAME_DEN_STAGE1");
+        expect(entry.primitiveId).toBe("P.FRAC_ADD_SAME_DEN");
         expect(entry.status).toBe("ready");
     });
 
@@ -40,7 +40,7 @@ describe.skip("PrimitiveMapBuilder", () => {
         expect(map.operatorCount).toBeGreaterThanOrEqual(2);
 
         const readyFracAdd = map.entries.find(
-            e => e.primitiveId === "FRAC_ADD_SAME_DEN_STAGE1" && e.status === "ready"
+            e => e.primitiveId === "P.FRAC_ADD_SAME_DEN" && e.status === "ready"
         );
         expect(readyFracAdd).toBeDefined();
 
@@ -48,53 +48,25 @@ describe.skip("PrimitiveMapBuilder", () => {
         expect(noneEntries.length).toBeGreaterThanOrEqual(1);
     });
 
-    it("builds INT_ADD_STAGE1 for 2 + 3", () => {
+    it("builds P.INT_ADD for 2 + 3", () => {
         const map = buildMapFromLatex("2 + 3");
 
         expect(map.operatorCount).toBe(1);
         const entry = map.entries[0];
 
-        expect(entry.primitiveId).toBe("INT_ADD_STAGE1");
+        expect(entry.primitiveId).toBe("P.INT_ADD");
         expect(entry.status).toBe("ready");
     });
 
-    it("builds INT_SUB_STAGE1 for 2 - 3", () => {
+    it("builds P.INT_SUB for 2 - 3", () => {
         const map = buildMapFromLatex("2 - 3");
 
         expect(map.operatorCount).toBe(1);
         const entry = map.entries[0];
 
-        expect(entry.primitiveId).toBe("INT_SUB_STAGE1");
+        expect(entry.primitiveId).toBe("P.INT_SUB");
         expect(entry.status).toBe("ready");
     });
 
-    it("builds MIXED_ADD_INT_FRAC_STAGE1 for 2 + 1/3", () => {
-        const map = buildMapFromLatex("2 + \\frac{1}{3}");
-
-        expect(map.operatorCount).toBe(1);
-        const entry = map.entries[0];
-
-        expect(entry.primitiveId).toBe("MIXED_ADD_INT_FRAC_STAGE1");
-        expect(entry.status).toBe("ready");
-    });
-
-    it("builds MIXED_ADD_INT_FRAC_STAGE1 for 1/3 + 2", () => {
-        const map = buildMapFromLatex("\\frac{1}{3} + 2");
-
-        expect(map.operatorCount).toBe(1);
-        const entry = map.entries[0];
-
-        expect(entry.primitiveId).toBe("MIXED_ADD_INT_FRAC_STAGE1");
-        expect(entry.status).toBe("ready");
-    });
-
-    it("builds MIXED_SUB_INT_FRAC_STAGE1 for 2 - 1/3", () => {
-        const map = buildMapFromLatex("2 - \\frac{1}{3}");
-
-        expect(map.operatorCount).toBe(1);
-        const entry = map.entries[0];
-
-        expect(entry.primitiveId).toBe("MIXED_SUB_INT_FRAC_STAGE1");
-        expect(entry.status).toBe("ready");
-    });
+    // Mixed primitives are removed in V5
 });

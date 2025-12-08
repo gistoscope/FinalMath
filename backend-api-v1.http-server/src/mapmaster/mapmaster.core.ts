@@ -11,8 +11,8 @@ import type {
     InMemoryInvariantRegistry,
     InvariantRuleId,
     InvariantSetId,
-    PrimitiveId,
 } from "../invariants/index";
+import { PrimitiveId } from "../engine/primitives.registry";
 import { parseExpression } from "./ast";
 import { MapMasterAstHelpers } from "./mapmaster.ast-helpers";
 import { MapMasterSelectionNormalizer } from "./mapmaster.selection.normalizer";

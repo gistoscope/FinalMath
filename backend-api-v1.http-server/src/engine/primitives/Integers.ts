@@ -5,7 +5,7 @@
 import { PrimitiveDescriptor } from "./Registry";
 
 export const INT_ADD_STAGE1: PrimitiveDescriptor = {
-    id: "INT_ADD_STAGE1",
+    id: "P.INT_ADD",
     domain: "Integers",
     stageRange: { min: 1, max: 1 },
     label: "Integer Addition",
@@ -24,7 +24,7 @@ export const INT_ADD_STAGE1: PrimitiveDescriptor = {
 };
 
 export const INT_SUB_STAGE1: PrimitiveDescriptor = {
-    id: "INT_SUB_STAGE1",
+    id: "P.INT_SUB",
     domain: "Integers",
     stageRange: { min: 1, max: 1 },
     label: "Integer Subtraction",
@@ -43,7 +43,7 @@ export const INT_SUB_STAGE1: PrimitiveDescriptor = {
 };
 
 export const INT_MUL_STAGE1: PrimitiveDescriptor = {
-    id: "INT_MUL_STAGE1",
+    id: "P.INT_MUL",
     domain: "Integers",
     stageRange: { min: 1, max: 1 },
     label: "Integer Multiplication",
@@ -62,7 +62,7 @@ export const INT_MUL_STAGE1: PrimitiveDescriptor = {
 };
 
 export const INT_DIV_STAGE1: PrimitiveDescriptor = {
-    id: "INT_DIV_STAGE1",
+    id: "P.INT_DIV_TO_INT",
     domain: "Integers",
     stageRange: { min: 1, max: 1 },
     label: "Integer Division",

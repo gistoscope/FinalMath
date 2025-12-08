@@ -8,8 +8,8 @@
 
 import { AstNode } from "../../mapmaster/ast";
 
-// A primitive id like "INT_ADD_STAGE1", "FRAC_ADD_SAME_DEN_STAGE1", etc.
-export type PrimitiveId = string;
+import { PrimitiveId } from "../primitives.registry";
+export { PrimitiveId };
 
 export type PrimitiveDomain =
     | "Integers"
@@ -110,12 +110,10 @@ export function buildMatchContext(node: AstNode): PrimitiveMatchContext {
 
 import { INTEGER_PRIMITIVES } from "./Integers";
 import { FRACTIONS_SAME_DEN_PRIMITIVES } from "./Fractions.SameDenominator";
-import { MIXED_STAGE1_PRIMITIVES } from "./Mixed.Stage1";
 
 const ALL_DESCRIPTORS: PrimitiveDescriptor[] = [
     ...INTEGER_PRIMITIVES,
     ...FRACTIONS_SAME_DEN_PRIMITIVES,
-    ...MIXED_STAGE1_PRIMITIVES,
 ];
 
 // Placeholder for createPrimitiveRegistry until we have the primitive files.

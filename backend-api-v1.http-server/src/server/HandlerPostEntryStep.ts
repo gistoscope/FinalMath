@@ -25,13 +25,19 @@ import { authService } from "../auth/auth.service";
 
 import type { Logger } from "pino";
 
+import type { PrimitiveMaster } from "../primitive-master/PrimitiveMaster";
+
 export interface HandlerDeps {
   invariantRegistry: InMemoryInvariantRegistry;
   policy: StepPolicyConfig;
   log?: (message: string) => void;
   logger?: Logger;
   performStep?: (req: EntryStepRequest) => Promise<EngineStepResponse>;
+  primitiveMaster?: PrimitiveMaster;
 }
+
+// ... (inside HandlerPostEntryStep)
+
 
 function makeError(
   status: "engine-error",
@@ -98,6 +104,7 @@ export async function HandlerPostEntryStep(
     const ctx: OrchestratorContext = {
       invariantRegistry: deps.invariantRegistry,
       policy: policy,
+      primitiveMaster: deps.primitiveMaster,
     };
 
     const orchestratorReq: OrchestratorStepRequest = {

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Таблица примитивов (нормализованная модель)</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f8;
+            color: #333;
+            margin: 0;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+            vertical-align: top;
+        }
+        thead th {
+            background-color: #f1f3f5;
+            font-weight: 700;
+        }
+        td:nth-child(1) {
+            width: 60px;
+            font-weight: bold;
+            color: #666;
+        }
+        td:nth-child(2) {
+            font-family: Consolas, monospace;
+            font-weight: bold;
+            color: #1f2937;
+            width: 190px;
+        }
+        .frac {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .frac .num {
+            display: block;
+            padding: 0 0.15em;
+        }
+        .frac .bar {
+            display: block;
+            border-top: 1px solid #000;
+            margin: 0 0.1em;
+        }
+        .frac .den {
+            display: block;
+            padding: 0 0.15em;
+        }
+        .big-paren {
+            display: inline-block;
+            font-size: 150%;
+            line-height: 1;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Таблица примитивов (строго по нормализованной модели)</h1>
+    <p>
+        В этой HTML-версии таблицы все дроби отображаются с горизонтальной чертой (числитель над знаменателем),
+        без наклонных дробных черт «/». Скобки вокруг дробей в строках с атомом-дробью и выражением из дробей
+        рисуются увеличенными, чтобы визуально охватывать всю дробь или всё дробное выражение.
+    </p>
+    <table>
+<tr><th>№</th><th>ID</th><th>Шаблон (паттерн)</th><th>Результат</th><th>Условия / комментарий</th><th>Пример</th><th>Результат примера</th></tr>
+<tr><td colspan="7"><strong>A. Нормализация типов чисел</strong> — Примитивы, которые приводят все числа к целым и обыкновенным дробям. Численные примеры в колонках «Пример» и «Результат примера» обязаны строго повторять структуру алгебраического шаблона (буквенной записи).</td></tr>
+<tr><td>1</td><td>P.DEC_TO_FRAC</td><td>d (десятичная дробь)</td><td><span class="frac"><span class="num">p</span><span class="bar"></span><span class="den">q</span></span> (обыкновенная дробь)</td><td>Клик по десятичной дроби. Единственный допустимый шаг с десятичной: сначала превратить её в обыкновенную дробь.</td><td>1.2</td><td><span class="frac"><span class="num">6</span><span class="bar"></span><span class="den">5</span></span></td></tr>
+<tr><td>2</td><td>P.MIXED_TO_SUM</td><td>a <span class="frac"><span class="num">b</span><span class="bar"></span><span class="den">c</span></span> (смешанное число)</td><td>a + <span class="frac"><span class="num">b</span><span class="bar"></span><span class="den">c</span></span></td><td>Клик по смешанному числу. Обязательный первый шаг: разложить на целую и дробную части.</td><td>2 <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span></td><td>2 + <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span></td></tr>
+<tr><td>3</td><td>P.INT_TO_FRAC</td><td>a (целое)</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">1</span></span></td><td>Клик по целому числу, когда оно участвует в операции с обыкновенной дробью.</td><td>3</td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">1</span></span></td></tr>
+<tr><td>4</td><td>P.FRAC_TO_INT</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">1</span></span></td><td>a</td><td>Клик по дроби со знаменателем 1, когда контекст позволяет заменить её на целое число.</td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">1</span></span></td><td>3</td></tr>
+<tr><td>5</td><td>P.ONE_TO_UNIT_FRAC</td><td>1</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">a</span></span></td><td>Единица может быть представлена в виде единичной дроби a/a.</td><td>1</td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">3</span></span></td></tr>
+<tr><td colspan="7"><strong>B. Операции между целыми числами</strong> — Примитивы, которые работают только с парой (целое, целое).</td></tr>
+<tr><td>6</td><td>P.INT_ADD</td><td>a + b</td><td>a + b ⇢ c</td><td>Обе стороны оператора — целые числа. Результат c — целое число.</td><td>2 + 3</td><td>5</td></tr>
+<tr><td>7</td><td>P.INT_SUB</td><td>a - b</td><td>a - b ⇢ c</td><td>Обе стороны оператора — целые числа. Результат может быть отрицательным целым.</td><td>2 - 5</td><td>-3</td></tr>
+<tr><td>8</td><td>P.INT_MUL</td><td>a · b</td><td>a · b ⇢ c</td><td>Обе стороны оператора — целые числа.</td><td>2 · 4</td><td>8</td></tr>
+<tr><td>9</td><td>P.INT_DIV_TO_FRAC</td><td>a : b</td><td>a : b ⇢ <span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span></td><td>a и b — целые, b ≠ 0, a не делится на b нацело (a mod b ≠ 0). Результат — обыкновенная дробь.</td><td>5 : 2</td><td><span class="frac"><span class="num">5</span><span class="bar"></span><span class="den">2</span></span></td></tr>
+<tr><td>10</td><td>P.INT_DIV_TO_INT</td><td>a : b</td><td>a : b ⇢ c</td><td>a и b — целые, b ≠ 0, a делится на b нацело. Результат c — целое число.</td><td>8 : 2</td><td>4</td></tr>
+<tr><td colspan="7"><strong>C. Обыкновенные дроби</strong> — Примитивы, которые работают только с парой (дробь, дробь). Во всех строках числовой пример строго соответствует буквенной записи (структура a/b, c/b и т.п.).</td></tr>
+<tr><td>11</td><td>P.FRAC_ADD_SAME_DEN</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> + <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a+c</span><span class="bar"></span><span class="den">b</span></span></td><td>Знаменатели равны и не равны нулю.</td><td><span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">5</span></span> + <span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">5</span></span></td><td><span class="frac"><span class="num">2+1</span><span class="bar"></span><span class="den">5</span></span></td></tr>
+<tr><td>12</td><td>P.FRAC_SUB_SAME_DEN</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> - <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a-c</span><span class="bar"></span><span class="den">b</span></span></td><td>Знаменатели равны и не равны нулю.</td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span> - <span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">5</span></span></td><td><span class="frac"><span class="num">3-1</span><span class="bar"></span><span class="den">5</span></span></td></tr>
+<tr><td>13</td><td>P.FRAC_MUL</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">d</span></span></td><td><span class="frac"><span class="num">a·c</span><span class="bar"></span><span class="den">b·d</span></span></td><td>b ≠ 0, d ≠ 0.</td><td><span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">3</span></span> · <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span></td><td><span class="frac"><span class="num">2·3</span><span class="bar"></span><span class="den">3·5</span></span></td></tr>
+<tr><td>14</td><td>P.FRAC_DIV_AS_MUL</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> : <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">d</span></span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · <span class="frac"><span class="num">d</span><span class="bar"></span><span class="den">c</span></span></td><td>b ≠ 0, c ≠ 0, d ≠ 0. Деление дроби на дробь заменяем умножением на обратную.</td><td><span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">3</span></span> : <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span></td><td><span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">3</span></span> · <span class="frac"><span class="num">5</span><span class="bar"></span><span class="den">3</span></span></td></tr>
+<tr><td>15</td><td>P.FRAC_EQ_SCALE</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · 1</td><td>Первый шаг к представлению эквивалентной дроби: явно показываем умножение дроби a/b на единицу.</td><td><span class="frac"><span class="num">6</span><span class="bar"></span><span class="den">15</span></span></td><td><span class="frac"><span class="num">6</span><span class="bar"></span><span class="den">15</span></span> · 1</td></tr>
+<tr><td colspan="7"><strong>D. Приведение к общему знаменателю</strong> — Процедура для пары дробей с разными знаменателями.</td></tr>
+<tr><td>16</td><td>P.FRAC_MUL_BY_ONE</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · 1</td><td>Первый шаг приведения к общему знаменателю: каждую дробь пары домножаем на единицу 1 (как отдельный вид действия).</td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span></td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> · 1</td></tr>
+<tr><td>17</td><td>P.FRAC_LIFT_LEFT_BY_RIGHT_DEN</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · <span class="frac"><span class="num">d</span><span class="bar"></span><span class="den">d</span></span></td><td>Левая дробь в паре a/b + c/d. Домножаем её на единицу d/d, где d — знаменатель правой дроби.</td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span></td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> · <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">3</span></span></td></tr>
+<tr><td>18</td><td>P.FRAC_LIFT_RIGHT_BY_LEFT_DEN</td><td><span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">d</span></span></td><td><span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">d</span></span> · <span class="frac"><span class="num">b</span><span class="bar"></span><span class="den">b</span></span></td><td>Правая дробь в паре a/b + c/d. Домножаем её на единицу b/b, где b — знаменатель левой дроби.</td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">3</span></span></td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">3</span></span> · <span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">2</span></span></td></tr>
+<tr><td>19</td><td>P.FRAC_MUL_UNIT</td><td><span class="frac"><span class="num">x</span><span class="bar"></span><span class="den">y</span></span> · <span class="frac"><span class="num">k</span><span class="bar"></span><span class="den">k</span></span></td><td><span class="frac"><span class="num">x·k</span><span class="bar"></span><span class="den">y·k</span></span></td><td>Умножаем дробь на единичную дробь k/k. Используется в процедуре приведения к общему знаменателю.</td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> · <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">3</span></span></td><td><span class="frac"><span class="num">1·3</span><span class="bar"></span><span class="den">2·3</span></span></td></tr>
+<tr><td>20</td><td>P.FRAC_ADD_AFTER_LIFT</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> + <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">b</span></span></td><td><span class="frac"><span class="num">a+c</span><span class="bar"></span><span class="den">b</span></span></td><td>Финальный шаг после приведения дробей к общему знаменателю.</td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">6</span></span> + <span class="frac"><span class="num">2</span><span class="bar"></span><span class="den">6</span></span></td><td><span class="frac"><span class="num">3+2</span><span class="bar"></span><span class="den">6</span></span></td></tr>
+<tr><td colspan="7"><strong>E. Знаки и унарный минус</strong> — Примитивы для работы с унарным минусом и знаками.</td></tr>
+<tr><td>21</td><td>P.NEG_BEFORE_NUMBER</td><td>-(a)</td><td>-a</td><td>Снимаем лишние скобки вокруг одного числа с унарным минусом.</td><td>-(3)</td><td>-3</td></tr>
+<tr><td>22</td><td>P.NEG_NEG</td><td>-(-a)</td><td>a</td><td>Двойной унарный минус.</td><td>-(-4)</td><td>4</td></tr>
+<tr><td>23</td><td>P.NEG_DISTRIB_ADD</td><td>-(a + b)</td><td>-a - b</td><td>Распределяем минус по сумме в скобках.</td><td>-(2 + 5)</td><td>-2 - 5</td></tr>
+<tr><td>24</td><td>P.NEG_DISTRIB_SUB</td><td>-(a - b)</td><td>-a + b</td><td>Распределяем минус по разности в скобках.</td><td>-(5 - 2)</td><td>-5 + 2</td></tr>
+<tr><td colspan="7"><strong>F. Скобки</strong> — Примитивы для удаления лишних скобок, не меняя смысла выражения. Применимы и к выражениям из целых, и к выражениям с дробями.</td></tr>
+<tr><td>25</td><td>P.PAREN_AROUND_ATOM_INT</td><td>(a)</td><td>a</td><td>Скобки вокруг одного целого числа можно убрать.</td><td>(3)</td><td>3</td></tr>
+<tr><td>26</td><td>P.PAREN_AROUND_ATOM_FRAC</td><td><span class="big-paren">(</span> <span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> <span class="big-paren">)</span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span></td><td>Скобки вокруг одной обыкновенной дроби можно убрать.</td><td><span class="big-paren">(</span> <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span> <span class="big-paren">)</span></td><td><span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">5</span></span></td></tr>
+<tr><td>27</td><td>P.PAREN_AROUND_EXPR_INT</td><td>(E_int)</td><td>E_int</td><td>Внешние скобки вокруг выражения из целых чисел можно убрать, если оно рассматривается как один блок.</td><td>(2 + 3)</td><td>2 + 3</td></tr>
+<tr><td>28</td><td>P.PAREN_AROUND_EXPR_FRAC</td><td><span class="big-paren">(</span> E_frac <span class="big-paren">)</span></td><td>E_frac</td><td>Внешние скобки вокруг выражения с дробями можно убрать, если оно рассматривается как один блок.</td><td><span class="big-paren">(</span> <span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> + <span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">3</span></span> <span class="big-paren">)</span></td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> + <span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">3</span></span></td></tr>
+<tr><td colspan="7"><strong>G. Вложенные дроби</strong> — Примитивы для работы со сложными вложенными дробями.</td></tr>
+<tr><td>29</td><td>P.NESTED_FRAC_DIV</td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> : <span class="frac"><span class="num">c</span><span class="bar"></span><span class="den">d</span></span></td><td><span class="frac"><span class="num">a</span><span class="bar"></span><span class="den">b</span></span> · <span class="frac"><span class="num">d</span><span class="bar"></span><span class="den">c</span></span></td><td>Частный случай деления «дробь на дробь» в виде вложенной структуры. Сводим к умножению на обратную дробь.</td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> : <span class="frac"><span class="num">3</span><span class="bar"></span><span class="den">4</span></span></td><td><span class="frac"><span class="num">1</span><span class="bar"></span><span class="den">2</span></span> · <span class="frac"><span class="num">4</span><span class="bar"></span><span class="den">3</span></span></td></tr>
+<tr><td colspan="7"><strong>H. Цель</strong> — Все примитивы используются для пошагового упрощения выражения до одного рационального числа.</td></tr>
+</table>
+</div>
+</body>
+</html>

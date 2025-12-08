@@ -6,7 +6,7 @@ import { PrimitiveDescriptor } from "./Registry";
 import { FractionNode } from "../../mapmaster/ast";
 
 export const FRAC_ADD_SAME_DEN_STAGE1: PrimitiveDescriptor = {
-    id: "FRAC_ADD_SAME_DEN_STAGE1",
+    id: "P.FRAC_ADD_SAME_DEN",
     domain: "FractionsSameDen",
     stageRange: { min: 1, max: 1 },
     label: "Add fractions with same denominator",
@@ -28,7 +28,7 @@ export const FRAC_ADD_SAME_DEN_STAGE1: PrimitiveDescriptor = {
 };
 
 export const FRAC_SUB_SAME_DEN_STAGE1: PrimitiveDescriptor = {
-    id: "FRAC_SUB_SAME_DEN_STAGE1",
+    id: "P.FRAC_SUB_SAME_DEN",
     domain: "FractionsSameDen",
     stageRange: { min: 1, max: 1 },
     label: "Subtract fractions with same denominator",

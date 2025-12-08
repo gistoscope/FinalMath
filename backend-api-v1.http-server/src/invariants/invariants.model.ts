@@ -6,8 +6,8 @@
  * only on simple string identifiers.
  */
 
-/** Identifier of a primitive operation in the course. */
-export type PrimitiveId = string;
+import { PrimitiveId } from "../engine/primitives.registry";
+export { PrimitiveId };
 
 /** Identifier of an invariant rule. */
 export type InvariantRuleId = string;

@@ -38,10 +38,13 @@ import { isLocalToSelection } from "./locality";
 import { StepSnapshotStore } from "../debug/StepSnapshotStore.js";
 import { computePrimitiveDebug } from "../engine/primitives/PrimitiveDebug";
 import type { PrimitiveDebugInfo } from "../protocol/backend-step.types";
+import type { PrimitiveMaster } from "../primitive-master/PrimitiveMaster";
+import { PRIMITIVE_DEFINITIONS, PrimitiveId } from "../engine/primitives.registry";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
     policy: StepPolicyConfig;
+    primitiveMaster?: PrimitiveMaster;
 }
 
 export interface OrchestratorStepRequest {
@@ -77,7 +80,6 @@ export async function runOrchestratorStep(
     ctx: OrchestratorContext,
     req: OrchestratorStepRequest
 ): Promise<OrchestratorStepResult> {
-    console.error("DEBUG: runOrchestratorStep STARTED");
     // 1. Load history from Session Service
     let history = await SessionService.getHistory(req.sessionId, req.userId, req.userRole);
 
@@ -103,11 +105,58 @@ export async function runOrchestratorStep(
         registry: ctx.invariantRegistry,
     };
 
-    // 3. Call MapMaster
-    const mapResult = mapMasterGenerate(mapInput);
-    console.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates for expression "${req.expressionLatex}" using set "${targetSet.id}"`);
-    if (mapResult.candidates.length === 0) {
-        console.log(`[Orchestrator] Active rules in set: ${targetSet.rules.map(r => r.id).join(', ')}`);
+    // 3. Candidate Generation
+    let mapResult: { candidates: any[], resolvedSelectionPath?: string };
+    let isPrimitiveMasterPath = false;
+    let pmPrimitiveId: string | null = null;
+
+    if (ctx.primitiveMaster) {
+        console.log("[Orchestrator] Using PrimitiveMaster path");
+        const pmResult = await ctx.primitiveMaster.match({
+            expressionLatex: req.expressionLatex,
+            selectionPath: req.selectionPath,
+            operatorIndex: req.operatorIndex,
+            invariantSetId: req.courseId,
+            expressionId: undefined,
+            context: { userRole: req.userRole }
+        });
+
+        if (pmResult.status === "match-found") {
+            isPrimitiveMasterPath = true;
+            pmPrimitiveId = pmResult.primitiveId;
+            const candidate = {
+                id: "pm-match",
+                invariantRuleId: "primitive-master-rule",
+                primitiveIds: [pmResult.primitiveId],
+                targetPath: pmResult.window.centerPath,
+                description: "PrimitiveMaster Selection",
+            };
+            mapResult = {
+                candidates: [candidate],
+                resolvedSelectionPath: pmResult.window.centerPath
+            };
+        } else if (pmResult.status === "no-match") {
+            console.log(`[Orchestrator] PrimitiveMaster returned no-match: ${pmResult.reason}`);
+            return {
+                status: "no-candidates",
+                engineResult: null,
+                history,
+            };
+        } else {
+            console.log(`[Orchestrator] PrimitiveMaster error: ${pmResult.message}`);
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: pmResult.message },
+                history,
+            };
+        }
+    } else {
+        // Legacy/Default MapMaster Path
+        mapResult = mapMasterGenerate(mapInput);
+        console.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates for expression "${req.expressionLatex}" using set "${targetSet.id}"`);
+        if (mapResult.candidates.length === 0) {
+            console.log(`[Orchestrator] Active rules in set: ${targetSet.rules.map(r => r.id).join(', ')}`);
+        }
     }
 
 
@@ -131,7 +180,7 @@ export async function runOrchestratorStep(
     const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
 
     const { getOperatorAnchorPath } = await import("./locality");
-    const { primitiveCatalog } = await import("../mapmaster/primitive-catalog");
+    // const { primitiveCatalog } = await import("../mapmaster/primitive-catalog");
 
     const ast = parseExpression(req.expressionLatex);
 
@@ -161,32 +210,17 @@ export async function runOrchestratorStep(
     console.log(`[Orchestrator] Candidates after anchoring: ${mapResult.candidates.length}`);
 
     // 3d. Stage-1 Strict Primitives (Atomic Mode)
-    // We enforce a strict set of allowed primitives for Stage-1 based on Operation Classes.
+    // We enforce a strict set of allowed primitives.
+    // V5 Update: We use the canonical registry. If MapMaster returned it, and it's in registry, it's valid.
+    // The previous logic filtered by "stage1" property in catalog.
+    // We will now trust MapMaster (which uses the catalog) + Registry validation later.
+    /*
     const STAGE1_ATOMIC_MODE = true; // Config flag
     if (STAGE1_ATOMIC_MODE) {
-        mapResult.candidates = mapResult.candidates.filter(c => {
-            const primId = c.primitiveIds[0];
-
-            // Find metadata in catalog
-            const catalogEntry = primitiveCatalog.find(p => p.primitiveId === primId);
-
-            if (!catalogEntry) {
-                console.log(`[Orchestrator] Filtered by strict primitives (not found): ${primId}`);
-                return false;
-            }
-
-            if (catalogEntry.stage !== "stage1") {
-                console.log(`[Orchestrator] Filtered by strict primitives (wrong stage): ${primId} (${catalogEntry.stage})`);
-                return false;
-            }
-
-            // Optional: Check Operation Type Symmetry if we knew the clicked operator type.
-            // But strict stage1 check + anchoring should be enough for now.
-
-            return true;
-        });
+       // ... removed logic ...
     }
-    console.log(`[Orchestrator] Candidates after strict primitives: ${mapResult.candidates.length}`);
+    */
+    console.log(`[Orchestrator] Candidates: ${mapResult.candidates.length}`);
 
     // 4. Build StepMasterInput
     let policy = ctx.policy;
@@ -205,11 +239,8 @@ export async function runOrchestratorStep(
         actionTarget: operatorAnchorPath || mapResult.resolvedSelectionPath
     };
 
-    console.log(`[Orchestrator] Calling StepMaster with ${stepInput.candidates.length} candidates.`);
-
     // 5. Call StepMaster
     const stepResult = stepMasterDecide(stepInput);
-
 
     // 6. Update History
     history = appendStepFromResult(history, stepResult, req.expressionLatex);
@@ -219,7 +250,6 @@ export async function runOrchestratorStep(
 
     // 8. Handle Decision
     if (stepResult.decision.status === "no-candidates") {
-        console.log(`[Orchestrator] StepMaster returned no-candidates. Reason: ${JSON.stringify(stepResult.decision)}`);
         captureSnapshot(req, mapResult, "no-candidates");
         return {
             status: "no-candidates",
@@ -246,15 +276,12 @@ export async function runOrchestratorStep(
         // STAGE 1 ENFORCEMENT: Primitive Validation
         // We strictly require that the applied step corresponds to a valid, known primitive.
         // Use primitives from StepMaster decision if available, otherwise fallback to candidate.
+        // Update for V5: Validate against PRIMITIVE_DEFINITIONS registry.
         const primitivesToApply = stepResult.primitivesToApply?.map(p => p.id) || chosenCandidate.primitiveIds;
-        const primaryPrimitiveId = primitivesToApply[0];
-        const primitiveDef = ctx.invariantRegistry.getPrimitiveById(primaryPrimitiveId);
-
+        const primaryPrimitiveId = primitivesToApply[0] as PrimitiveId;
+        const primitiveDef = PRIMITIVE_DEFINITIONS[primaryPrimitiveId];
 
         if (!primaryPrimitiveId || !primitiveDef) {
-            // Invalid or unknown primitive. Reject the step.
-            // We treat this as "no-candidates" (effectively no step applied) but with debug info.
-            captureSnapshot(req, mapResult, "no-candidates", chosenCandidate, null, "invalid-primitive-id");
             return {
                 status: "no-candidates",
                 engineResult: null,
@@ -281,7 +308,14 @@ export async function runOrchestratorStep(
 
             // Compute Primitive Debug Info
             let primitiveDebug: PrimitiveDebugInfo | undefined;
-            if (req.operatorIndex != null && ast) {
+            if (isPrimitiveMasterPath && pmPrimitiveId) {
+                primitiveDebug = {
+                    primitiveId: pmPrimitiveId,
+                    status: "ready",
+                    domain: "primitive-master",
+                    reason: "matched-by-selection"
+                };
+            } else if (req.operatorIndex != null && ast) {
                 primitiveDebug = computePrimitiveDebug({
                     expressionLatex: req.expressionLatex,
                     stage: 1, // Default to Stage 1 for now

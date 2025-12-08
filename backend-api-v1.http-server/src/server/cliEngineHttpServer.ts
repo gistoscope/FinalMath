@@ -9,6 +9,9 @@ import type { HandlerDeps } from "./HandlerPostEntryStep.js";
 
 import { loadAllCoursesFromDir } from "../invariants/index.js";
 import { createDefaultStudentPolicy } from "../stepmaster/index.js";
+import { createPrimitiveMaster } from "../primitive-master/PrimitiveMaster.js";
+import { createPrimitivePatternRegistry } from "../primitive-master/PrimitivePatterns.registry.js";
+import { parseExpression } from "../mapmaster/ast.js";
 
 function getPortFromEnv(): number {
   const raw =
@@ -93,11 +96,20 @@ function makeHandlerDeps(): HandlerDeps {
   // 2. Create Policy
   const policy = createDefaultStudentPolicy();
 
+  // 3. Create PrimitiveMaster
+  const patternRegistry = createPrimitivePatternRegistry();
+  const primitiveMaster = createPrimitiveMaster({
+    parseLatexToAst: async (latex) => parseExpression(latex),
+    patternRegistry,
+    log: (msg) => log(`[PrimitiveMaster] ${msg}`),
+  });
+
   const deps: HandlerDeps = {
     invariantRegistry: finalRegistry,
     policy,
     log,
     logger,
+    primitiveMaster,
   };
 
   return deps;

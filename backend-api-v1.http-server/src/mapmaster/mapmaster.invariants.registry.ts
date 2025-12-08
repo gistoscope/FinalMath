@@ -69,7 +69,7 @@ export const FRACTIONS_SAME_DEN_STAGE1: LocalInvariantSet = {
     id: 'fractions-same-den-stage1',
     rules: [
         {
-            id: 'FRAC_ADD_SAME_DEN_STAGE1',
+            id: 'R.FRAC_ADD_SAME',
             stage: 'Stage1',
             domain: 'FractionsSameDen',
             operation: 'Add',
@@ -81,7 +81,7 @@ export const FRACTIONS_SAME_DEN_STAGE1: LocalInvariantSet = {
             primitiveIds: ['P.FRAC_ADD_SAME_DEN']
         },
         {
-            id: 'FRAC_SUB_SAME_DEN_STAGE1',
+            id: 'R.FRAC_SUB_SAME',
             stage: 'Stage1',
             domain: 'FractionsSameDen',
             operation: 'Sub',
@@ -102,7 +102,7 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
     id: 'integers-stage1',
     rules: [
         {
-            id: 'INT_ADD_STAGE1',
+            id: 'R.INT_ADD',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Add',
@@ -113,7 +113,7 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
             primitiveIds: ['P.INT_ADD']
         },
         {
-            id: 'INT_SUB_STAGE1',
+            id: 'R.INT_SUB',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Sub',
@@ -124,7 +124,7 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
             primitiveIds: ['P.INT_SUB']
         },
         {
-            id: 'INT_MUL_STAGE1',
+            id: 'R.INT_MUL',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Mul',
@@ -135,7 +135,7 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
             primitiveIds: ['P.INT_MUL']
         },
         {
-            id: 'INT_DIV_STAGE1',
+            id: 'R.INT_DIV_EXACT',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Div',
@@ -143,7 +143,7 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
                 operator: '/',
                 requiresIntegers: true
             },
-            primitiveIds: ['P.INT_DIV_EXACT']
+            primitiveIds: ['P.INT_DIV_TO_INT']
         }
     ]
 };
@@ -154,19 +154,9 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
 export const MIXED_STAGE1: LocalInvariantSet = {
     id: 'mixed-stage1',
     rules: [
+        // R.INT_PLUS_FRAC and R.INT_MINUS_FRAC are in Default Set
         {
-            id: 'MIXED_INT_TO_FRAC_STAGE1',
-            stage: 'Stage1',
-            domain: 'Mixed',
-            operation: 'Convert',
-            pattern: {
-                requiresIntegers: true,
-                allowsMixed: true
-            },
-            primitiveIds: ['P.MIXED_SPLIT']
-        },
-        {
-            id: 'MIXED_ADD_INT_FRAC_STAGE1',
+            id: 'R.INT_PLUS_FRAC',
             stage: 'Stage1',
             domain: 'Mixed',
             operation: 'Add',
@@ -177,7 +167,7 @@ export const MIXED_STAGE1: LocalInvariantSet = {
             primitiveIds: ['P.INT_PLUS_FRAC']
         },
         {
-            id: 'MIXED_SUB_INT_FRAC_STAGE1',
+            id: 'R.INT_MINUS_FRAC',
             stage: 'Stage1',
             domain: 'Mixed',
             operation: 'Sub',

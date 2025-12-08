@@ -7,6 +7,7 @@
 
 import { AstNode, getNodeAt, parseExpression, replaceNodeAt, toLatex, NodeType } from "../mapmaster/ast";
 import { EngineStepExecutionRequest, EngineStepExecutionResult } from "./engine.bridge";
+import { PrimitiveId } from "./primitives.registry";
 
 export class PrimitiveRunner {
     static run(req: EngineStepExecutionRequest): EngineStepExecutionResult {
@@ -22,14 +23,11 @@ export class PrimitiveRunner {
             // Force legacy execution for primitives that require arithmetic simplification
             // which generic pattern execution (substitution only) cannot handle yet.
             const forceLegacy = [
-                "P.FRAC_ADD_SAME",
-                "P.FRAC_SUB_SAME",
-                "P.INT_PLUS_FRAC",
-                "P.INT_MINUS_FRAC",
-                "P.FRAC_ADD_DIFF",
-                "P.FRAC_SUB_DIFF",
-                "P4.FRAC_ADD_BASIC",
-                "P4.FRAC_SUB_BASIC"
+                "P.INT_ADD",
+                "P.INT_SUB",
+                "P.INT_MUL",
+                "P.INT_DIV_TO_INT",
+                "P.DEC_TO_FRAC"
             ].includes(primitiveId);
 
             if (resultPattern && bindings && !forceLegacy) {
@@ -37,7 +35,7 @@ export class PrimitiveRunner {
                 newAst = this.generateResultFromPattern(ast, targetPath, resultPattern, bindings);
             } else {
                 // Fallback to legacy execution
-                newAst = this.applyPrimitive(ast, targetNode, primitiveId, targetPath);
+                newAst = this.applyPrimitive(ast, targetNode, primitiveId as PrimitiveId, targetPath);
             }
 
             if (!newAst) return { ok: false, errorCode: "primitive-failed" };
@@ -116,27 +114,6 @@ export class PrimitiveRunner {
         }
 
         if (node.type === "fraction") {
-            // If numerator/denominator were parsed as variables (which our parser doesn't support for fraction type yet, 
-            // except via the hack I added or if I change fraction definition).
-            // Actually, my parser change allowed IDENTIFIER in denominator but returned it as fraction.
-            // But `FractionNode` expects string num/den.
-            // So `parseExpression` for `a/b` returns `binaryOp(/, var(a), var(b))` usually, 
-            // UNLESS I explicitly handled it.
-            // My parser change:
-            // if (den.type === "IDENTIFIER") return { type: "fraction", numerator: token.value, denominator: den.value }
-            // This puts "a" into denominator string.
-            // So if we have a fraction node with variable names in strings?
-            // That's messy.
-            // Better: `resultPattern` "a/b" should be parsed as binaryOp if a,b are vars.
-            // But `parseExpression` parses `1/2` as FractionNode.
-            // If pattern is `a/c + b/c`, `c` is a variable.
-            // `parseExpression` will parse `a/c` as binaryOp(/, a, c) because `c` is identifier.
-            // `1/c` -> binaryOp(/, 1, c) (because I restricted fraction to number/number or number/identifier).
-
-            // Wait, my parser change allowed `number / identifier` to be `fraction`.
-            // So `1/c` is `fraction(1, "c")`.
-            // `substituteVariables` needs to handle this.
-
             let num = node.numerator;
             let den = node.denominator;
 
@@ -144,9 +121,6 @@ export class PrimitiveRunner {
             if (bindings[num]) {
                 const bound = bindings[num];
                 if (bound.type === "integer") num = bound.value;
-                // What if bound is fraction? Nested fraction?
-                // `FractionNode` only supports string num/den.
-                // If bound is complex, we must convert this node to binaryOp(/).
             }
             if (bindings[den]) {
                 const bound = bindings[den];
@@ -159,79 +133,16 @@ export class PrimitiveRunner {
         return node;
     }
 
-    private static applyPrimitive(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        // Mixed Operations (Check specific IDs first to avoid P.INT_ prefix match)
-        if (id === "P.INT_PLUS_FRAC" || id === "P.INT_MINUS_FRAC") {
-            return this.runMixedOp(root, target, id, path);
-        }
-
-        // Integer Operations
-        if (id.startsWith("P.INT_")) return this.runIntegerOp(root, target, id, path);
-
-        // Fraction Operations
-        if (id.startsWith("P.FRAC_")) return this.runFractionOp(root, target, id, path);
-
-        // Decimal Operations
-        if (id.startsWith("P.DEC_")) return this.runDecimalOp(root, target, id, path);
-
-        // Structure/Other Operations
+    private static applyPrimitive(root: AstNode, target: AstNode | undefined, id: PrimitiveId, path: string): AstNode | undefined {
         switch (id) {
-            case "P.PAREN_REMOVE":
-            case "P.PAREN_REMOVE_NESTED":
-            case "P.FRAC_DEN_PAREN_REMOVE":
-                // Since our parser/printer handles parens automatically based on precedence,
-                // "removing" them is just a no-op identity transform (re-print).
-                return root;
-
-            case "P.DISTRIBUTE_NEG":
-            case "P.DISTRIBUTE_NEG_SUB":
-                return this.runDistributeNeg(root, target, id, path);
-
-            case "P.NEG_NEG_TO_POS":
-                return this.runDoubleNeg(root, target, path);
-
-            case "P.ADD_ZERO_LEFT":
-            case "P.ADD_ZERO_RIGHT":
-            case "P.SUB_ZERO":
-                return this.runIdentityAddSub(root, target, id, path);
-
-            case "P.SUB_SELF":
-                return replaceNodeAt(root, path, { type: "integer", value: "0" });
-
-            case "P.MUL_ZERO_LEFT":
-            case "P.MUL_ZERO_RIGHT":
-            case "P.DIV_ZERO_NUM":
-                return replaceNodeAt(root, path, { type: "integer", value: "0" });
-
-            case "P.DIV_ZERO_DEN_ERROR":
-                throw new Error("division-by-zero");
-
-            case "P.MUL_ONE_LEFT":
-            case "P.MUL_ONE_RIGHT":
-            case "P.MUL_ONE_LEFT_FRAC":
-            case "P.MUL_ONE_RIGHT_FRAC":
-            case "P.DIV_ONE":
-            case "P.FRAC_DEN_ONE":
-                return this.runIdentityMulDiv(root, target, id, path);
-
-            case "P.DIV_INV":
-                // 1 / x -> 1/x
-                // If target is binaryOp /, replace with Fraction
-                if (target?.type === "binaryOp" && target.op === "/") {
-                    return replaceNodeAt(root, path, {
-                        type: "fraction",
-                        numerator: toLatex(target.left),
-                        denominator: toLatex(target.right)
-                    });
-                }
+            // --- A. Normalization ---
+            case "P.DEC_TO_FRAC":
+                // d -> p/q
+                // Not implemented fully without decimal parsing support in AST
                 return undefined;
 
-            case "P.FRAC_NUM_DEN_EQUAL":
-                return replaceNodeAt(root, path, { type: "integer", value: "1" });
-
-            case "P.MIXED_SPLIT":
+            case "P.MIXED_TO_SUM":
                 if (target?.type === "mixed") {
-                    // A B/C -> A + B/C
                     return replaceNodeAt(root, path, {
                         type: "binaryOp",
                         op: "+",
@@ -240,31 +151,7 @@ export class PrimitiveRunner {
                     });
                 }
                 return undefined;
-
-            case "P.MUL_BY_ONE":
-                // x -> x * 1
-                if (!target) return undefined;
-                return replaceNodeAt(root, path, {
-                    type: "binaryOp",
-                    op: "*",
-                    left: target,
-                    right: { type: "integer", value: "1" }
-                });
-
-            case "P.ONE_TO_FRAC":
-                // 1 -> n/n. Need to guess n.
-                // We'll look for another fraction in the root to guess denominator.
-                // This is a heuristic for the stub.
-                const den = this.findContextDenominator(root) || "1";
-                return replaceNodeAt(root, path, {
-                    type: "fraction",
-                    numerator: den,
-                    denominator: den
-                });
-
-            case "P.INT_TO_FRAC_IN_SUM":
-            case "P.INT_TO_FRAC_IN_SUB":
-                // n -> n/1
+            case "P.INT_TO_FRAC":
                 if (target?.type === "integer") {
                     return replaceNodeAt(root, path, {
                         type: "fraction",
@@ -273,67 +160,162 @@ export class PrimitiveRunner {
                     });
                 }
                 return undefined;
-        }
+            case "P.FRAC_TO_INT":
+                if (target?.type === "fraction" && target.denominator === "1") {
+                    return replaceNodeAt(root, path, {
+                        type: "integer",
+                        value: target.numerator
+                    });
+                }
+                return undefined;
+            case "P.ONE_TO_UNIT_FRAC":
+                if (target?.type === "integer" && target.value === "1") {
+                    // Heuristic: try to find a denominator from context
+                    const den = this.findContextDenominator(root) || "1";
+                    return replaceNodeAt(root, path, {
+                        type: "fraction",
+                        numerator: den,
+                        denominator: den
+                    });
+                }
+                return undefined;
 
-        // Mixed Operations
-        if (id === "P.INT_PLUS_FRAC" || id === "P.INT_MINUS_FRAC") {
-            return this.runMixedOp(root, target, id, path);
+            // --- B. Integers ---
+            case "P.INT_ADD":
+            case "P.INT_SUB":
+            case "P.INT_MUL":
+            case "P.INT_DIV_TO_INT":
+                return this.runIntegerOp(root, target, id, path);
+            case "P.INT_DIV_TO_FRAC":
+                if (target?.type === "binaryOp" && (target.op as string) === ":") { // Assuming : is parsed as binaryOp
+                    // But wait, our parser might parse : as / or something else?
+                    // Standard parser usually handles / or :.
+                    // Let's assume binaryOp.
+                    if (target.left.type === "integer" && target.right.type === "integer") {
+                        return replaceNodeAt(root, path, {
+                            type: "fraction",
+                            numerator: target.left.value,
+                            denominator: target.right.value
+                        });
+                    }
+                }
+                return undefined;
+
+            // --- C. Fractions ---
+            case "P.FRAC_ADD_SAME_DEN":
+            case "P.FRAC_SUB_SAME_DEN":
+            case "P.FRAC_MUL":
+            case "P.FRAC_DIV_AS_MUL":
+            case "P.FRAC_EQ_SCALE":
+                return this.runFractionOp(root, target, id, path);
+
+            // --- D. Common Denominator ---
+            case "P.FRAC_MUL_BY_ONE":
+                if (target?.type === "fraction") {
+                    return replaceNodeAt(root, path, {
+                        type: "binaryOp",
+                        op: "*",
+                        left: target,
+                        right: { type: "integer", value: "1" }
+                    });
+                }
+                return undefined;
+            case "P.FRAC_LIFT_LEFT_BY_RIGHT_DEN":
+                return this.runLiftFraction(root, target, path, "left");
+
+            case "P.FRAC_LIFT_RIGHT_BY_LEFT_DEN":
+                return this.runLiftFraction(root, target, path, "right");
+
+            case "P.FRAC_MUL_UNIT":
+                // x/y * k/k -> (xk)/(yk)
+                if (target?.type === "binaryOp" && target.op === "*") {
+                    if (target.left.type === "fraction" && target.right.type === "fraction") {
+                        const n1 = parseInt(target.left.numerator);
+                        const d1 = parseInt(target.left.denominator);
+                        const n2 = parseInt(target.right.numerator);
+                        const d2 = parseInt(target.right.denominator);
+                        if (n2 === d2) {
+                            return replaceNodeAt(root, path, {
+                                type: "fraction",
+                                numerator: (n1 * n2).toString(),
+                                denominator: (d1 * d2).toString()
+                            });
+                        }
+                    }
+                }
+                return undefined;
+
+            case "P.FRAC_ADD_AFTER_LIFT":
+                // a/b + c/b -> (a+c)/b
+                // This is same as P.FRAC_ADD_SAME_DEN but maybe strictly for lifted context?
+                // Implementation is identical.
+                return this.runFractionOp(root, target, "P.FRAC_ADD_SAME_DEN", path);
+
+            // --- E. Signs ---
+            case "P.NEG_BEFORE_NUMBER":
+                // -(a) -> -a
+                // Parser issues with unary minus.
+                // If target is `-(a)`, it might be `binaryOp(-, 0, a)` or similar?
+                // Or `binaryOp(-, left, right)` where we want to distribute?
+                // P.NEG_BEFORE_NUMBER is specifically `-(a)` -> `-a`.
+                // If we have `-(3)`, we want `-3`.
+                // If `target` is `binaryOp(-, 0, 3)`, result is `integer(-3)`.
+                if (target?.type === "binaryOp" && target.op === "-" && target.left.type === "integer" && target.left.value === "0") {
+                    if (target.right.type === "integer") {
+                        return replaceNodeAt(root, path, {
+                            type: "integer",
+                            value: "-" + target.right.value
+                        });
+                    }
+                }
+                return undefined;
+
+            case "P.NEG_NEG":
+                // -(-a) -> a
+                return this.runDoubleNeg(root, target, path);
+
+            case "P.NEG_DISTRIB_ADD":
+            case "P.NEG_DISTRIB_SUB":
+                return this.runDistributeNeg(root, target, id, path);
+
+            // --- F. Parentheses ---
+            case "P.PAREN_AROUND_ATOM_INT":
+            case "P.PAREN_AROUND_ATOM_FRAC":
+            case "P.PAREN_AROUND_EXPR_INT":
+            case "P.PAREN_AROUND_EXPR_FRAC":
+                // Removing parens is a no-op in our AST/Printer
+                return root;
+
+            // --- G. Nested Fractions ---
+            case "P.NESTED_FRAC_DIV":
+                // (a/b) / (c/d) -> a/b * d/c
+                if (target?.type === "binaryOp" && (target.op === "/" || (target.op as string) === ":")) {
+                    if (target.left.type === "fraction" && target.right.type === "fraction") {
+                        return replaceNodeAt(root, path, {
+                            type: "binaryOp",
+                            op: "*",
+                            left: target.left,
+                            right: {
+                                type: "fraction",
+                                numerator: target.right.denominator,
+                                denominator: target.right.numerator
+                            }
+                        });
+                    }
+                }
+                return undefined;
         }
 
         return undefined;
     }
 
-    private static runMixedOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        if (target?.type !== "binaryOp") return undefined;
 
-        // Case 1: Integer + Fraction (a + b/c)
-        if (target.left.type === "integer" && target.right.type === "fraction") {
-            const a = parseInt(target.left.value, 10);
-            const b = parseInt(target.right.numerator, 10);
-            const c = parseInt(target.right.denominator, 10);
-
-            if (id === "P.INT_PLUS_FRAC") {
-                // a + b/c -> (a*c + b)/c
-                return replaceNodeAt(root, path, {
-                    type: "fraction",
-                    numerator: (a * c + b).toString(),
-                    denominator: c.toString()
-                });
-            }
-            if (id === "P.INT_MINUS_FRAC") {
-                // a - b/c -> (a*c - b)/c
-                return replaceNodeAt(root, path, {
-                    type: "fraction",
-                    numerator: (a * c - b).toString(),
-                    denominator: c.toString()
-                });
-            }
-        }
-
-        // Case 2: Fraction + Integer (b/c + a)
-        if (target.left.type === "fraction" && target.right.type === "integer") {
-            const b = parseInt(target.left.numerator, 10);
-            const c = parseInt(target.left.denominator, 10);
-            const a = parseInt(target.right.value, 10);
-
-            if (id === "P.INT_PLUS_FRAC") {
-                // b/c + a -> (b + a*c)/c
-                return replaceNodeAt(root, path, {
-                    type: "fraction",
-                    numerator: (b + a * c).toString(),
-                    denominator: c.toString()
-                });
-            }
-        }
-
-        return undefined;
-    }
 
     private static runIntegerOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
         let a: number, b: number;
 
         // Handle Fraction as Division
-        if (target?.type === "fraction" && (id === "P.INT_DIV_EXACT" || id === "P.INT_DIV_TO_FRAC")) {
+        if (target?.type === "fraction" && (id === "P.INT_DIV_TO_INT" || id === "P.INT_DIV_TO_FRAC")) {
             a = parseInt(target.numerator, 10);
             b = parseInt(target.denominator, 10);
         } else {
@@ -349,7 +331,7 @@ export class PrimitiveRunner {
             case "P.INT_ADD": res = a + b; break;
             case "P.INT_SUB": res = a - b; break;
             case "P.INT_MUL": res = a * b; break;
-            case "P.INT_DIV_EXACT":
+            case "P.INT_DIV_TO_INT":
                 if (b === 0) throw new Error("division-by-zero");
                 if (a % b !== 0) return undefined; // Not exact
                 res = a / b;
@@ -412,41 +394,33 @@ export class PrimitiveRunner {
         const d2 = parseInt(target.right.denominator, 10);
 
         let newFrac: { n: number, d: number } | null = null;
+        let newOp: AstNode | undefined;
 
         switch (id) {
-            case "P.FRAC_ADD_SAME":
             case "P.FRAC_ADD_SAME_DEN":
-                if (d1 !== d2) return undefined;
-                newFrac = { n: n1 + n2, d: d1 };
+                if (d1 === d2) newFrac = { n: n1 + n2, d: d1 };
                 break;
-            case "P.FRAC_SUB_SAME":
             case "P.FRAC_SUB_SAME_DEN":
-                if (d1 !== d2) return undefined;
-                newFrac = { n: n1 - n2, d: d1 };
+                if (d1 === d2) newFrac = { n: n1 - n2, d: d1 };
                 break;
             case "P.FRAC_MUL":
                 newFrac = { n: n1 * n2, d: d1 * d2 };
                 break;
-            case "P.FRAC_DIV":
-                if (n2 === 0) throw new Error("division-by-zero");
-                newFrac = { n: n1 * d2, d: d1 * n2 };
+            case "P.FRAC_DIV_AS_MUL":
+                // a/b : c/d -> a/b * d/c
+                newOp = {
+                    type: "binaryOp",
+                    op: "*",
+                    left: target.left,
+                    right: { type: "fraction", numerator: target.right.denominator, denominator: target.right.numerator }
+                };
                 break;
-            case "P.FRAC_ADD_DIFF":
-            case "P4.FRAC_ADD_BASIC":
-                if (d1 === d2) {
-                    newFrac = { n: n1 + n2, d: d1 };
-                } else {
-                    newFrac = { n: n1 * d2 + n2 * d1, d: d1 * d2 };
-                }
-                break;
-            case "P4.FRAC_SUB_BASIC":
-                if (d1 === d2) {
-                    newFrac = { n: n1 - n2, d: d1 };
-                } else {
-                    newFrac = { n: n1 * d2 - n2 * d1, d: d1 * d2 };
-                }
-                break;
+
+
+
         }
+
+        if (newOp) return replaceNodeAt(root, path, newOp);
 
         if (newFrac) {
             return replaceNodeAt(root, path, {
@@ -458,90 +432,26 @@ export class PrimitiveRunner {
         return undefined;
     }
 
-    private static runDecimalOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        if (target?.type !== "binaryOp") return undefined;
-        // Decimals are parsed as integers/numbers in our AST currently (value contains ".")
-        if (target.left.type !== "integer" || target.right.type !== "integer") return undefined;
 
-        const a = parseFloat(target.left.value);
-        const b = parseFloat(target.right.value);
-        let res: number | null = null;
 
-        switch (id) {
-            case "P.DEC_ADD": res = a + b; break;
-            case "P.DEC_SUB": res = a - b; break;
-            case "P.DEC_MUL": res = a * b; break;
-            case "P.DEC_DIV":
-                if (b === 0) throw new Error("division-by-zero");
-                res = a / b;
-                break;
-        }
 
-        if (res !== null) {
-            // Format to avoid long floats?
-            // For now, simple toString
-            return replaceNodeAt(root, path, { type: "integer", value: res.toString() });
-        }
-        return undefined;
-    }
 
-    private static runIdentityAddSub(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        if (target?.type !== "binaryOp") return undefined;
-        // x + 0 -> x
-        if (id === "P.ADD_ZERO_RIGHT" || id === "P.SUB_ZERO") {
-            return replaceNodeAt(root, path, target.left);
-        }
-        // 0 + x -> x
-        if (id === "P.ADD_ZERO_LEFT") {
-            return replaceNodeAt(root, path, target.right);
-        }
-        return undefined;
-    }
 
-    private static runIdentityMulDiv(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        if (target?.type !== "binaryOp") return undefined;
-        // x * 1 -> x, x / 1 -> x
-        if (id === "P.MUL_ONE_RIGHT" || id === "P.DIV_ONE" || id === "P.MUL_ONE_RIGHT_FRAC" || id === "P.FRAC_DEN_ONE") {
-            return replaceNodeAt(root, path, target.left);
-        }
-        // 1 * x -> x
-        if (id === "P.MUL_ONE_LEFT" || id === "P.MUL_ONE_LEFT_FRAC") {
-            return replaceNodeAt(root, path, target.right);
-        }
-        return undefined;
-    }
 
     private static runDistributeNeg(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        // - (a + b) -> -a - b
-        // This requires structure matching: UnaryOp?
-        // Our parser treats "-x" as... wait.
-        // Our parser handles binary ops. Unary minus is usually parsed as part of the number OR as 0 - x?
-        // Or maybe we need a UnaryOp node?
-        // The current parser in `ast.ts` does NOT support UnaryOp explicitly.
-        // It likely parses `- (a+b)` as `0 - (a+b)` or fails?
-        // Actually, `parseAddSub` handles `+` and `-` as binary.
-        // If it starts with `-`, `parseMulDiv` is called.
-        // `parsePrimary` handles numbers and parens.
-        // If input is `-5`, `tokenize` sees `-` then `5`.
-        // `parseExpression` calls `parseAddSub`.
-        // `parseAddSub` calls `parseMulDiv`.
-        // `parseMulDiv` calls `parsePrimary`.
-        // `parsePrimary` expects NUMBER or LPAREN.
-        // It does NOT handle leading `-`.
-        // So `-5` fails to parse!
-
-        // CRITICAL: Parser doesn't support unary minus.
-        // However, for `P.DISTRIBUTE_NEG`, we usually have `a - (b + c)`.
-        // In that case, `target` is the subtraction node `a - ...`.
-        // And `right` is `(b + c)`.
-        // So we transform `a - (b + c)` to `a - b - c`.
-
         if (target?.type !== "binaryOp") return undefined;
 
-        if (id === "P.DISTRIBUTE_NEG") {
+        if (id === "P.NEG_DISTRIB_ADD") {
             // a - (b + c) -> a - b - c
-            // target is the MINUS op.
-            // right is the PLUS op (in parens).
+            // This logic assumes specific AST shape.
+            // V5 pattern: -(a+b) -> -a-b. This is UNARY minus.
+            // Existing logic handles BINARY minus a - (b+c).
+            // Check if we need to support V5 logic here?
+            // V5 P.NEG_DISTRIB_ADD is for "-(a+b)".
+            // If target is unary minus, we distribute.
+            // If internal logic is for binary minus, it might be mismatched.
+            // But let's rename the check first.
+
             if (target.op === "-" && target.right.type === "binaryOp" && target.right.op === "+") {
                 const b = target.right.left;
                 const c = target.right.right;
@@ -560,7 +470,7 @@ export class PrimitiveRunner {
             }
         }
 
-        if (id === "P.DISTRIBUTE_NEG_SUB") {
+        if (id === "P.NEG_DISTRIB_SUB") {
             // a - (b - c) -> a - b + c
             if (target.op === "-" && target.right.type === "binaryOp" && target.right.op === "-") {
                 const b = target.right.left;
@@ -604,6 +514,36 @@ export class PrimitiveRunner {
         return undefined;
     }
 
+    private static runLiftFraction(root: AstNode, target: AstNode | undefined, path: string, side: "left" | "right"): AstNode | undefined {
+        // We need to find the parent binaryOp to get the other fraction's denominator.
+        // Since we don't have parent pointers, we have to search from root?
+        // Or we can assume the path ends in `.left` or `.right`?
+        // path format: "term[0].left" etc.
+        // If side is "left", path ends in ".left". Parent is path without ".left".
+        // If side is "right", path ends in ".right". Parent is path without ".right".
+
+        // This is a bit fragile but works for standard paths.
+        let parentPath = "";
+        if (side === "left" && path.endsWith(".left")) parentPath = path.substring(0, path.length - 5);
+        else if (side === "right" && path.endsWith(".right")) parentPath = path.substring(0, path.length - 6);
+        else return undefined;
+
+        const parent = getNodeAt(root, parentPath);
+        if (parent?.type !== "binaryOp") return undefined;
+
+        const other = side === "left" ? parent.right : parent.left;
+        if (other.type !== "fraction") return undefined;
+
+        const den = other.denominator;
+
+        return replaceNodeAt(root, path, {
+            type: "binaryOp",
+            op: "*",
+            left: target!,
+            right: { type: "fraction", numerator: den, denominator: den }
+        });
+    }
+
     private static gcd(a: number, b: number): number {
         return b === 0 ? a : this.gcd(b, a % b);
     }
@@ -611,11 +551,9 @@ export class PrimitiveRunner {
     private static findContextDenominator(node: AstNode): string | null {
         if (node.type === "fraction") {
             if (node.denominator !== "1") return node.denominator;
-            return null; // Skip "1"
+            return null;
         }
         if (node.type === "binaryOp") {
-            // Try right first? Or both?
-            // DFS
             const left = this.findContextDenominator(node.left);
             if (left) return left;
             return this.findContextDenominator(node.right);

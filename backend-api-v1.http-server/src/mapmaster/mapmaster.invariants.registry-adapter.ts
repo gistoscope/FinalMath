@@ -94,18 +94,12 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
             return true;
         });
 
-        console.log(`[Adapter] Active Rules: ${activeRules.length}, Augmented: ${augmentedRules.length}, Domains: ${candidateDomains.join(', ')}`);
-        console.log(`[Adapter] Augmented Rules: ${augmentedRules.map(r => `${r.id} (${r.domain})`).join(', ')}`);
-        console.log(`[Adapter] Candidates after domain filter: ${candidates.length}`);
-
         // Step 5: Apply pattern-based filtering
         if (this.astHelpers) {
             candidates = candidates.filter(rule =>
                 this.matchesPattern(rule, windowRootNode)
             );
         }
-
-        console.log(`[Adapter] Candidates after pattern filter: ${candidates.length}`);
 
         return candidates;
     }

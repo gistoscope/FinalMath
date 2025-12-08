@@ -45,7 +45,7 @@ export type AstNode = IntegerNode | FractionNode | MixedNumberNode | BinaryOpNod
 
 // --- Tokenizer ---
 
-type TokenType = "NUMBER" | "OP" | "LPAREN" | "RPAREN" | "SLASH" | "SPACE" | "IDENTIFIER" | "LBRACE" | "RBRACE" | "COMMAND";
+type TokenType = "NUMBER" | "OP" | "LPAREN" | "RPAREN" | "SLASH" | "SPACE" | "IDENTIFIER" | "LBRACE" | "RBRACE" | "COMMAND" | "COLON";
 
 interface Token {
     type: TokenType;
@@ -112,7 +112,13 @@ function tokenize(input: string): Token[] {
         }
 
         if (char === "/") {
-            tokens.push({ type: "SLASH", value: char, pos: i });
+            tokens.push({ type: "SLASH", value: "/", pos: i });
+            i++;
+            continue;
+        }
+
+        if (char === ":") {
+            tokens.push({ type: "COLON", value: ":", pos: i });
             i++;
             continue;
         }
@@ -311,12 +317,15 @@ export function parseExpression(latex: string): AstNode | undefined {
     function parseMulDiv(): AstNode {
         let left = parsePrimary();
 
-        while (peek() && (peek()?.value === "*" || peek()?.value === "/")) {
-            const op = consume()!;
+        while (peek() && (peek()?.value === "*" || peek()?.value === "/" || peek()?.type === "COLON")) {
+            const opToken = consume()!;
+            // Normalize colon to division operator '/'
+            const opValue = (opToken.type === "COLON") ? "/" : opToken.value;
+
             const right = parsePrimary();
             left = {
                 type: "binaryOp",
-                op: op.value as any,
+                op: opValue as any,
                 left,
                 right
             };

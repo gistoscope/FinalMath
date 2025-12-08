@@ -6,7 +6,8 @@
  *  - Convert the Local Engine response into a simple execution result for the orchestrator.
  */
 
-import type { InvariantRuleId, PrimitiveId } from "../invariants/index";
+import type { InvariantRuleId } from "../invariants/index";
+import { PrimitiveId } from "./primitives.registry";
 import type { MapMasterCandidate, MapMasterInput } from "../mapmaster/index";
 import { PrimitiveRunner } from "./primitive.runner";
 

@@ -78,7 +78,9 @@ export function createEngineHttpServer(
         url === "/api/mapmaster-debug" ||
         url === "/api/mapmaster-global-map" ||
         url === "/api/step-debug" ||
-        url === "/api/primitive-map-debug"
+        url === "/api/step-debug" ||
+        url === "/api/primitive-map-debug" ||
+        url === "/api/orchestrator/v5/step"
       )) {
         let body = "";
 
@@ -165,6 +167,12 @@ export function createEngineHttpServer(
               const { handlePostPrimitiveMapDebug } = await import("./HandlerPostPrimitiveMapDebug.js");
               await handlePostPrimitiveMapDebug(req, res, parsedBody);
               return; // Handler sends response
+            }
+            else if (url === "/api/orchestrator/v5/step") {
+              // NEW V5 ENDPOINT
+              const { handlePostOrchestratorStepV5 } = await import("./HandlerPostOrchestratorStepV5.js");
+              const result = await handlePostOrchestratorStepV5(parsedBody, handlerDeps);
+              response = result;
             }
             // POST /api/register
             // else if (url === "/api/register") {

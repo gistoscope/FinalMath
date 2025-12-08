@@ -28,7 +28,7 @@
       "description": "Умножение целых чисел"
     },
     {
-      "id": "P.INT_DIV_EXACT",
+      "id": "P.INT_DIV_TO_INT",
       "name": "Integer Division (Exact)",
       "category": "integer",
       "tags": [],
@@ -46,7 +46,7 @@
       "description": "Деление с остатком (дробь)"
     },
     {
-      "id": "P.FRAC_ADD_SAME",
+      "id": "P.FRAC_ADD_SAME_DEN",
       "name": "Fraction Addition (Same Denom)",
       "category": "fraction",
       "tags": [],
@@ -55,7 +55,7 @@
       "description": "Сложение дробей с одинаковыми знаменателями"
     },
     {
-      "id": "P.FRAC_SUB_SAME",
+      "id": "P.FRAC_SUB_SAME_DEN",
       "name": "Fraction Subtraction (Same Denom)",
       "category": "fraction",
       "tags": [],
@@ -475,7 +475,7 @@
           "level": "core",
           "tags": [],
           "primitiveIds": [
-            "P.INT_DIV_EXACT"
+            "P.INT_DIV_TO_INT"
           ]
         },
         {
@@ -486,7 +486,7 @@
           "level": "core",
           "tags": [],
           "primitiveIds": [
-            "P.FRAC_ADD_SAME"
+            "P.FRAC_ADD_SAME_DEN"
           ]
         },
         {
@@ -497,7 +497,7 @@
           "level": "core",
           "tags": [],
           "primitiveIds": [
-            "P.FRAC_SUB_SAME"
+            "P.FRAC_SUB_SAME_DEN"
           ]
         },
         {
