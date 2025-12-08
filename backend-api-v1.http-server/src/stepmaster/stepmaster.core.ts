@@ -15,6 +15,7 @@ export interface StepMasterInput {
     candidates: MapMasterCandidate[];
     history: StepHistorySnapshot;
     policy: StepPolicyConfig;
+    actionTarget?: string | null;
 }
 
 export interface StepMasterDecision {
@@ -33,15 +34,33 @@ export interface StepMasterResult {
  *
  * TzV1.1 strategy:
  *  - Filter out candidates that are "repetitive" or "looping" based on history.
+ *  - Filter out candidates that do not match the actionTarget (Locality).
  *  - If no candidates remain -> "no-candidates"
  *  - Else -> pick the first one (simple student policy)
  */
 export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
-    const { candidates, history, policy } = input;
+    const { candidates, history, policy, actionTarget } = input;
     console.log(`[StepMaster] Deciding among ${candidates.length} candidates. Last step exists: ${!!history.lastStep}`);
 
-    // 1. Filter out repetitive/looping steps
-    const validCandidates = candidates.filter(c => {
+    let validCandidates = candidates;
+
+    // 1. Locality Filter (Cursor Dictatorship)
+    if (actionTarget) {
+        console.log(`[StepMaster] Enforcing locality for target: ${actionTarget}`);
+        validCandidates = validCandidates.filter(c => {
+            // Strict equality: candidate target must match action target.
+            // We might want to allow "direct parent" if the click is on a child but the op is on parent?
+            // But for now, strict equality is safest for "Dictatorship".
+            const match = c.targetPath === actionTarget;
+            if (!match) {
+                console.log(`[StepMaster] Candidate ${c.id} rejected: target ${c.targetPath} != ${actionTarget}`);
+            }
+            return match;
+        });
+    }
+
+    // 2. Filter out repetitive/looping steps
+    validCandidates = validCandidates.filter(c => {
         if (isCandidateRepetitive(c, history)) {
             console.log(`[StepMaster] Candidate ${c.id} rejected: repetitive`);
             return false;
@@ -61,7 +80,7 @@ export function stepMasterDecide(input: StepMasterInput): StepMasterResult {
         };
     }
 
-    // 2. Prioritize (simple strategy: pick first)
+    // 3. Prioritize (simple strategy: pick first)
     const best = validCandidates[0];
     console.log(`[StepMaster] Chosen: ${best.id}`);
 

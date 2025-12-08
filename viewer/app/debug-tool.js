@@ -5,6 +5,8 @@ let currentAst = null;
 
 let currentMapResult = null;
 let currentStepResult = null;
+let currentGlobalMapResult = null;
+let currentPrimitiveMapResult = null;
 let els = {};
 
 // --- Initialization ---
@@ -26,6 +28,8 @@ export function init() {
 
         btnMapDebug: document.getElementById('btn-map-debug'),
         btnStepDebug: document.getElementById('btn-step-debug'),
+        btnGlobalMap: document.getElementById('btn-global-map'),
+        btnPrimitiveMap: document.getElementById('btn-primitive-map'),
 
         mathPreview: document.getElementById('math-preview'),
 
@@ -38,6 +42,8 @@ export function init() {
         astContent: document.getElementById('ast-content'),
 
         mapContent: document.getElementById('map-content'),
+        globalMapContent: document.getElementById('global-map-content'),
+        primitiveMapContent: document.getElementById('primitive-map-content'),
         stepContent: document.getElementById('step-content'),
 
         loading: document.getElementById('loading-overlay')
@@ -49,6 +55,8 @@ export function init() {
 
     if (els.btnMapDebug) els.btnMapDebug.addEventListener('click', handleMapDebug);
     if (els.btnStepDebug) els.btnStepDebug.addEventListener('click', handleStepDebug);
+    if (els.btnGlobalMap) els.btnGlobalMap.addEventListener('click', handleGlobalMapDebug);
+    if (els.btnPrimitiveMap) els.btnPrimitiveMap.addEventListener('click', handlePrimitiveMapDebug);
     if (els.latexInput) els.latexInput.addEventListener('input', updatePreview);
 
     // Initial render
@@ -158,6 +166,18 @@ export async function callStepDebug(req) {
     return res.json();
 }
 
+export async function callGlobalMapDebug(req) {
+    const res = await fetch(`${DEBUG_API_BASE}/api/mapmaster-global-map`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(req)
+    });
+    if (!res.ok) {
+        throw new Error(`API Error: ${res.status} ${res.statusText}`);
+    }
+    return res.json();
+}
+
 // --- Handlers ---
 
 async function handleAstDebug() {
@@ -255,6 +275,40 @@ async function handleStepDebug() {
     }
 }
 
+async function handleGlobalMapDebug() {
+    const latex = els.latexInput.value;
+    const request = { latex };
+
+    setLoading(true);
+    try {
+        const response = await callGlobalMapDebug(request);
+        if (response.type === 'ok') {
+            const result = response.result;
+            currentGlobalMapResult = result;
+
+            if (result && result.astSnapshot) {
+                currentAst = result.astSnapshot;
+                renderAst(currentAst);
+            }
+
+            renderGlobalMapResult(currentGlobalMapResult);
+            updateStatus('Global Map', 'ok');
+        } else {
+            updateStatus('Global Map', 'error', response.message || 'Unknown error');
+            if (els.globalMapContent) {
+                els.globalMapContent.innerHTML = `<div style="color:#dc2626">Error: ${response.message || 'Unknown error'}</div>`;
+            }
+        }
+    } catch (e) {
+        updateStatus('Global Map', 'error', e.message);
+        if (els.globalMapContent) {
+            els.globalMapContent.innerHTML = `<div style="color:#dc2626">Error: ${e.message}</div>`;
+        }
+    } finally {
+        setLoading(false);
+    }
+}
+
 // --- Rendering ---
 
 if (typeof window !== 'undefined') {
@@ -327,6 +381,229 @@ function renderStepResult(result) {
     if (typeof window !== 'undefined' && window.switchStepView) {
         window.switchStepView('structured');
     }
+}
+
+function renderGlobalMapResult(result) {
+    if (!els.globalMapContent) return;
+
+    if (!result) {
+        els.globalMapContent.innerHTML = `
+      <div class="section-title">Global Map (full expression)</div>
+      <div style="color: #9ca3af; text-align: center; margin-top: 8px;">
+        No Global Map data
+      </div>
+    `;
+        return;
+    }
+
+    const container = els.globalMapContent;
+    container.innerHTML = '';
+
+    // Summary
+    renderSection(container, 'Global Map Summary', [
+        { k: 'Expression', v: result.expressionLatex || '' },
+        { k: 'Operators', v: String(result.operatorCount ?? 0) },
+        { k: 'Anchors with candidates', v: String(result.candidatefulAnchorCount ?? 0) }
+    ]);
+
+    // Anchors table (compact listing)
+    if (Array.isArray(result.entries) && result.entries.length > 0) {
+        const header = document.createElement('div');
+        header.className = 'section-title';
+        header.textContent = 'Anchors';
+        container.appendChild(header);
+
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontSize = '12px';
+        table.style.marginBottom = '8px';
+
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        ['#', 'OpIdx', 'AnchorKind', 'Candidates'].forEach(label => {
+            const th = document.createElement('th');
+            th.textContent = label;
+            th.style.textAlign = 'left';
+            th.style.padding = '2px 4px';
+            th.style.borderBottom = '1px solid #e5e7eb';
+            headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        result.entries.forEach((entry, idx) => {
+            const tr = document.createElement('tr');
+
+            const tdIndex = document.createElement('td');
+            tdIndex.textContent = String(idx);
+            tdIndex.style.padding = '2px 4px';
+
+            const tdOpIdx = document.createElement('td');
+            tdOpIdx.textContent = (entry.operatorIndex != null ? String(entry.operatorIndex) : '-');
+            tdOpIdx.style.padding = '2px 4px';
+
+            const tdKind = document.createElement('td');
+            tdKind.textContent = entry.anchorKind || '';
+            tdKind.style.padding = '2px 4px';
+
+            const tdCount = document.createElement('td');
+            tdCount.textContent = String(entry.candidateCount ?? 0);
+            tdCount.style.padding = '2px 4px';
+
+            tr.appendChild(tdIndex);
+            tr.appendChild(tdOpIdx);
+            tr.appendChild(tdKind);
+            tr.appendChild(tdCount);
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // Raw JSON section
+    const jsonHeader = document.createElement('div');
+    jsonHeader.className = 'section-title';
+    jsonHeader.textContent = 'Raw Global Map JSON';
+    container.appendChild(jsonHeader);
+
+    renderJson(container, result);
+}
+
+async function handlePrimitiveMapDebug() {
+    const latex = els.latexInput.value;
+    const request = { expressionLatex: latex, stage: 1 }; // Default to stage 1 for now
+
+    setLoading(true);
+    try {
+        const response = await callPrimitiveMapDebug(request);
+        if (response.status === 'ok') {
+            const result = response.map;
+            currentPrimitiveMapResult = result;
+
+            // No AST snapshot in this response currently, but we could add it if needed.
+
+            renderPrimitiveMapResult(currentPrimitiveMapResult);
+            updateStatus('Primitive Map', 'ok');
+        } else {
+            updateStatus('Primitive Map', 'error', response.errorMessage || 'Unknown error');
+            if (els.primitiveMapContent) {
+                els.primitiveMapContent.innerHTML = `<div style="color:#dc2626">Error: ${response.errorMessage || 'Unknown error'}</div>`;
+            }
+        }
+    } catch (e) {
+        updateStatus('Primitive Map', 'error', e.message);
+        if (els.primitiveMapContent) {
+            els.primitiveMapContent.innerHTML = `<div style="color:#dc2626">Error: ${e.message}</div>`;
+        }
+    } finally {
+        setLoading(false);
+    }
+}
+
+function renderPrimitiveMapResult(result) {
+    if (!els.primitiveMapContent) return;
+
+    if (!result) {
+        els.primitiveMapContent.innerHTML = `
+      <div class="section-title">Primitive Map (Stage 1)</div>
+      <div style="color: #9ca3af; text-align: center; margin-top: 8px;">
+        No Primitive Map data
+      </div>
+    `;
+        return;
+    }
+
+    const container = els.primitiveMapContent;
+    container.innerHTML = '';
+
+    // Summary
+    renderSection(container, 'Primitive Map Summary', [
+        { k: 'Expression', v: result.expressionLatex || '' },
+        { k: 'Stage', v: String(result.stage) },
+        { k: 'Operators', v: String(result.operatorCount ?? 0) },
+        { k: 'Ready', v: String(result.readyCount ?? 0), cls: 'status-ok' },
+        { k: 'Blocked', v: String(result.blockedCount ?? 0), cls: 'status-warn' },
+        { k: 'None', v: String(result.noneCount ?? 0), cls: 'status-error' },
+        { k: 'Error', v: String(result.errorCount ?? 0), cls: 'status-error' }
+    ]);
+
+    // Entries table
+    if (Array.isArray(result.entries) && result.entries.length > 0) {
+        const header = document.createElement('div');
+        header.className = 'section-title';
+        header.textContent = 'Entries';
+        container.appendChild(header);
+
+        const table = document.createElement('table');
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.fontSize = '12px';
+        table.style.marginBottom = '8px';
+
+        const thead = document.createElement('thead');
+        const headRow = document.createElement('tr');
+        ['OpIdx', 'NodeID', 'Primitive', 'Status', 'Reason'].forEach(label => {
+            const th = document.createElement('th');
+            th.textContent = label;
+            th.style.textAlign = 'left';
+            th.style.padding = '2px 4px';
+            th.style.borderBottom = '1px solid #e5e7eb';
+            headRow.appendChild(th);
+        });
+        thead.appendChild(headRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        result.entries.forEach((entry) => {
+            const tr = document.createElement('tr');
+
+            const tdOpIdx = document.createElement('td');
+            tdOpIdx.textContent = (entry.operatorIndex != null ? String(entry.operatorIndex) : '-');
+            tdOpIdx.style.padding = '2px 4px';
+
+            const tdNodeId = document.createElement('td');
+            tdNodeId.textContent = entry.nodeId || '';
+            tdNodeId.style.padding = '2px 4px';
+
+            const tdPrim = document.createElement('td');
+            tdPrim.textContent = entry.primitiveId || '-';
+            tdPrim.style.padding = '2px 4px';
+            if (entry.primitiveId) tdPrim.style.color = '#2563eb';
+
+            const tdStatus = document.createElement('td');
+            tdStatus.textContent = entry.status || '';
+            tdStatus.style.padding = '2px 4px';
+            if (entry.status === 'ready') tdStatus.className = 'status-ok';
+            else if (entry.status === 'blocked') tdStatus.className = 'status-warn';
+            else tdStatus.className = 'status-error';
+
+            const tdReason = document.createElement('td');
+            tdReason.textContent = entry.reason || '';
+            tdReason.style.padding = '2px 4px';
+            tdReason.style.color = '#6b7280';
+
+            tr.appendChild(tdOpIdx);
+            tr.appendChild(tdNodeId);
+            tr.appendChild(tdPrim);
+            tr.appendChild(tdStatus);
+            tr.appendChild(tdReason);
+            tbody.appendChild(tr);
+        });
+
+        table.appendChild(tbody);
+        container.appendChild(table);
+    }
+
+    // Raw JSON section
+    const jsonHeader = document.createElement('div');
+    jsonHeader.className = 'section-title';
+    jsonHeader.textContent = 'Raw Primitive Map JSON';
+    container.appendChild(jsonHeader);
+
+    renderJson(container, result);
 }
 
 function renderJson(container, data) {
@@ -559,5 +836,17 @@ function renderStepStructured(container, result) {
             { k: 'Steps', v: result.updatedSession.entries.length },
             { k: 'Last Status', v: result.updatedSession.entries.length > 0 ? result.updatedSession.entries[result.updatedSession.entries.length - 1].decisionStatus : '-' }
         ]);
+    }
+
+    // Primitive Debug
+    const primDebugEl = document.getElementById('step-primitive-debug');
+    const primDebugJson = document.getElementById('step-primitive-debug-json');
+    if (primDebugEl && primDebugJson) {
+        if (result.primitiveDebug) {
+            primDebugEl.style.display = 'block';
+            primDebugJson.textContent = JSON.stringify(result.primitiveDebug, null, 2);
+        } else {
+            primDebugEl.style.display = 'none';
+        }
     }
 }

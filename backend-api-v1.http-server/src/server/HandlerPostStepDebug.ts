@@ -1,3 +1,9 @@
+/**
+ * StepMaster Debug endpoint.
+ *
+ * This is a DEBUG/TOOLS ONLY endpoint used by viewer/debug-tool.html.
+ * It exposes the internal StepMaster decision logic and MUST NOT be used from the student-facing UI.
+ */
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { StepDebugRequest, StepDebugResponse, StepDebugResult } from "../stepmaster/stepmaster.debug.types";
 import { mapMasterDebug } from "../mapmaster/mapmaster.debug";

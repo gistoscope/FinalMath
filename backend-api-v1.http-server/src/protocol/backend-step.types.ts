@@ -19,12 +19,20 @@ export interface EntryStepRequest {
   token?: string; // Optional auth token
 }
 
+export interface PrimitiveDebugInfo {
+  primitiveId: string | null;
+  status: "ready" | "blocked" | "none" | "error";
+  domain?: string | null;
+  reason?: string | null;
+}
+
 export interface EngineStepResponse {
   expressionLatex: string;
   status: OrchestratorStepStatus;
   debugInfo?: {
     allCandidates: unknown[];
   } | null;
+  primitiveDebug?: PrimitiveDebugInfo;
 }
 
 export interface UndoStepRequest {

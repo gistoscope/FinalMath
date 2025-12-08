@@ -16,6 +16,8 @@ describe('Frontend Debug Tool', () => {
         expect(content).toContain('id="selection-type"');
         expect(content).toContain('id="btn-ast-debug"');
         expect(content).toContain('id="btn-map-debug"');
+        expect(content).toContain('id="btn-step-debug"');
+        expect(content).toContain('id="btn-global-map"');
         expect(content).toContain('src="app/debug-tool.js"');
     });
 
@@ -28,10 +30,12 @@ describe('Frontend Debug Tool', () => {
         expect(content).toContain('export async function callAstDebug');
         expect(content).toContain('export async function callMapMasterDebug');
         expect(content).toContain('export async function callStepDebug');
+        expect(content).toContain('export async function callGlobalMapDebug');
 
         // Check for logic
         expect(content).toContain('fetch(`${DEBUG_API_BASE}/api/ast-debug`');
         expect(content).toContain('fetch(`${DEBUG_API_BASE}/api/mapmaster-debug`');
         expect(content).toContain('fetch(`${DEBUG_API_BASE}/api/step-debug`');
+        expect(content).toContain('fetch(`${DEBUG_API_BASE}/api/mapmaster-global-map`');
     });
 });

@@ -341,6 +341,7 @@
                 <button id="btn-ast-debug">AST Debug</button>
                 <button id="btn-map-debug">Map Debug</button>
                 <button id="btn-step-debug">Step Debug</button>
+                <button id="btn-global-map">Global Map</button>
             </div>
         </div>
 
@@ -392,8 +393,16 @@
                         <div class="tab" data-view="json" onclick="switchMapView('json')">JSON</div>
                     </div>
                 </div>
-                <div class="col-content" id="map-content">
-                    <div style="color: #9ca3af; text-align: center; margin-top: 20px;">No MapMaster data</div>
+                <div class="col-content">
+                    <div id="map-content">
+                        <div style="color: #9ca3af; text-align: center; margin-top: 20px;">No MapMaster data</div>
+                    </div>
+                    <div id="global-map-content" style="margin-top: 16px;">
+                        <div class="section-title">Global Map (full expression)</div>
+                        <div style="color: #9ca3af; text-align: center; margin-top: 8px;">
+                            No Global Map data
+                        </div>
+                    </div>
                 </div>
             </div>
 

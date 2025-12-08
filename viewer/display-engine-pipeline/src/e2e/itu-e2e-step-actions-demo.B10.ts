@@ -24,8 +24,8 @@ async function main() {
   // Создаём midlayer с HTTP-клиентом к engine-server.mjs.
   // Порт и путь должны совпадать с твоим engine-adapter-lite.
   const engine = new MidlayerStepEngine({
-    baseUrl: 'http://localhost:4101',
-    path: '/engine',
+    baseUrl: 'http://localhost:4201',
+    path: '/api/entry-step',
   });
 
   const latex = '\\frac{1}{3} + \\frac{2}{5}';

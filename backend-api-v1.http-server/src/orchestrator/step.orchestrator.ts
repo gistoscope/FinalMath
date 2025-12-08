@@ -36,6 +36,8 @@ import { SessionService } from "../session/session.service";
 import type { UserRole, HintRequest, HintResponse } from "../protocol/backend-step.types";
 import { isLocalToSelection } from "./locality";
 import { StepSnapshotStore } from "../debug/StepSnapshotStore.js";
+import { computePrimitiveDebug } from "../engine/primitives/PrimitiveDebug";
+import type { PrimitiveDebugInfo } from "../protocol/backend-step.types";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
@@ -65,6 +67,7 @@ export interface OrchestratorStepResult {
         allCandidates?: unknown[];
         [key: string]: unknown;
     } | null;
+    primitiveDebug?: PrimitiveDebugInfo;
 }
 
 /**
@@ -198,6 +201,8 @@ export async function runOrchestratorStep(
         candidates: mapResult.candidates,
         history: getSnapshot(history),
         policy: policy,
+        // Pass the strict action target (operator anchor if available, else selection path)
+        actionTarget: operatorAnchorPath || mapResult.resolvedSelectionPath
     };
 
     console.log(`[Orchestrator] Calling StepMaster with ${stepInput.candidates.length} candidates.`);
@@ -273,11 +278,24 @@ export async function runOrchestratorStep(
             }
 
             captureSnapshot(req, mapResult, "step-applied", chosenCandidate, engineResult);
+
+            // Compute Primitive Debug Info
+            let primitiveDebug: PrimitiveDebugInfo | undefined;
+            if (req.operatorIndex != null && ast) {
+                primitiveDebug = computePrimitiveDebug({
+                    expressionLatex: req.expressionLatex,
+                    stage: 1, // Default to Stage 1 for now
+                    astRoot: ast,
+                    operatorIndex: req.operatorIndex
+                });
+            }
+
             return {
                 status: "step-applied",
                 engineResult,
                 history,
                 debugInfo: buildDebugInfo(policy, mapResult),
+                primitiveDebug
             };
         } else {
             // Update history with error code

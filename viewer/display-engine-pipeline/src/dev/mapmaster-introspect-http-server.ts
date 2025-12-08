@@ -5,7 +5,7 @@ import { NginHttpEngineClient } from "../../../../mapmaster-bridge/src/mapmaster
 import { buildMapMasterIntrospectSummary } from "../../../../mapmaster-bridge/src/mapmaster.introspect";
 import type { MapMasterRequest } from "../../../../mapmaster-bridge/src/mapmaster.api";
 
-const ENGINE_URL = "http://localhost:4101/engine";
+const ENGINE_URL = "http://localhost:4201/api/entry-step";
 const PORT = 4201;
 const PATH = "/mapmaster-introspect";
 

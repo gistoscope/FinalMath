@@ -125,7 +125,8 @@ export async function HandlerPostEntryStep(
     return {
       status: result.status,
       expressionLatex: responseLatex,
-      debugInfo: result.debugInfo,
+      debugInfo: result.debugInfo as any,
+      primitiveDebug: result.primitiveDebug,
     };
 
   } catch (error) {

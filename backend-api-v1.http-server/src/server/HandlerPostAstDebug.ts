@@ -1,3 +1,9 @@
+/**
+ * AST Debug endpoint.
+ *
+ * This is a DEBUG/TOOLS ONLY endpoint used by viewer/debug-tool.html.
+ * It exposes the internal AST structure and MUST NOT be used from the student-facing UI.
+ */
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { parseExpression } from "../mapmaster/ast";
 import type { AstDebugRequest, AstDebugResponse } from "../mapmaster/mapmaster.debug.types";

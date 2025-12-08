@@ -21,8 +21,8 @@ async function main() {
 
   // MidlayerStepEngine: внутри BasicMapMaster + MapMasterEngineOrchestrator + NginHttpEngineClient.
   const engine = new MidlayerStepEngine({
-    baseUrl: 'http://localhost:4101',
-    path: '/engine',
+    baseUrl: 'http://localhost:4201',
+    path: '/api/entry-step',
   });
 
   // Честный MapMasterRequest по образцу itu-e2e-mapmaster-introspect.ts.

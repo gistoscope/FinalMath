@@ -228,18 +228,39 @@ export class EngineAdapter {
       throw new Error("HTTP mode requires httpEndpoint in config");
     }
 
+    // Only handle applyStep for now via the new Engine
+    if (request.type !== "applyStep") {
+      // Return a dummy OK response for non-apply steps to keep the UI happy
+      return {
+        type: "ok",
+        requestType: request.type,
+        result: {
+          latex: request.clientEvent.latex,
+          meta: { status: "ignored-by-new-engine" }
+        }
+      };
+    }
+
     const timeout = this.config.httpTimeout || 5000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
-      // Send EngineRequest directly to the Adapter
+      // Map to EntryStepRequest
+      const entryStepRequest = {
+        sessionId: "default-session",
+        expressionLatex: request.clientEvent.latex,
+        selectionPath: null, // Not used for simple operator clicks
+        operatorIndex: request.clientEvent.surfaceOperatorIndex,
+        policyId: "student.basic"
+      };
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(entryStepRequest),
         signal: controller.signal,
       });
 
@@ -249,8 +270,20 @@ export class EngineAdapter {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const engineResponse = await response.json();
-      return engineResponse;
+      const engineStepResponse = await response.json();
+
+      // Map back to EngineResponse
+      return {
+        type: "ok",
+        requestType: request.type,
+        result: {
+          latex: engineStepResponse.expressionLatex,
+          meta: {
+            backendStatus: engineStepResponse.status,
+            debugInfo: engineStepResponse.debugInfo
+          }
+        }
+      };
 
     } catch (err) {
       clearTimeout(timeoutId);

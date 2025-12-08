@@ -78,7 +78,7 @@ if (typeof window !== "undefined") {
 // C6: EngineAdapter + StubEngine (embedded demo)
 const engineAdapter = new EngineAdapter(fileBus, {
   mode: "http",
-  httpEndpoint: "http://localhost:4101/engine",
+  httpEndpoint: "http://localhost:4201/api/entry-step",
   httpTimeout: 8000,
 });
 
@@ -482,8 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ) {
             const status = res.result.meta ? res.result.meta.backendStatus : null;
             const shouldApply =
-              res.requestType === "previewStep" ||
-              res.requestType === "applyStep" ||
+              res.requestType === "applyStep" &&
               status === "step-applied";
 
             if (shouldApply) {

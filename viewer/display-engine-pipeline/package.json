@@ -12,8 +12,7 @@
     "e2e": "tsx ./src/e2e/itu-e2e.ts",
     "e2e:http": "tsx ./src/e2e/itu-e2e-http.ts",
     "e2e:mapmaster": "tsx ./src/e2e/itu-e2e-mapmaster.ts",
-    "e2e:mapmaster:http": "tsx ./src/e2e/itu-e2e-mapmaster-http.ts",
-    "engine:server": "node ../../engine-adapter-lite/engine-server.mjs"
+    "e2e:mapmaster:http": "tsx ./src/e2e/itu-e2e-mapmaster-http.ts"
   },
   "dependencies": {
     "@motor/mapmaster-bridge": "workspace:*"

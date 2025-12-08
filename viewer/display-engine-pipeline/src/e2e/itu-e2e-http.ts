@@ -33,7 +33,7 @@ async function runScenario(): Promise<void> {
   // Start EngineAdapter in HTTP mode, pointing at engine-server (engine-lite bridge).
   const engineAdapter = new EngineAdapter(bus, {
     mode: "http",
-    httpEndpoint: "http://localhost:4101/engine",
+    httpEndpoint: "http://localhost:4201/api/entry-step",
     httpTimeout: 5000,
   });
 
@@ -48,7 +48,7 @@ async function runScenario(): Promise<void> {
     selection: ["n1"],
     click: {
       button: "left",
-      clickCount: 1,
+      clickCount: 2,
       modifiers: {
         altKey: false,
         ctrlKey: false,

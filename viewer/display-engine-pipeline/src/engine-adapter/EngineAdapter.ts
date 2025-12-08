@@ -101,17 +101,39 @@ export class EngineAdapter {
       throw new Error("HTTP mode requires httpEndpoint in config");
     }
 
+    // Only handle applyStep for now via the new Engine
+    if (request.type !== "applyStep") {
+      // Return a dummy OK response for non-apply steps
+      return {
+        type: "ok",
+        requestType: request.type,
+        result: {
+          latex: (request.clientEvent as any).latex || "",
+          meta: { status: "ignored-by-new-engine" }
+        }
+      };
+    }
+
     const timeout = this.config.httpTimeout || 5000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
     try {
+      // Map to EntryStepRequest
+      const entryStepRequest = {
+        sessionId: "default-session",
+        expressionLatex: (request.clientEvent as any).latex,
+        selectionPath: null,
+        operatorIndex: (request.clientEvent as any).surfaceOperatorIndex,
+        policyId: "student.basic"
+      };
+
       const response = await fetch(endpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(request),
+        body: JSON.stringify(entryStepRequest),
         signal: controller.signal,
       });
 
@@ -121,8 +143,20 @@ export class EngineAdapter {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const data = await response.json();
-      return data as EngineResponse;
+      const engineStepResponse = await response.json();
+
+      // Map back to EngineResponse
+      return {
+        type: "ok",
+        requestType: request.type,
+        result: {
+          latex: engineStepResponse.expressionLatex,
+          meta: {
+            backendStatus: engineStepResponse.status,
+            debugInfo: engineStepResponse.debugInfo
+          }
+        }
+      };
     } catch (err) {
       clearTimeout(timeoutId);
       throw err;

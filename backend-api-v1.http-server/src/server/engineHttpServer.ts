@@ -64,6 +64,9 @@ export function createEngineHttpServer(
       // POST /api/entry-step (TzV1.1)
       // We also support /engine/step for backward compatibility if needed, 
       // but TZ specifies /api/entry-step.
+      // STUDENT-FACING ENGINE ENDPOINT:
+      // This endpoint is called by the main Viewer/Adapter in the learning flow.
+      // It MUST NOT depend on any debug-only endpoints.
       if (req.method === "POST" && (
         url === "/api/entry-step" ||
         url === "/engine/step" ||
@@ -73,7 +76,9 @@ export function createEngineHttpServer(
         url === "/api/login" ||
         url === "/api/ast-debug" ||
         url === "/api/mapmaster-debug" ||
-        url === "/api/step-debug"
+        url === "/api/mapmaster-global-map" ||
+        url === "/api/step-debug" ||
+        url === "/api/primitive-map-debug"
       )) {
         let body = "";
 
@@ -122,18 +127,43 @@ export function createEngineHttpServer(
               response = await handlePostHintRequest(parsedBody, handlerDeps);
             }
             else if (url === "/api/ast-debug") {
+              // DEBUG/TOOLS ONLY:
+              // This endpoint is used exclusively by viewer/debug-tool.html (Dev Tool).
+              // It MUST NOT be called from the student-facing Viewer/Adapter or main UI.
               const { handlePostAstDebug } = await import("./HandlerPostAstDebug.js");
               await handlePostAstDebug(req, res, parsedBody);
               return; // Handler sends response
             }
             else if (url === "/api/mapmaster-debug") {
+              // DEBUG/TOOLS ONLY:
+              // This endpoint is used exclusively by viewer/debug-tool.html (Dev Tool).
+              // It MUST NOT be called from the student-facing Viewer/Adapter or main UI.
               const { handlePostMapMasterDebug } = await import("./HandlerPostMapMasterDebug.js");
               await handlePostMapMasterDebug(req, res, parsedBody);
               return; // Handler sends response
             }
+            else if (url === "/api/mapmaster-global-map") {
+              // DEBUG/TOOLS ONLY:
+              // This endpoint is used exclusively by viewer/debug-tool.html (Dev Tool).
+              // It MUST NOT be called from the student-facing Viewer/Adapter or main UI.
+              const { handlePostMapMasterGlobalMap } = await import("./HandlerPostMapMasterGlobalMap.js");
+              await handlePostMapMasterGlobalMap(req, res, parsedBody);
+              return; // Handler sends response
+            }
             else if (url === "/api/step-debug") {
+              // DEBUG/TOOLS ONLY:
+              // This endpoint is used exclusively by viewer/debug-tool.html (Dev Tool).
+              // It MUST NOT be called from the student-facing Viewer/Adapter or main UI.
               const { handlePostStepDebug } = await import("./HandlerPostStepDebug.js");
               await handlePostStepDebug(req, res, parsedBody);
+              return; // Handler sends response
+            }
+            else if (url === "/api/primitive-map-debug") {
+              // DEBUG/TOOLS ONLY:
+              // This endpoint is used exclusively by viewer/debug-tool.html (Dev Tool).
+              // It MUST NOT be called from the student-facing Viewer/Adapter or main UI.
+              const { handlePostPrimitiveMapDebug } = await import("./HandlerPostPrimitiveMapDebug.js");
+              await handlePostPrimitiveMapDebug(req, res, parsedBody);
               return; // Handler sends response
             }
             // POST /api/register
