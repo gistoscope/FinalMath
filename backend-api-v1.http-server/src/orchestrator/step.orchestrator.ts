@@ -107,18 +107,43 @@ export async function runOrchestratorStep(
 
     // 3. V5 Decision Core Integration
     // If PrimitiveMaster is available, we delegate the entire "match & select" process to it.
-    let mapResult: { candidates: any[], resolvedSelectionPath?: string };
+    let mapResult: { candidates: any[], resolvedSelectionPath?: string } | undefined;
     let isPrimitiveMasterPath = false;
     let pmPrimitiveId: string | null = null;
     let v5Outcome: any = null;
     let operatorAnchorPath: string | null = null;
 
     // We need AST for V5 logic (and legacy anchoring)
+    // We need AST for V5 logic (and legacy anchoring)
     const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
     const ast = parseExpression(req.expressionLatex);
 
+    // [New] Surface AST Logic for V5
+    // Helper to augment AST with IDs if they are missing (since parser returns raw AST)
+    function augmentAstWithIds(root: any) {
+        if (!root) return;
+        const traverse = (node: any, path: string) => {
+            if (!node) return;
+            node.id = path; // Assign ID
+            if (node.type === "binaryOp") {
+                traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
+                traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
+            } else if (node.type === "fraction") {
+                // Fraction children (numerator/denominator) are strict strings in current AstNode def,
+                // so we don't traverse them as nodes unless we change the parser/types.
+                // If they were nodes, we'd do: traverse(node.numerator, ...);
+            }
+        };
+        traverse(root, "root");
+        return root;
+    }
+
     if (ctx.primitiveMaster && ast) {
         console.log("[Orchestrator] Using V5 PrimitiveMaster Path");
+
+        // 1. Augment AST with IDs (Surface Map)
+        augmentAstWithIds(ast);
+        console.log(`[V5-ORCH] rootAst.id=${(ast as any).id}, kind=${ast.type}`);
 
         // Resolve Click Target
         const clickTarget = await ctx.primitiveMaster.resolveClickTarget(ast, req.selectionPath || "", req.operatorIndex);
@@ -128,7 +153,8 @@ export async function runOrchestratorStep(
             v5Outcome = await ctx.primitiveMaster.resolvePrimitive({
                 expressionId: "expr-temp",
                 expressionLatex: req.expressionLatex,
-                click: clickTarget
+                click: clickTarget,
+                ast: ast // Pass the augmented AST
             });
 
             // Handle V5 Outcome
@@ -145,13 +171,13 @@ export async function runOrchestratorStep(
                         id: "v5-match",
                         invariantRuleId: "v5-rule",
                         primitiveIds: [pmPrimitiveId],
-                        targetPath: clickTarget.nodeId,
+                        targetPath: v5Outcome.matches[0]?.ctx?.actionNodeId ?? clickTarget.nodeId,
                         description: v5Outcome.primitive.label,
                     };
 
                     mapResult = {
                         candidates: [candidate],
-                        resolvedSelectionPath: clickTarget.nodeId
+                        resolvedSelectionPath: candidate.targetPath
                     };
                 } else {
                     mapResult = { candidates: [] };

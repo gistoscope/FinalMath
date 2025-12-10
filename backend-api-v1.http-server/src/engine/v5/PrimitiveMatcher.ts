@@ -3,6 +3,7 @@ import { PrimitivesTable, PrimitiveRow, NodeContext, OperandType, GuardId } from
 export interface PrimitiveMatch {
     row: PrimitiveRow;
     score: number;
+    ctx: NodeContext;
 }
 
 export class PrimitiveMatcher {
@@ -12,7 +13,7 @@ export class PrimitiveMatcher {
 
         for (const row of table.rows) {
             if (this.isMatch(row, ctx)) {
-                matches.push({ row, score: this.calculateScore(row) });
+                matches.push({ row, score: this.calculateScore(row), ctx });
             }
         }
         return matches;
@@ -58,6 +59,22 @@ export class PrimitiveMatcher {
             }
         }
 
+        // Domain / Operand Type Check
+        if (row.operandTypes) {
+            if (row.operandTypes.left && !this.checkType(row.operandTypes.left, ctx.leftOperandType)) {
+                if (row.id === "P.INT_ADD" || row.id === "P.FRAC_ADD_SAME_DEN") {
+                    console.log(`[Matcher] FAIL: Left Operand Mismatch. Req: ${row.operandTypes.left}, Act: ${ctx.leftOperandType}`);
+                }
+                return false;
+            }
+            if (row.operandTypes.right && !this.checkType(row.operandTypes.right, ctx.rightOperandType)) {
+                if (row.id === "P.INT_ADD" || row.id === "P.FRAC_ADD_SAME_DEN") {
+                    console.log(`[Matcher] FAIL: Right Operand Mismatch. Req: ${row.operandTypes.right}, Act: ${ctx.rightOperandType}`);
+                }
+                return false;
+            }
+        }
+
         if (row.id === "P.FRAC_ADD_SAME_DEN") {
             console.log(`[Matcher] SUCCESS: P.FRAC_ADD_SAME_DEN matched!`);
         }
@@ -66,5 +83,22 @@ export class PrimitiveMatcher {
 
     private calculateScore(row: PrimitiveRow): number {
         return 1;
+    }
+
+    private checkType(required: OperandType, actual: OperandType | undefined): boolean {
+        if (!actual) return false;
+        if (required === "any") return true;
+        if (required === actual) return true;
+
+        // Compatibility: int matches nonzero-int
+        if (required === "int" && actual === "nonzero-int") return true;
+        // Compatibility: fraction matches nonzero-fraction
+        if (required === "fraction" && actual === "nonzero-fraction") return true;
+
+        // Inverse compatibility (if primitive asks for nonzero, standard int is NOT enough?)
+        // Usually primitive asks for "int" (broad) or "nonzero-int" (specific).
+        // If context has "nonzero-int", it satisfies "int".
+
+        return false;
     }
 }

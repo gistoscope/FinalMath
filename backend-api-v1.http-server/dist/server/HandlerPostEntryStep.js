@@ -9,6 +9,7 @@
 import { runOrchestratorStep, } from "../orchestrator/index";
 import { createTeacherDebugPolicy } from "../stepmaster/index";
 import { authService } from "../auth/auth.service";
+// ... (inside HandlerPostEntryStep)
 function makeError(status, message, expressionLatex) {
     return {
         status,
@@ -58,6 +59,7 @@ export async function HandlerPostEntryStep(body, deps) {
         const ctx = {
             invariantRegistry: deps.invariantRegistry,
             policy: policy,
+            primitiveMaster: deps.primitiveMaster,
         };
         const orchestratorReq = {
             sessionId: request.sessionId,
@@ -81,6 +83,7 @@ export async function HandlerPostEntryStep(body, deps) {
             status: result.status,
             expressionLatex: responseLatex,
             debugInfo: result.debugInfo,
+            primitiveDebug: result.primitiveDebug,
         };
     }
     catch (error) {

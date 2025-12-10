@@ -1,0 +1,67 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"term[0]","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[NodeContext] Found Node type: fraction
+[NodeContext] Found Parent: binaryOp
+[NodeContext] Operator: +
+[Matcher] FAIL: Left Operand Mismatch. Req: int, Act: fraction
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] SUCCESS: P.FRAC_ADD_SAME_DEN matched!
+[V5-STEPMASTER] chosenPrimitiveId=P.FRAC_ADD_SAME_DEN operator=+ kind=green-primitive score=1
+[DEBUG-ORCH] TargetPath Resolution: click=term[0] action=undefined final=term[0]
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Enforcing locality for target: term[0]
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: v5-match
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[22m[39m
+[Orchestrator] [V5-RUNNER-START] Executing Primitive: P.FRAC_ADD_SAME_DEN
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/execution-fraction-v5.test.ts > V5 Fraction Execution Wiring > should execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "primitive-failed"
+}
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[22m[39m
+stderr | tests/execution-fraction-v5.test.ts > V5 Fraction Execution Wiring > should execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked
+[STEP SNAPSHOT] id=step-1765388301586 status=engine-error
+<empty line>
+
+ [33mΓ¥»[39m tests/execution-fraction-v5.test.ts [2m ([22m[2m1 test[22m [2m|[22m [31m1 failed[39m[2m)[22m[90m 125[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/execution-fraction-v5.test.ts[2m > [22mV5 Fraction Execution Wiring[2m > [22mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 1 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/execution-fraction-v5.test.ts > V5 Fraction Execution Wiring > should execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/execution-fraction-v5.test.ts:91:31
+     89| 
+     90|         // Assertion designed to fail before fix
+     91|         expect(result.status).toBe('step-applied');
+       |                               ^
+     92|     });
+     93| });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/1]ΓÄ»
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m   Start at [22m 12:38:20
+[2m   Duration [22m 838ms[2m (transform 268ms, setup 0ms, collect 368ms, tests 125ms, environment 0ms, prepare 149ms)[22m
+

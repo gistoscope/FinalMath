@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { choosePrimitiveId } from "../src/stepmaster/StepMasterLite.js";
+import { choosePrimitiveId } from "../src/stepmaster-legacy/StepMasterLite.js";
 const makeContext = (overrides) => ({
     expressionId: "expr-stepmaster-basic",
     latex: "1/3 + 2/5",

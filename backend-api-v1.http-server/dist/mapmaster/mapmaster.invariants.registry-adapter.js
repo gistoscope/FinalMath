@@ -41,10 +41,7 @@ export class DefaultInvariantRegistryAdapter {
         });
         // Step 3: Determine candidate domains based on the window
         const candidateDomains = this.determineDomains(windowRootNode);
-        // Step 4: Filter invariants by domain (Stage is implicitly handled by set selection or we can filter if needed)
-        // Note: CLOD filtered by Stage string. Core model has 'level' but not 'stage' string in RuleDefinition.
-        // We assume the InvariantSets passed in `request` are already appropriate for the stage.
-        // But we still filter by domain.
+        // Step 4: Filter invariants by domain
         let candidates = augmentedRules.filter(rule => {
             // Match domain
             if (!candidateDomains.includes(rule.domain)) {
@@ -63,9 +60,23 @@ export class DefaultInvariantRegistryAdapter {
      */
     determineDomains(windowRootNode) {
         const domains = new Set();
+        // Check for single integer
+        if (this.isInteger(windowRootNode)) {
+            domains.add('Integers');
+        }
+        // Check for single fraction
+        const isSelfFraction = this.astHelpers?.isFraction(windowRootNode) ?? this.isFractionFallback(windowRootNode);
+        if (isSelfFraction) {
+            domains.add('FractionsSameDen');
+        }
         // Check if this is a binary operation
         if (!this.isBinaryOperation(windowRootNode)) {
             // Not a binary operation - could be other types
+            // If we already added domains (e.g. Integers), we should return those + Other?
+            // Or just return what we have?
+            // If we added domains, we return them. "Other" is fallback.
+            if (domains.size > 0)
+                return Array.from(domains);
             domains.add('Other');
             return Array.from(domains);
         }
@@ -82,6 +93,8 @@ export class DefaultInvariantRegistryAdapter {
         if (leftIsFraction && rightIsFraction) {
             // Both are fractions - check denominators
             const sameDenominator = this.haveSameDenominator(left, right);
+            // Generic "Fractions" domain applies to all fraction pairs
+            domains.add('Fractions');
             if (sameDenominator) {
                 domains.add('FractionsSameDen');
             }
@@ -124,32 +137,44 @@ export class DefaultInvariantRegistryAdapter {
         }
         // Check if fractions are required
         if (pattern.requiresFractions) {
-            const operands = this.getOperands(windowRootNode);
-            if (!operands) {
-                return false;
+            // Check if node itself is a fraction
+            const isSelfFraction = this.astHelpers?.isFraction(windowRootNode) ?? this.isFractionFallback(windowRootNode);
+            if (isSelfFraction) {
+                if (pattern.requireSameDenominator)
+                    return false; // Single fraction cannot have "same denominator" with itself in this context
             }
-            const leftIsFraction = this.astHelpers?.isFraction(operands.left) ??
-                this.isFractionFallback(operands.left);
-            const rightIsFraction = this.astHelpers?.isFraction(operands.right) ??
-                this.isFractionFallback(operands.right);
-            if (!leftIsFraction || !rightIsFraction) {
-                return false;
-            }
-            // Check same denominator if required
-            if (pattern.requireSameDenominator) {
-                if (!this.haveSameDenominator(operands.left, operands.right)) {
+            else {
+                const operands = this.getOperands(windowRootNode);
+                if (!operands) {
                     return false;
+                }
+                const leftIsFraction = this.astHelpers?.isFraction(operands.left) ??
+                    this.isFractionFallback(operands.left);
+                const rightIsFraction = this.astHelpers?.isFraction(operands.right) ??
+                    this.isFractionFallback(operands.right);
+                if (!leftIsFraction || !rightIsFraction) {
+                    return false;
+                }
+                // Check same denominator if required
+                if (pattern.requireSameDenominator) {
+                    if (!this.haveSameDenominator(operands.left, operands.right)) {
+                        return false;
+                    }
                 }
             }
         }
         // Check if integers are required
         if (pattern.requiresIntegers) {
-            const operands = this.getOperands(windowRootNode);
-            if (!operands) {
-                return false;
-            }
-            if (!this.isInteger(operands.left) || !this.isInteger(operands.right)) {
-                return false;
+            // Check if node itself is an integer
+            const isSelfInteger = this.isInteger(windowRootNode);
+            if (!isSelfInteger) {
+                const operands = this.getOperands(windowRootNode);
+                if (!operands) {
+                    return false;
+                }
+                if (!this.isInteger(operands.left) || !this.isInteger(operands.right)) {
+                    return false;
+                }
             }
         }
         return true;

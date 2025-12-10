@@ -13,8 +13,8 @@
  *    to the legacy PrimitiveMasterResult format.
  */
 
-import { PRIMITIVES_V5_TABLE } from "../engine/primitives.registry.v5";
-import { NodeContextBuilder, NodeContext } from "../engine/v5/NodeContextBuilder";
+import { PRIMITIVES_V5_TABLE, NodeContext } from "../engine/primitives.registry.v5";
+import { NodeContextBuilder } from "../engine/v5/NodeContextBuilder";
 import { PrimitiveMatcher } from "../engine/v5/PrimitiveMatcher";
 import { PrimitiveSelector, SelectedOutcome } from "../engine/v5/PrimitiveSelector";
 import type { AstNode } from "../mapmaster/ast";
@@ -106,10 +106,11 @@ export class PrimitiveMaster {
             kind: "operator" | "number" | "fractionBar" | "bracket" | "other";
             operatorIndex?: number;
         };
+        ast?: AstNode; // Optional: Pass pre-parsed/mapped AST
     }): Promise<SelectedOutcome> {
         // 1. Parse AST (if needed)
         // In a real optimized system we might pass AST. For now, we parse.
-        const ast = await this.deps.parseLatexToAst(params.expressionLatex);
+        const ast = params.ast || await this.deps.parseLatexToAst(params.expressionLatex);
         if (!ast) {
             return { kind: "no-candidates", matches: [] };
         }
@@ -133,6 +134,7 @@ export class PrimitiveMaster {
 
         // 4. Select
         const outcome = this.selector.select(matches);
+        console.log(`[V5-STEPMASTER] chosenPrimitiveId=${outcome.primitive?.id ?? "none"} operator=${ctx.operatorLatex ?? "?"} kind=${outcome.kind} score=${outcome.matches[0]?.score ?? 0}`);
         return outcome;
     }
 

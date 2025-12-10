@@ -29,6 +29,17 @@ export class MapMasterSelectionNormalizer {
         if (fromOperatorIndex) {
             return fromOperatorIndex;
         }
+        // 3) Fallback to Root (if binary op)
+        // Useful for Stage 1 where we often just send an expression without specific selection.
+        // 3) Fallback to Root (if binary op)
+        // Useful for Stage 1 where we often just send an expression without specific selection.
+        if (rootAst.type === 'binaryOp') {
+            return {
+                anchorPath: [], // Root path
+                anchorKind: 'Operator',
+                trace: 'fallback:root'
+            };
+        }
         // No usable selection
         return null;
     }
@@ -39,6 +50,17 @@ export class MapMasterSelectionNormalizer {
     tryFromSelectionPath(rootAst, selectionPath) {
         if (!selectionPath) {
             return null;
+        }
+        // Special case: "root" means anchor on the whole expression node.
+        // This is used by Stage 1 tests like INT_TO_FRAC where we normalize a bare integer "3".
+        if (selectionPath === "root") {
+            const anchorPath = [];
+            const anchorKind = this.classifyAnchorKind(rootAst, anchorPath);
+            return {
+                anchorPath,
+                anchorKind,
+                trace: 'input.selectionPath:root',
+            };
         }
         // Convert string path (e.g. "term[0].term[1]") to AstPath array if needed.
         // Our AstHelpers.getNodeByPath expects AstPath (Array<string|number>).

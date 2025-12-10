@@ -12,7 +12,7 @@ export const FRACTIONS_SAME_DEN_STAGE1 = {
     id: 'fractions-same-den-stage1',
     rules: [
         {
-            id: 'FRAC_ADD_SAME_DEN_STAGE1',
+            id: 'R.FRAC_ADD_SAME',
             stage: 'Stage1',
             domain: 'FractionsSameDen',
             operation: 'Add',
@@ -20,10 +20,11 @@ export const FRACTIONS_SAME_DEN_STAGE1 = {
                 operator: '+',
                 requiresFractions: true,
                 requireSameDenominator: true
-            }
+            },
+            primitiveIds: ['P.FRAC_ADD_SAME_DEN']
         },
         {
-            id: 'FRAC_SUB_SAME_DEN_STAGE1',
+            id: 'R.FRAC_SUB_SAME',
             stage: 'Stage1',
             domain: 'FractionsSameDen',
             operation: 'Sub',
@@ -31,7 +32,51 @@ export const FRACTIONS_SAME_DEN_STAGE1 = {
                 operator: '-',
                 requiresFractions: true,
                 requireSameDenominator: true
-            }
+            },
+        },
+        // NEW: Equivalent fraction expansion
+        {
+            id: 'R.FRAC_EQUIV',
+            stage: 'Stage1',
+            domain: 'FractionsSameDen',
+            operation: 'Equiv',
+            pattern: {
+                operator: undefined, // applies to fraction node itself
+                requiresFractions: true
+            },
+            primitiveIds: ['P.FRAC_EQUIV']
+        }
+    ]
+};
+/**
+ * Stage-1 Generic Fraction Invariants (Mul/Div)
+ */
+export const FRACTIONS_GENERIC_STAGE1 = {
+    id: 'fractions-generic-stage1',
+    rules: [
+        {
+            id: 'R.FRAC_MUL',
+            stage: 'Stage1',
+            domain: 'Fractions',
+            operation: 'Mul',
+            pattern: {
+                operator: '*',
+                requiresFractions: true,
+                requireSameDenominator: false
+            },
+            primitiveIds: ['P.FRAC_MUL']
+        },
+        {
+            id: 'R.FRAC_DIV',
+            stage: 'Stage1',
+            domain: 'Fractions',
+            operation: 'Div',
+            pattern: {
+                operator: '/',
+                requiresFractions: true,
+                requireSameDenominator: false
+            },
+            primitiveIds: ['P.FRAC_DIV']
         }
     ]
 };
@@ -42,44 +87,58 @@ export const INTEGERS_STAGE1 = {
     id: 'integers-stage1',
     rules: [
         {
-            id: 'INT_ADD_STAGE1',
+            id: 'R.INT_ADD',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Add',
             pattern: {
                 operator: '+',
                 requiresIntegers: true
-            }
+            },
+            primitiveIds: ['P.INT_ADD']
         },
         {
-            id: 'INT_SUB_STAGE1',
+            id: 'R.INT_SUB',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Sub',
             pattern: {
                 operator: '-',
                 requiresIntegers: true
-            }
+            },
+            primitiveIds: ['P.INT_SUB']
         },
         {
-            id: 'INT_MUL_STAGE1',
+            id: 'R.INT_MUL',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Mul',
             pattern: {
                 operator: '*',
                 requiresIntegers: true
-            }
+            },
+            primitiveIds: ['P.INT_MUL']
         },
         {
-            id: 'INT_DIV_STAGE1',
+            id: 'R.INT_DIV_EXACT',
             stage: 'Stage1',
             domain: 'Integers',
             operation: 'Div',
             pattern: {
                 operator: '/',
                 requiresIntegers: true
-            }
+            },
+        },
+        // NEW: Integer to Fraction
+        {
+            id: 'R.INT_TO_FRAC',
+            stage: 'Stage1',
+            domain: 'Integers',
+            operation: 'Normalize',
+            pattern: {
+                requiresIntegers: true
+            },
+            primitiveIds: ['P.INT_TO_FRAC']
         }
     ]
 };
@@ -89,25 +148,28 @@ export const INTEGERS_STAGE1 = {
 export const MIXED_STAGE1 = {
     id: 'mixed-stage1',
     rules: [
+        // R.INT_PLUS_FRAC and R.INT_MINUS_FRAC are in Default Set
         {
-            id: 'MIXED_INT_TO_FRAC_STAGE1',
-            stage: 'Stage1',
-            domain: 'Mixed',
-            operation: 'Convert',
-            pattern: {
-                requiresIntegers: true,
-                allowsMixed: true
-            }
-        },
-        {
-            id: 'MIXED_ADD_INT_FRAC_STAGE1',
+            id: 'R.INT_PLUS_FRAC',
             stage: 'Stage1',
             domain: 'Mixed',
             operation: 'Add',
             pattern: {
                 operator: '+',
                 allowsMixed: true
-            }
+            },
+            primitiveIds: ['P.INT_PLUS_FRAC']
+        },
+        {
+            id: 'R.INT_MINUS_FRAC',
+            stage: 'Stage1',
+            domain: 'Mixed',
+            operation: 'Sub',
+            pattern: {
+                operator: '-',
+                allowsMixed: true
+            },
+            primitiveIds: ['P.INT_MINUS_FRAC']
         }
     ]
 };
@@ -116,6 +178,7 @@ export const MIXED_STAGE1 = {
  */
 export const STAGE1_INVARIANT_SETS = [
     FRACTIONS_SAME_DEN_STAGE1,
+    FRACTIONS_GENERIC_STAGE1,
     INTEGERS_STAGE1,
     MIXED_STAGE1
 ];

@@ -33,11 +33,26 @@ function isStructural(classes) {
   return classes.some(isStructuralClass);
 }
 
+const OP_CHARS = "+-−*/:⋅·×";
+
+function hasOperatorChar(text) {
+  const t = text || "";
+  for (let i = 0; i < t.length; i++) {
+    if (OP_CHARS.includes(t[i])) return true;
+  }
+  return false;
+}
+
+function hasDigitChar(text) {
+  return /[0-9]/.test(text || "");
+}
+
 function classifyElement(el, classes, text) {
   const t = (text || "").trim();
   const hasDigit = /[0-9]/.test(t);
   const hasGreekChar = /[\u0370-\u03FF\u1F00-\u1FFF]/.test(t);
   const hasAsciiLetter = /[A-Za-z]/.test(t);
+  const hasOpChar = hasOperatorChar(t);
 
 
   // --- ЧИСЛА И ПЕРЕМЕННЫЕ ---
@@ -120,7 +135,7 @@ function classifyElement(el, classes, text) {
 
   // Если есть хотя бы одна цифра и нет латинских/греческих букв —
   // считаем элемент числом (покрывает "странные" decimal-случаи KaTeX).
-  if (hasDigit && !hasAsciiLetter && !hasGreekChar) {
+  if (hasDigit && !hasAsciiLetter && !hasGreekChar && !hasOpChar) {
     return { kind: "Num", role: "operand", idPrefix: "num", atomic: true };
   }
 
@@ -174,6 +189,16 @@ export function buildSurfaceNodeMap(containerElement) {
 
     // Прозрачные версточные обертки: не создаем узел, проходим к детям
     if (isStructural(classes)) {
+      Array.from(element.children || []).forEach((child) =>
+        traverse(child, parentNode)
+      );
+      return;
+    }
+
+    const mixedNumAndOp =
+      hasDigitChar(text) && hasOperatorChar(text);
+
+    if (mixedNumAndOp) {
       Array.from(element.children || []).forEach((child) =>
         traverse(child, parentNode)
       );

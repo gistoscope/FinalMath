@@ -57,7 +57,12 @@ function tokenize(input) {
             continue;
         }
         if (char === "/") {
-            tokens.push({ type: "SLASH", value: char, pos: i });
+            tokens.push({ type: "SLASH", value: "/", pos: i });
+            i++;
+            continue;
+        }
+        if (char === ":") {
+            tokens.push({ type: "COLON", value: ":", pos: i });
             i++;
             continue;
         }
@@ -242,12 +247,14 @@ export function parseExpression(latex) {
     }
     function parseMulDiv() {
         let left = parsePrimary();
-        while (peek() && (peek()?.value === "*" || peek()?.value === "/")) {
-            const op = consume();
+        while (peek() && (peek()?.value === "*" || peek()?.value === "/" || peek()?.type === "COLON")) {
+            const opToken = consume();
+            // Normalize colon to division operator '/'
+            const opValue = (opToken.type === "COLON") ? "/" : opToken.value;
             const right = parsePrimary();
             left = {
                 type: "binaryOp",
-                op: op.value,
+                op: opValue,
                 left,
                 right
             };
@@ -310,12 +317,12 @@ function preprocessMixedNumbers(tokens) {
 }
 // --- Path Traversal Helpers ---
 export function getNodeAt(ast, path) {
-    if (path === "root")
+    if (path === "root" || path === "")
         return ast;
     const parts = path.split(".");
     let current = ast;
     for (const part of parts) {
-        if (part === "root")
+        if (part === "root" || part === "")
             continue;
         if (current.type !== "binaryOp" && current.type !== "mixed") {
             return undefined;
@@ -437,13 +444,16 @@ function shouldParen(parentOp, child, isRightChild) {
     return false;
 }
 export function replaceNodeAt(ast, path, newNode) {
-    if (path === "root")
+    if (path === "root" || path === "")
         return newNode;
     const parts = path.split(".");
     function update(node, parts) {
         if (parts.length === 0)
             return newNode;
         const part = parts[0];
+        // Handle empty parts from split if any (e.g. "term[0]..term[1]")
+        if (part === "")
+            return update(node, parts.slice(1));
         const remaining = parts.slice(1);
         if (node.type === "binaryOp") {
             if (part === "term[0]") {
@@ -455,5 +465,5 @@ export function replaceNodeAt(ast, path, newNode) {
         }
         return node;
     }
-    return update(ast, parts.filter(p => p !== "root"));
+    return update(ast, parts.filter(p => p !== "root" && p !== ""));
 }

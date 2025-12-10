@@ -129,12 +129,16 @@ export async function HandlerPostEntryStep(
       responseLatex = result.engineResult.newExpressionLatex;
     }
 
-    return {
+    const response: EngineStepResponse = {
       status: result.status,
       expressionLatex: responseLatex,
       debugInfo: result.debugInfo as any,
       primitiveDebug: result.primitiveDebug,
     };
+
+    console.log(`[V5-HTTP-RESPONSE] status=${response.status} expressionLatex="${response.expressionLatex}"`);
+
+    return response;
 
   } catch (error) {
     const message =

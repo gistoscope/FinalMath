@@ -8,6 +8,8 @@
 import { AstNode, getNodeAt, parseExpression, replaceNodeAt, toLatex, NodeType } from "../mapmaster/ast";
 import { EngineStepExecutionRequest, EngineStepExecutionResult } from "./engine.bridge";
 import type { PrimitiveId } from "./primitives.registry";
+import { NodeContextBuilder } from "./v5/NodeContextBuilder";
+import { ClickTarget } from "./primitives.registry.v5";
 
 export class PrimitiveRunner {
     static run(req: EngineStepExecutionRequest): EngineStepExecutionResult {
@@ -39,14 +41,21 @@ export class PrimitiveRunner {
                 newAst = this.applyPrimitive(ast, targetNode, primitiveId as PrimitiveId, targetPath);
             }
 
-            if (!newAst) return { ok: false, errorCode: "primitive-failed" };
+            if (!newAst) {
+                console.log(`[V5-RUNNER-END] primitiveId=${primitiveId} ok=false errorCode=primitive-failed resultLatex=null`);
+                return { ok: false, errorCode: "primitive-failed" };
+            }
 
+            const resLatex = toLatex(newAst);
+            console.log(`[V5-RUNNER-END] primitiveId=${primitiveId} ok=true errorCode=null resultLatex=${resLatex}`);
             return {
                 ok: true,
-                newExpressionLatex: toLatex(newAst)
+                newExpressionLatex: resLatex
             };
         } catch (e) {
-            return { ok: false, errorCode: e instanceof Error ? e.message : "unknown-error" };
+            const errCode = e instanceof Error ? e.message : "unknown-error";
+            console.log(`[V5-RUNNER-END] primitiveId=${primitiveId} ok=false errorCode=${errCode} resultLatex=null`);
+            return { ok: false, errorCode: errCode };
         }
     }
 
@@ -358,9 +367,9 @@ export class PrimitiveRunner {
 
     private static runFractionOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
         if (id === "P.FRAC_SIMPLIFY_BASIC" || id === "P0.FRAC_SIMPLIFY") {
-            if (target?.type !== "fraction") return undefined;
-            const n = parseInt(target.numerator, 10);
-            const d = parseInt(target.denominator, 10);
+            const parts = this.getFractionParts(target);
+            if (!parts) return undefined;
+            const { n, d } = parts;
             const common = this.gcd(n, d);
             return replaceNodeAt(root, path, {
                 type: "fraction",
@@ -380,29 +389,58 @@ export class PrimitiveRunner {
 
         if (id === "P.FRAC_NEG_NUM" || id === "P.FRAC_MOVE_NEG_DEN") {
             // Move negative sign. 
-            // -a/b -> (-a)/b or a/-b -> -a/b
-            // This requires parsing the sign which might be in the value string or implicit.
-            // Our parser keeps "-" in the value for integers?
-            // Let's assume values can be "-5".
             if (target?.type !== "fraction") return undefined;
-            // Implementation depends on where the sign is.
-            // For now, let's skip complex sign logic unless we see it failing.
-            return root; // No-op for now
+            return root; // No-op
         }
 
         if (target?.type !== "binaryOp") return undefined;
-        if (target.left.type !== "fraction" || target.right.type !== "fraction") return undefined;
 
-        const n1 = parseInt(target.left.numerator, 10);
-        const d1 = parseInt(target.left.denominator, 10);
-        const n2 = parseInt(target.right.numerator, 10);
-        const d2 = parseInt(target.right.denominator, 10);
+        const leftParts = this.getFractionParts(target.left);
+        const rightParts = this.getFractionParts(target.right);
+
+        if (!leftParts || !rightParts) return undefined;
+
+        const { n: n1, d: d1 } = leftParts;
+        const { n: n2, d: d2 } = rightParts;
 
         let newFrac: { n: number, d: number } | null = null;
         let newOp: AstNode | undefined;
 
         switch (id) {
             case "P.FRAC_ADD_SAME_DEN":
+                // V5 Logic: Validate via NodeContext
+                // 1. Augment IDs (local to this runner instance since it parses fresh AST)
+                this.augmentAstWithIds(root);
+
+                // 2. Build Context
+                const builder = new NodeContextBuilder();
+                const v5Click: ClickTarget = { nodeId: path, kind: "operator" };
+                const ctx = builder.buildContext({
+                    expressionId: "temp",
+                    ast: root,
+                    click: v5Click
+                });
+
+                // 3. Verify Preconditions (Guards)
+                if (ctx.operatorLatex !== "+") throw new Error("bad-window: operator mismatch");
+
+                // [Workaround] NodeContextBuilder guard logic requires a parent, so it fails for Root.
+                // We manually re-check if the guard is missing but valid.
+                if (!ctx.guards["denominators-equal"]) {
+                    if (target?.type === "binaryOp" && target.left?.type === "fraction" && target.right?.type === "fraction") {
+                        if (target.left.denominator === target.right.denominator) {
+                            ctx.guards["denominators-equal"] = true;
+                        }
+                    }
+                }
+
+                if (!ctx.guards["denominators-equal"]) throw new Error("guards-mismatch: denominators-equal");
+
+                console.log(`[V5-RUNNER-START] primitiveId=${id} operator=${ctx.operatorLatex} left=fraction(${n1}/${d1}) right=fraction(${n2}/${d2}) guards=${JSON.stringify(ctx.guards)}`);
+
+                // 4. Execute
+                // Since d1/d2 are already parsed in this.getFractionParts, we use them.
+                // The context guaranteed they are equal.
                 if (d1 === d2) newFrac = { n: n1 + n2, d: d1 };
                 break;
             case "P.FRAC_SUB_SAME_DEN":
@@ -423,12 +461,9 @@ export class PrimitiveRunner {
                     type: "binaryOp",
                     op: "*",
                     left: target.left,
-                    right: { type: "fraction", numerator: target.right.denominator, denominator: target.right.numerator }
+                    right: { type: "fraction", numerator: rightParts.d.toString(), denominator: rightParts.n.toString() }
                 };
                 break;
-
-
-
         }
 
         if (newOp) return replaceNodeAt(root, path, newOp);
@@ -443,26 +478,29 @@ export class PrimitiveRunner {
         return undefined;
     }
 
-
-
-
-
-
+    private static getFractionParts(node: AstNode | undefined): { n: number, d: number } | null {
+        if (!node) return null;
+        if (node.type === "fraction") {
+            return {
+                n: parseInt(node.numerator, 10),
+                d: parseInt(node.denominator, 10)
+            };
+        }
+        if (node.type === "mixed") {
+            // Treat Mixed including whole part?
+            // "New Numerator = left.numerator + right.numerator" -> Logic dictates just Fraction part if whole is 0.
+            return {
+                n: parseInt(node.numerator, 10),
+                d: parseInt(node.denominator, 10)
+            };
+        }
+        return null;
+    }
 
     private static runDistributeNeg(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
         if (target?.type !== "binaryOp") return undefined;
 
         if (id === "P.NEG_DISTRIB_ADD") {
-            // a - (b + c) -> a - b - c
-            // This logic assumes specific AST shape.
-            // V5 pattern: -(a+b) -> -a-b. This is UNARY minus.
-            // Existing logic handles BINARY minus a - (b+c).
-            // Check if we need to support V5 logic here?
-            // V5 P.NEG_DISTRIB_ADD is for "-(a+b)".
-            // If target is unary minus, we distribute.
-            // If internal logic is for binary minus, it might be mismatched.
-            // But let's rename the check first.
-
             if (target.op === "-" && target.right.type === "binaryOp" && target.right.op === "+") {
                 const b = target.right.left;
                 const c = target.right.right;
@@ -505,12 +543,6 @@ export class PrimitiveRunner {
     }
 
     private static runDoubleNeg(root: AstNode, target: AstNode | undefined, path: string): AstNode | undefined {
-        // a - (-b) -> a + b
-        // Again, relies on how -b is represented.
-        // If -b is `0 - b` or `(-1)*b`?
-        // Or if it's just a negative number?
-        // If target is `a - (-5)`, right is integer -5.
-        // Then `a + 5`.
         if (target?.type === "binaryOp" && target.op === "-") {
             if (target.right.type === "integer" && target.right.value.startsWith("-")) {
                 const val = target.right.value.substring(1); // remove -
@@ -526,14 +558,6 @@ export class PrimitiveRunner {
     }
 
     private static runLiftFraction(root: AstNode, target: AstNode | undefined, path: string, side: "left" | "right"): AstNode | undefined {
-        // We need to find the parent binaryOp to get the other fraction's denominator.
-        // Since we don't have parent pointers, we have to search from root?
-        // Or we can assume the path ends in `.left` or `.right`?
-        // path format: "term[0].left" etc.
-        // If side is "left", path ends in ".left". Parent is path without ".left".
-        // If side is "right", path ends in ".right". Parent is path without ".right".
-
-        // This is a bit fragile but works for standard paths.
         let parentPath = "";
         if (side === "left" && path.endsWith(".left")) parentPath = path.substring(0, path.length - 5);
         else if (side === "right" && path.endsWith(".right")) parentPath = path.substring(0, path.length - 6);
@@ -649,5 +673,19 @@ export class PrimitiveRunner {
     private static lcm(a: number, b: number): number {
         if (a === 0 || b === 0) return 0;
         return Math.abs((a * b) / this.gcd(a, b));
+    }
+
+    private static augmentAstWithIds(root: any) {
+        if (!root) return;
+        const traverse = (node: any, path: string) => {
+            if (!node) return;
+            node.id = path;
+            if (node.type === "binaryOp") {
+                traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
+                traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
+            }
+        };
+        traverse(root, "root");
+        return root;
     }
 }

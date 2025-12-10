@@ -106,6 +106,9 @@ export interface NodeContext {
 
     // Guards
     guards: Record<GuardId, boolean>;
+
+    // Execution Target override (for V5 orchestrator)
+    actionNodeId?: string;
 }
 
 // --- 3. Primitive Types (Spec Section 4) ---
@@ -235,6 +238,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Integer Addition",
             enginePrimitiveId: "P.INT_ADD",
+            operandTypes: { left: "int", right: "int" },
             notes: "Direct addition of two integers. Constraints: a,b,c ∈ ℤ"
         },
         {
@@ -248,6 +252,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Integer Subtraction",
             enginePrimitiveId: "P.INT_SUB",
+            operandTypes: { left: "int", right: "int" },
             notes: "Direct subtraction of two integers. Constraints: a,b,c ∈ ℤ"
         },
         {
@@ -300,6 +305,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Fraction Add Same Denominator",
             enginePrimitiveId: "P.FRAC_ADD_SAME_DEN",
+            operandTypes: { left: "fraction", right: "fraction" },
+            requiredGuards: ["denominators-equal"],
             notes: "Add numerators with same denominator. Constraints: a,c,b ∈ ℤ; b≠0"
         },
         {

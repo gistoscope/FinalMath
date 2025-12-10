@@ -1,0 +1,97 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"term[0]","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[NodeContext] Found Node type: fraction
+[NodeContext] Found Parent: binaryOp
+[NodeContext] ACT-NODE-ID SET: root
+[NodeContext] Operator: +
+[Matcher] FAIL: Left Operand Mismatch. Req: int, Act: fraction
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] SUCCESS: P.FRAC_ADD_SAME_DEN matched!
+[V5-STEPMASTER] chosenPrimitiveId=P.FRAC_ADD_SAME_DEN operator=+ kind=green-primitive score=1
+[DEBUG-ORCH] TargetPath Resolution: click=term[0] action=root final=root
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Enforcing locality for target: term[0]
+[StepMaster] Candidate v5-match rejected: target root != term[0]
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[22m[39m
+[STEP SNAPSHOT] id=step-1765388523850 status=no-candidates
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould still execute P.INT_ADD on binaryOp for integers[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: +
+[Matcher] FAIL: Left Operand Mismatch. Req: int, Act: fraction
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Missing Guard: denominators-equal
+[V5-STEPMASTER] chosenPrimitiveId=P.FRAC_ADD_DIFF_PREP operator=+ kind=yellow-scenario score=1
+[DEBUG-ORCH] TargetPath Resolution: click=root action=undefined final=root
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Enforcing locality for target: root
+[StepMaster] Candidate v5-match rejected: repetitive
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/execution-fraction-v5.test.ts[2m > [22m[2mV5 Fraction Execution Wiring[2m > [22m[2mshould still execute P.INT_ADD on binaryOp for integers[22m[39m
+[STEP SNAPSHOT] id=step-1765388523858 status=no-candidates
+
+ [33mΓ¥»[39m tests/execution-fraction-v5.test.ts [2m ([22m[2m2 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[90m 16[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/execution-fraction-v5.test.ts[2m > [22mV5 Fraction Execution Wiring[2m > [22mshould execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked[39m
+[31m     ΓåÆ expected 'no-candidates' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/execution-fraction-v5.test.ts[2m > [22mV5 Fraction Execution Wiring[2m > [22mshould still execute P.INT_ADD on binaryOp for integers[39m
+[31m     ΓåÆ expected 'no-candidates' to be 'step-applied' // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 2 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/execution-fraction-v5.test.ts > V5 Fraction Execution Wiring > should execute P.FRAC_ADD_SAME_DEN on binaryOp when fraction is clicked
+AssertionError: expected 'no-candidates' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ no-candidates
+
+ Γ¥» tests/execution-fraction-v5.test.ts:94:35
+     92|             expect(result.engineResult?.errorCode).toBe('primitive-faiΓÇª
+     93|         } else {
+     94|             expect(result.status).toBe('step-applied');
+       |                                   ^
+     95|             expect(result.engineResult?.newExpressionLatex).toBe('\\frΓÇª
+     96|         }
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/2]ΓÄ»
+
+ FAIL  tests/execution-fraction-v5.test.ts > V5 Fraction Execution Wiring > should still execute P.INT_ADD on binaryOp for integers
+AssertionError: expected 'no-candidates' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ no-candidates
+
+ Γ¥» tests/execution-fraction-v5.test.ts:120:31
+    118|         const result = await runOrchestratorStep(ctx, req);
+    119| 
+    120|         expect(result.status).toBe('step-applied');
+       |                               ^
+    121|         // P.INT_ADD logic (mock) should produce 5? 
+    122|         // Wait, does PrimitiveRunner implement P.INT_ADD? 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/2]ΓÄ»
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[90m (2)[39m
+[2m   Start at [22m 12:42:03
+[2m   Duration [22m 815ms[2m (transform 309ms, setup 0ms, collect 413ms, tests 16ms, environment 0ms, prepare 174ms)[22m
+
