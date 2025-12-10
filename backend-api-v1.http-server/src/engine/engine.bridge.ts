@@ -7,7 +7,7 @@
  */
 
 import type { InvariantRuleId } from "../invariants/index";
-import { PrimitiveId } from "./primitives.registry";
+import type { PrimitiveId } from "./primitives.registry";
 import type { MapMasterCandidate, MapMasterInput } from "../mapmaster/index";
 import { PrimitiveRunner } from "./primitive.runner";
 

@@ -1,340 +1,202 @@
 [
   {
-    "id": "test-http-session-1765180564652-0.5991713797225586-add",
+    "id": "test-http-session-1765336877772-0.7354439019431409-add",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564785-2ycnf",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336877854-xmju7",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.785Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:17.854Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564778
+    "createdAt": 1765336877849
   },
   {
-    "id": "test-http-session-1765180564652-0.5991713797225586-div",
+    "id": "test-http-session-1765336877772-0.7354439019431409-div",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564804-0b61s",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336877888-cx2fd",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.804Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:17.888Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564800
+    "createdAt": 1765336877876
   },
   {
-    "id": "test-http-session-1765180564749-0.222524778530786-add",
+    "id": "test-http-session-1765336877772-0.7354439019431409-error",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564817-wzte2",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336877918-sstcd",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.817Z",
-          "invariantRuleId": "primitive-master-rule",
-          "targetPath": "root",
-          "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
-        }
-      ]
-    },
-    "createdAt": 1765180564809
-  },
-  {
-    "id": "test-http-session-1765180564749-0.222524778530786-div",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180564838-uku1l",
-          "candidateId": "pm-match",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.838Z",
-          "invariantRuleId": "primitive-master-rule",
-          "targetPath": "root",
-          "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
-        }
-      ]
-    },
-    "createdAt": 1765180564835
-  },
-  {
-    "id": "test-http-session-1765180564749-0.222524778530786-error",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180564845-bxt2j",
-          "candidateId": "pm-match",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.845Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:17.918Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "5 : 0",
-          "errorCode": "division-by-zero"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564842
+    "createdAt": 1765336877909
   },
   {
-    "id": "test-http-session-1765180564812-0.9282753991395154-add",
+    "id": "test-http-session-1765336877913-0.06821979120426325-add",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564872-ww2ax",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336877973-0fqb6",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.872Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:17.973Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564862
+    "createdAt": 1765336877960
   },
   {
-    "id": "test-http-session-1765180564812-0.9282753991395154-div",
+    "id": "test-http-session-1765336877913-0.06821979120426325-div",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564885-iew7k",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336878032-cm8ek",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.885Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:18.032Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564883
+    "createdAt": 1765336878030
   },
   {
-    "id": "test-http-session-1765180564812-0.9282753991395154-error",
+    "id": "test-http-session-1765336877913-0.06821979120426325-error",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180564894-24xrx",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336878050-x5yzq",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:04.894Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:18.050Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "5 : 0",
-          "errorCode": "division-by-zero"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564892
+    "createdAt": 1765336878048
   },
   {
-    "id": "test-http-session-1765180564963-0.2694504936522133-add",
+    "id": "test-http-session-1765336877973-0.20082470049752454-add",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180565004-ac11k",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336878137-yxux4",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:05.004Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:18.137Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180564996
+    "createdAt": 1765336878081
   },
   {
-    "id": "test-http-session-1765180564963-0.2694504936522133-div",
+    "id": "test-http-session-1765336877973-0.20082470049752454-div",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180565017-swlif",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336878188-vzse8",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:05.017Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:18.188Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180565015
+    "createdAt": 1765336878179
   },
   {
-    "id": "test-http-session-1765180564963-0.2694504936522133-error",
+    "id": "test-http-session-1765336877973-0.20082470049752454-error",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180565026-lzmys",
-          "candidateId": "pm-match",
+          "stepId": "step-1765336878220-r8aj2",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:05.026Z",
-          "invariantRuleId": "primitive-master-rule",
+          "timestampIso": "2025-12-10T03:21:18.220Z",
+          "invariantRuleId": "v5-rule",
           "targetPath": "root",
           "expressionBefore": "5 : 0",
-          "errorCode": "division-by-zero"
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180565024
+    "createdAt": 1765336878209
   },
   {
-    "id": "v5-test-session",
+    "id": "default-session",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1765180572516-z2wy0",
-          "candidateId": "cand-1",
+          "stepId": "step-1765337117968-ufabe",
+          "candidateId": "v5-match",
           "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.516Z",
-          "invariantRuleId": "R.INT_ADD",
-          "targetPath": "",
-          "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
-        },
-        {
-          "stepId": "step-1765180572526-vzfv7",
-          "candidateId": "cand-1",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.526Z",
-          "invariantRuleId": "R.INT_DIV_EXACT",
-          "targetPath": "",
-          "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
-        },
-        {
-          "stepId": "step-1765180572531-nj6r7",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2025-12-08T07:56:12.531Z",
-          "expressionBefore": "5 : 0",
-          "errorCode": "no-candidates"
+          "timestampIso": "2025-12-10T03:25:17.968Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "primitive-failed"
         }
       ]
     },
-    "createdAt": 1765180572508
-  },
-  {
-    "id": "v5-test-session-frac-r4gczv",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180572539-go52y",
-          "candidateId": "cand-1",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.539Z",
-          "invariantRuleId": "R.FRAC_ADD_SAME",
-          "targetPath": "",
-          "expressionBefore": "1/7 + 3/7",
-          "expressionAfter": "\\frac{4}{7}"
-        }
-      ]
-    },
-    "createdAt": 1765180572535
-  },
-  {
-    "id": "test-http-session-1765180572602-0.8419058046099188-add",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180572652-e4zbo",
-          "candidateId": "pm-match",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.652Z",
-          "invariantRuleId": "primitive-master-rule",
-          "targetPath": "root",
-          "expressionBefore": "1 + 2",
-          "expressionAfter": "3"
-        }
-      ]
-    },
-    "createdAt": 1765180572646
-  },
-  {
-    "id": "test-http-session-1765180572602-0.8419058046099188-div",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180572666-gq5k1",
-          "candidateId": "pm-match",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.666Z",
-          "invariantRuleId": "primitive-master-rule",
-          "targetPath": "root",
-          "expressionBefore": "4 : 2",
-          "expressionAfter": "2"
-        }
-      ]
-    },
-    "createdAt": 1765180572663
-  },
-  {
-    "id": "test-http-session-1765180572602-0.8419058046099188-error",
-    "userId": "anonymous",
-    "role": "student",
-    "history": {
-      "entries": [
-        {
-          "stepId": "step-1765180572676-7dukf",
-          "candidateId": "pm-match",
-          "decisionStatus": "chosen",
-          "timestampIso": "2025-12-08T07:56:12.676Z",
-          "invariantRuleId": "primitive-master-rule",
-          "targetPath": "root",
-          "expressionBefore": "5 : 0",
-          "errorCode": "division-by-zero"
-        }
-      ]
-    },
-    "createdAt": 1765180572674
+    "createdAt": 1765337117955
   }
 ]

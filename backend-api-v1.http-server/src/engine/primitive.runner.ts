@@ -7,7 +7,7 @@
 
 import { AstNode, getNodeAt, parseExpression, replaceNodeAt, toLatex, NodeType } from "../mapmaster/ast";
 import { EngineStepExecutionRequest, EngineStepExecutionResult } from "./engine.bridge";
-import { PrimitiveId } from "./primitives.registry";
+import type { PrimitiveId } from "./primitives.registry";
 
 export class PrimitiveRunner {
     static run(req: EngineStepExecutionRequest): EngineStepExecutionResult {
@@ -27,7 +27,8 @@ export class PrimitiveRunner {
                 "P.INT_SUB",
                 "P.INT_MUL",
                 "P.INT_DIV_TO_INT",
-                "P.DEC_TO_FRAC"
+                "P.DEC_TO_FRAC",
+                "P.FRAC_EQUIV"
             ].includes(primitiveId);
 
             if (resultPattern && bindings && !forceLegacy) {
@@ -205,6 +206,7 @@ export class PrimitiveRunner {
             case "P.FRAC_ADD_SAME_DEN":
             case "P.FRAC_SUB_SAME_DEN":
             case "P.FRAC_MUL":
+            case "P.FRAC_DIV":
             case "P.FRAC_DIV_AS_MUL":
             case "P.FRAC_EQ_SCALE":
                 return this.runFractionOp(root, target, id, path);
@@ -244,6 +246,9 @@ export class PrimitiveRunner {
                     }
                 }
                 return undefined;
+
+            case "P.FRAC_EQUIV":
+                return this.runFracEquiv(root, target, path);
 
             case "P.FRAC_ADD_AFTER_LIFT":
                 // a/b + c/b -> (a+c)/b
@@ -406,6 +411,12 @@ export class PrimitiveRunner {
             case "P.FRAC_MUL":
                 newFrac = { n: n1 * n2, d: d1 * d2 };
                 break;
+            case "P.FRAC_DIV":
+                // a/b : c/d -> (a*d)/(b*c)
+                // Check division by zero (if c or new denominator is 0)
+                if (n2 === 0) throw new Error("division-by-zero");
+                newFrac = { n: n1 * d2, d: d1 * n2 };
+                break;
             case "P.FRAC_DIV_AS_MUL":
                 // a/b : c/d -> a/b * d/c
                 newOp = {
@@ -559,5 +570,84 @@ export class PrimitiveRunner {
             return this.findContextDenominator(node.right);
         }
         return null;
+    }
+    private static runFracEquiv(root: AstNode, target: AstNode | undefined, path: string): AstNode | undefined {
+        // Goal: expand current fraction a/b to (a*k)/(b*k) to match the denominator of the neighbour.
+
+        // 0. Normalize Path (fix mismatch between Orchestrator 'left'/'right' and AST 'term[0]'/'term[1]')
+        // Simple replacement of exact segments to match ast.ts expectations
+        const normalizedPath = path
+            .split('.')
+            .map(p => {
+                if (p === "left") return "term[0]";
+                if (p === "right") return "term[1]";
+                return p;
+            })
+            .join('.');
+
+        // 1. Resolve Target if missing (due to path mismatch)
+        let effectiveTarget = target;
+        if (!effectiveTarget || normalizedPath !== path) {
+            effectiveTarget = getNodeAt(root, normalizedPath);
+        }
+
+        if (!effectiveTarget || effectiveTarget.type !== "fraction") return undefined;
+
+        // 2. Determine parent path and side
+        let parentPath: string = "";
+        let side: "left" | "right" | undefined;
+
+        if (normalizedPath === "term[0]") {
+            parentPath = "root";
+            side = "left";
+        } else if (normalizedPath === "term[1]") {
+            parentPath = "root";
+            side = "right";
+        } else if (normalizedPath.endsWith(".term[0]")) {
+            parentPath = normalizedPath.substring(0, normalizedPath.length - 8); // remove .term[0]
+            side = "left";
+        } else if (normalizedPath.endsWith(".term[1]")) {
+            parentPath = normalizedPath.substring(0, normalizedPath.length - 8); // remove .term[1]
+            side = "right";
+        } else {
+            return undefined;
+        }
+
+        const parent = getNodeAt(root, parentPath);
+        if (!parent || parent.type !== "binaryOp") return undefined;
+        if (parent.op !== "+" && parent.op !== "-") return undefined;
+
+        const other = side === "left" ? parent.right : parent.left;
+
+        // 3. Determine the neighbour denominator.
+        let otherDen: number;
+        if (other.type === "fraction") {
+            otherDen = parseInt(other.denominator, 10);
+        } else if (other.type === "integer") {
+            otherDen = 1;
+        } else {
+            return undefined;
+        }
+
+        const currentNum = parseInt(effectiveTarget.numerator, 10);
+        const currentDen = parseInt(effectiveTarget.denominator, 10);
+
+        // 4. Calculate LCM and multiplier k.
+        const commonDen = this.lcm(currentDen, otherDen);
+        if (commonDen === currentDen) return undefined;
+
+        const k = commonDen / currentDen;
+
+        // 5. Return expanded fraction
+        return replaceNodeAt(root, normalizedPath, {
+            type: "fraction",
+            numerator: (currentNum * k).toString(),
+            denominator: (currentDen * k).toString(),
+        });
+    }
+
+    private static lcm(a: number, b: number): number {
+        if (a === 0 || b === 0) return 0;
+        return Math.abs((a * b) / this.gcd(a, b));
     }
 }

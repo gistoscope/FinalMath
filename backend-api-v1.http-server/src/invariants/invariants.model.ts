@@ -6,8 +6,8 @@
  * only on simple string identifiers.
  */
 
-import { PrimitiveId } from "../engine/primitives.registry";
-export { PrimitiveId };
+import type { PrimitiveId } from "../engine/primitives.registry";
+export type { PrimitiveId };
 
 /** Identifier of an invariant rule. */
 export type InvariantRuleId = string;

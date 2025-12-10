@@ -12,7 +12,7 @@ import type {
     InvariantRuleId,
     InvariantSetId,
 } from "../invariants/index";
-import { PrimitiveId } from "../engine/primitives.registry";
+import type { PrimitiveId } from "../engine/primitives.registry";
 import { parseExpression } from "./ast";
 import { MapMasterAstHelpers } from "./mapmaster.ast-helpers";
 import { MapMasterSelectionNormalizer } from "./mapmaster.selection.normalizer";

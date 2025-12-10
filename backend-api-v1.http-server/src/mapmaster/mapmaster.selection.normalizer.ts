@@ -97,6 +97,18 @@ export class MapMasterSelectionNormalizer implements SelectionNormalizer {
             return null;
         }
 
+        // Special case: "root" means anchor on the whole expression node.
+        // This is used by Stage 1 tests like INT_TO_FRAC where we normalize a bare integer "3".
+        if (selectionPath === "root") {
+            const anchorPath: AstPath = [];
+            const anchorKind = this.classifyAnchorKind(rootAst, anchorPath);
+            return {
+                anchorPath,
+                anchorKind,
+                trace: 'input.selectionPath:root',
+            };
+        }
+
         // Convert string path (e.g. "term[0].term[1]") to AstPath array if needed.
         // Our AstHelpers.getNodeByPath expects AstPath (Array<string|number>).
         // But ast.ts getNodeAt expects string.

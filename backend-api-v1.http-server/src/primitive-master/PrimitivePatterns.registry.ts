@@ -4,7 +4,7 @@
  * Implements patterns for primitives defined in primitives.registry.ts.
  */
 import type { AstNode, BinaryOpNode, FractionNode } from "../mapmaster/ast";
-import type { PrimitiveId } from "../primitives/primitives.registry";
+import type { PrimitiveId } from "../engine/primitives.registry";
 import type {
     PrimitivePattern,
     PrimitivePatternMatchInput,
@@ -90,14 +90,71 @@ export function createPrimitivePatternRegistry(): PrimitivePatternRegistry {
         createFracAddSameDenPattern(),
         createFracSubSameDenPattern(),
         createIntDivToIntPattern(),
+        createIntToFracPattern(),
+        createFracEquivPattern(),
+        createFracMulPattern(),
+        createFracDivPattern(),
     ];
 
     return {
         getPatternsFor(args: { invariantSetId?: string; selectionKind: SelectionKind }): PrimitivePattern[] {
+            // For V5, we return all applicable patterns based on coarse selection kind
             if (args.selectionKind === "operator") {
                 return patterns;
             }
-            return [];
+            if (args.selectionKind === "integer") {
+                return [createIntToFracPattern()];
+            }
+            if (args.selectionKind === "fraction") {
+                return [createFracEquivPattern()];
+            }
+            // Fallback: return everything or nothing? 
+            // For safety, let's return relevant subsets or all if unsure, 
+            // but MapMaster filters by invariant rules anyway.
+            return patterns;
+        },
+    };
+}
+
+function createIntToFracPattern(): PrimitivePattern {
+    return {
+        primitiveId: "P.INT_TO_FRAC",
+        match(input: PrimitivePatternMatchInput): boolean {
+            return input.node.type === "integer";
+        },
+    };
+}
+
+function createFracEquivPattern(): PrimitivePattern {
+    return {
+        primitiveId: "P.FRAC_EQUIV",
+        match(input: PrimitivePatternMatchInput): boolean {
+            return isFraction(input.node);
+        },
+    };
+}
+
+function createFracMulPattern(): PrimitivePattern {
+    return {
+        primitiveId: "P.FRAC_MUL",
+        match(input: PrimitivePatternMatchInput): boolean {
+            const node = input.node;
+            if (!isBinaryOp(node)) return false;
+            if (node.op !== "*") return false;
+            return isFraction(node.left) && isFraction(node.right);
+        },
+    };
+}
+
+function createFracDivPattern(): PrimitivePattern {
+    return {
+        primitiveId: "P.FRAC_DIV",
+        match(input: PrimitivePatternMatchInput): boolean {
+            const node = input.node;
+            if (!isBinaryOp(node)) return false;
+            // Supports both parsed division ops just in case
+            if (node.op !== "/" && node.op !== ":") return false;
+            return isFraction(node.left) && isFraction(node.right);
         },
     };
 }

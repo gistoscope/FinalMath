@@ -17,7 +17,11 @@ export function buildCandidatesForFractionsStage1(ctx: RuleContext): MapMasterCa
     const candidates: MapMasterCandidate[] = [];
 
     // Filter for relevant rules
-    const fractionRules = filterRulesByDomain(invariantRules, 'FractionsSameDen');
+    // We want both FractionsSameDen (existing) AND Fractions (new generic)
+    const fractionRules = [
+        ...filterRulesByDomain(invariantRules, 'FractionsSameDen'),
+        ...filterRulesByDomain(invariantRules, 'Fractions')
+    ];
 
     for (const rule of fractionRules) {
         // In Stage 1, we map directly to primitives

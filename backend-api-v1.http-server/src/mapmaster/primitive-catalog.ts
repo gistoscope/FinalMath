@@ -6,7 +6,7 @@
  */
 
 import { AstNode, NodeType, getNodeAt } from "./ast";
-import { PrimitiveId } from "../engine/primitives.registry";
+import type { PrimitiveId } from "../engine/primitives.registry";
 
 export type OpKind = "+" | "-" | "*" | "/" | "neg" | "root" | "unknown";
 export type OperandKind = "int" | "frac" | "decimal" | "mixed" | "zero" | "one" | "other" | "none";

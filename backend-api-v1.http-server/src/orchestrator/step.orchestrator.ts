@@ -105,122 +105,134 @@ export async function runOrchestratorStep(
         registry: ctx.invariantRegistry,
     };
 
-    // 3. Candidate Generation
+    // 3. V5 Decision Core Integration
+    // If PrimitiveMaster is available, we delegate the entire "match & select" process to it.
     let mapResult: { candidates: any[], resolvedSelectionPath?: string };
     let isPrimitiveMasterPath = false;
     let pmPrimitiveId: string | null = null;
+    let v5Outcome: any = null;
+    let operatorAnchorPath: string | null = null;
 
-    if (ctx.primitiveMaster) {
-        console.log("[Orchestrator] Using PrimitiveMaster path");
-        const pmResult = await ctx.primitiveMaster.match({
-            expressionLatex: req.expressionLatex,
-            selectionPath: req.selectionPath,
-            operatorIndex: req.operatorIndex,
-            invariantSetId: req.courseId,
-            expressionId: undefined,
-            context: { userRole: req.userRole }
-        });
-
-        if (pmResult.status === "match-found") {
-            isPrimitiveMasterPath = true;
-            pmPrimitiveId = pmResult.primitiveId;
-            const candidate = {
-                id: "pm-match",
-                invariantRuleId: "primitive-master-rule",
-                primitiveIds: [pmResult.primitiveId],
-                targetPath: pmResult.window.centerPath,
-                description: "PrimitiveMaster Selection",
-            };
-            mapResult = {
-                candidates: [candidate],
-                resolvedSelectionPath: pmResult.window.centerPath
-            };
-        } else if (pmResult.status === "no-match") {
-            console.log(`[Orchestrator] PrimitiveMaster returned no-match: ${pmResult.reason}`);
-            return {
-                status: "no-candidates",
-                engineResult: null,
-                history,
-            };
-        } else {
-            console.log(`[Orchestrator] PrimitiveMaster error: ${pmResult.message}`);
-            return {
-                status: "engine-error",
-                engineResult: { ok: false, errorCode: pmResult.message },
-                history,
-            };
-        }
-    } else {
-        // Legacy/Default MapMaster Path
-        mapResult = mapMasterGenerate(mapInput);
-        console.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates for expression "${req.expressionLatex}" using set "${targetSet.id}"`);
-        if (mapResult.candidates.length === 0) {
-            console.log(`[Orchestrator] Active rules in set: ${targetSet.rules.map(r => r.id).join(', ')}`);
-        }
-    }
-
-
-    // 3b. Enforce Locality (Stage-1)
-    // Filter out candidates that are not local to the selection.
-    // Note: If selectionPath is missing, isLocalToSelection returns true (fallback).
-    // 3b. Enforce Locality (Stage-1)
-    // Filter out candidates that are not local to the selection.
-    // Note: If selectionPath is missing, isLocalToSelection returns true (fallback).
-    console.log(`[Orchestrator] Candidates before locality: ${mapResult.candidates.length}`);
-    mapResult.candidates = mapResult.candidates.filter(c => {
-        const isLocal = isLocalToSelection(req.selectionPath, mapResult.resolvedSelectionPath, c);
-        if (!isLocal) console.log(`[Orchestrator] Filtered by locality: ${c.id}`);
-        return isLocal;
-    });
-    console.log(`[Orchestrator] Candidates after locality: ${mapResult.candidates.length}`);
-
-
-    // 3c. Operator Anchoring (Stage-1 Fix)
-    // If the user clicked on a binary operator (+, -), we want to anchor the candidates to that operator.
+    // We need AST for V5 logic (and legacy anchoring)
     const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
-
-    const { getOperatorAnchorPath } = await import("./locality");
-    // const { primitiveCatalog } = await import("../mapmaster/primitive-catalog");
-
     const ast = parseExpression(req.expressionLatex);
 
-    let operatorAnchorPath: string | null = null;
-    if (ast) {
-        operatorAnchorPath = getOperatorAnchorPath(
-            ast,
-            mapResult.resolvedSelectionPath,
-            req.selectionPath,
-            req.operatorIndex,
-            getNodeAt
-        );
+    if (ctx.primitiveMaster && ast) {
+        console.log("[Orchestrator] Using V5 PrimitiveMaster Path");
 
-        if (operatorAnchorPath) {
-            console.log(`[Orchestrator] Anchoring to path: ${operatorAnchorPath}`);
-            const anchoredCandidates = mapResult.candidates.filter(c => c.targetPath === operatorAnchorPath);
-            // If we have candidates for the anchor, strictly enforce it.
-            if (anchoredCandidates.length > 0) {
-                mapResult.candidates = anchoredCandidates;
+        // Resolve Click Target
+        const clickTarget = await ctx.primitiveMaster.resolveClickTarget(ast, req.selectionPath || "", req.operatorIndex);
+
+        if (clickTarget) {
+            // Resolve Primitive (Match -> Select)
+            v5Outcome = await ctx.primitiveMaster.resolvePrimitive({
+                expressionId: "expr-temp",
+                expressionLatex: req.expressionLatex,
+                click: clickTarget
+            });
+
+            // Handle V5 Outcome
+            if (v5Outcome.kind === "green-primitive" || v5Outcome.kind === "yellow-scenario") {
+                // GREEN / YELLOW -> Execute immediately (Auto-Apply)
+                // We treat "yellow-scenario" as auto-apply for now until Scenario Manager is fully active.
+                if (v5Outcome.primitive) {
+                    isPrimitiveMasterPath = true;
+                    pmPrimitiveId = v5Outcome.primitive.enginePrimitiveId; // Use the ENGINE ID
+
+                    // Create a synthetic candidate for the legacy runner
+                    // The runner still expects a "candidate" object for now.
+                    const candidate = {
+                        id: "v5-match",
+                        invariantRuleId: "v5-rule",
+                        primitiveIds: [pmPrimitiveId],
+                        targetPath: clickTarget.nodeId,
+                        description: v5Outcome.primitive.label,
+                    };
+
+                    mapResult = {
+                        candidates: [candidate],
+                        resolvedSelectionPath: clickTarget.nodeId
+                    };
+                } else {
+                    mapResult = { candidates: [] };
+                }
+            } else if (v5Outcome.kind === "blue-choice") {
+                // BLUE -> Ask User (Context Menu)
+                console.log("[Orchestrator] V5 Blue Choice Detected");
+                return {
+                    status: "step-applied",
+                    engineResult: null,
+                    history,
+                    debugInfo: {
+                        v5Status: "ask-user",
+                        options: v5Outcome.matches
+                    }
+                };
+            } else if (v5Outcome.kind === "red-diagnostic") {
+                // RED -> Diagnostic Message
+                console.log("[Orchestrator] V5 Red Diagnostic Detected");
+                return {
+                    status: "no-candidates",
+                    engineResult: null,
+                    history,
+                    debugInfo: {
+                        v5Status: "diagnostic",
+                        message: v5Outcome.primitive?.label
+                    }
+                };
             } else {
-                // If explicit operator click but no candidates, we should probably return no-candidates
-                // rather than applying something random.
-                mapResult.candidates = [];
+                mapResult = { candidates: [] };
             }
+        } else {
+            console.log("[Orchestrator] Click target could not be resolved in V5.");
+            mapResult = { candidates: [] };
         }
     }
-    console.log(`[Orchestrator] Candidates after anchoring: ${mapResult.candidates.length}`);
 
-    // 3d. Stage-1 Strict Primitives (Atomic Mode)
-    // We enforce a strict set of allowed primitives.
-    // V5 Update: We use the canonical registry. If MapMaster returned it, and it's in registry, it's valid.
-    // The previous logic filtered by "stage1" property in catalog.
-    // We will now trust MapMaster (which uses the catalog) + Registry validation later.
-    /*
-    const STAGE1_ATOMIC_MODE = true; // Config flag
-    if (STAGE1_ATOMIC_MODE) {
-       // ... removed logic ...
+    // FALLBACK to Legacy if V5 produced no candidates (or if PM not present)
+    if ((!mapResult || mapResult.candidates.length === 0) && !v5Outcome) {
+        if (!ctx.primitiveMaster) {
+            // Legacy/Default MapMaster Path
+            mapResult = mapMasterGenerate(mapInput);
+            console.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates for expression "${req.expressionLatex}" using set "${targetSet.id}"`);
+
+            // 3b. Enforce Locality (Stage-1)
+            mapResult.candidates = mapResult.candidates.filter(c => {
+                const isLocal = isLocalToSelection(req.selectionPath, mapResult.resolvedSelectionPath, c);
+                // if (!isLocal) console.log(`[Orchestrator] Filtered by locality: ${c.id}`);
+                return isLocal;
+            });
+
+            // 3c. Operator Anchoring (Stage-1 Fix)
+            const { getOperatorAnchorPath } = await import("./locality");
+            // ast is already parsed above
+            if (ast) {
+                operatorAnchorPath = getOperatorAnchorPath(
+                    ast,
+                    mapResult.resolvedSelectionPath,
+                    req.selectionPath,
+                    req.operatorIndex,
+                    getNodeAt
+                );
+
+                if (operatorAnchorPath) {
+                    const anchoredCandidates = mapResult.candidates.filter(c => c.targetPath === operatorAnchorPath);
+                    if (anchoredCandidates.length > 0) {
+                        mapResult.candidates = anchoredCandidates;
+                    } else {
+                        mapResult.candidates = [];
+                    }
+                }
+            }
+        } else {
+            // V5 was arguably authoritative if it ran.
+            if (!mapResult) mapResult = { candidates: [] };
+        }
     }
-    */
-    console.log(`[Orchestrator] Candidates: ${mapResult.candidates.length}`);
+
+    // Safety check
+    if (!mapResult) mapResult = { candidates: [] };
+
 
     // 4. Build StepMasterInput
     let policy = ctx.policy;
@@ -264,19 +276,15 @@ export async function runOrchestratorStep(
         const chosenCandidate = mapResult.candidates.find(c => c.id === chosenId);
 
         if (!chosenCandidate) {
-            // Should not happen if StepMaster behaves correctly
             return {
-                status: "engine-error", // Internal error really
+                status: "engine-error",
                 engineResult: { ok: false, errorCode: "chosen-candidate-not-found" },
                 history,
                 debugInfo: buildDebugInfo(policy, mapResult),
             };
         }
 
-        // STAGE 1 ENFORCEMENT: Primitive Validation
-        // We strictly require that the applied step corresponds to a valid, known primitive.
-        // Use primitives from StepMaster decision if available, otherwise fallback to candidate.
-        // Update for V5: Validate against PRIMITIVE_DEFINITIONS registry.
+        // STAGE 1 ENFORCEMENT
         const primitivesToApply = stepResult.primitivesToApply?.map(p => p.id) || chosenCandidate.primitiveIds;
         const primaryPrimitiveId = primitivesToApply[0] as PrimitiveId;
         const primitiveDef = PRIMITIVE_DEFINITIONS[primaryPrimitiveId];
@@ -295,10 +303,15 @@ export async function runOrchestratorStep(
         }
 
         // 8. Execute via Engine
+        // === V5 LOGGING START ===
+        if (pmPrimitiveId) {
+            console.log(`[Orchestrator] [V5-RUNNER-START] Executing Primitive: ${pmPrimitiveId}`);
+        }
+        // === V5 LOGGING END ===
+
         const engineResult = await executeStepViaEngine(chosenCandidate, mapInput);
 
         if (engineResult.ok) {
-            // Update history with expressionAfter
             if (engineResult.newExpressionLatex) {
                 history = updateLastStep(history, { expressionAfter: engineResult.newExpressionLatex });
                 await SessionService.updateHistory(req.sessionId, history);
@@ -306,7 +319,7 @@ export async function runOrchestratorStep(
 
             captureSnapshot(req, mapResult, "step-applied", chosenCandidate, engineResult);
 
-            // Compute Primitive Debug Info
+            // Primitive Debug
             let primitiveDebug: PrimitiveDebugInfo | undefined;
             if (isPrimitiveMasterPath && pmPrimitiveId) {
                 primitiveDebug = {
@@ -332,7 +345,10 @@ export async function runOrchestratorStep(
                 primitiveDebug
             };
         } else {
-            // Update history with error code
+            // === V5 LOGGING START ===
+            console.error("[Orchestrator] [V5-RUNNER-FAIL] Error details:", JSON.stringify(engineResult, null, 2));
+            // === V5 LOGGING END ===
+
             history = updateLastStep(history, { errorCode: engineResult.errorCode });
             await SessionService.updateHistory(req.sessionId, history);
 
@@ -346,7 +362,6 @@ export async function runOrchestratorStep(
         }
     }
 
-    // Fallback
     captureSnapshot(req, mapResult, "no-candidates");
     return {
         status: "no-candidates",
@@ -364,10 +379,6 @@ function buildDebugInfo(policy: StepPolicyConfig, mapResult: { candidates: unkno
     return null;
 }
 
-/**
- * Undo the last step for a session.
- * Returns the expression of the new last step (or null if history is empty).
- */
 export async function undoLastStep(
     ctx: OrchestratorContext,
     sessionId: string
@@ -378,30 +389,20 @@ export async function undoLastStep(
         return null;
     }
 
-    // Get the last step to know what we are undoing (optional logic could go here)
     const lastEntry = history.entries[history.entries.length - 1];
     const previousExpression = lastEntry.expressionBefore;
 
-    // Remove the last step
     const newHistory = removeLastStep(history);
-
-    // Save updated history
     await SessionService.updateHistory(sessionId, newHistory);
 
     return previousExpression;
 }
 
-/**
- * Generate a hint for the next step.
- */
 export async function generateHint(
     ctx: OrchestratorContext,
     req: HintRequest
 ): Promise<HintResponse> {
-    // 1. Load history (for context)
     const history = await SessionService.getHistory(req.sessionId);
-
-    // 2. Build MapMasterInput
     const targetSet = ctx.invariantRegistry.getInvariantSetById(req.courseId);
     if (!targetSet) {
         return { status: "error", error: `course-not-found: ${req.courseId}` };
@@ -415,20 +416,16 @@ export async function generateHint(
         registry: ctx.invariantRegistry,
     };
 
-    // 3. Call MapMaster
     const mapResult = mapMasterGenerate(mapInput);
 
-    // 4. Build StepMasterInput
     const stepInput: StepMasterInput = {
         candidates: mapResult.candidates,
         history: getSnapshot(history),
         policy: ctx.policy,
     };
 
-    // 5. Call StepMaster
     const stepResult = stepMasterDecide(stepInput);
 
-    // 6. Return Hint
     if (stepResult.decision.status === "chosen") {
         const chosenId = stepResult.decision.chosenCandidateId;
         const chosenCandidate = mapResult.candidates.find(c => c.id === chosenId);
@@ -463,6 +460,5 @@ function captureSnapshot(
         allCandidates: mapResult.candidates,
         error: error || (engineResult?.ok === false ? engineResult.errorCode : undefined)
     });
-    // Also append to session history
     StepSnapshotStore.appendSnapshot(StepSnapshotStore.getLatest()!);
 }

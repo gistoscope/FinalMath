@@ -8,8 +8,8 @@
 
 import { AstNode } from "../../mapmaster/ast";
 
-import { PrimitiveId } from "../primitives.registry";
-export { PrimitiveId };
+import type { PrimitiveId } from "../primitives.registry";
+export type { PrimitiveId };
 
 export type PrimitiveDomain =
     | "Integers"

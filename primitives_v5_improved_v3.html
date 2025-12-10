@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Motor V5 Primitives Table (Improved v3)</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 20px;
+      background: #f7f7fb;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+    }
+    p.subtitle {
+      color: #555;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 0.95rem;
+    }
+    thead tr {
+      background: #f0f2f8;
+    }
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e1e4ee;
+      vertical-align: middle;
+      line-height: 1.6;
+    }
+    th {
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tr:nth-child(even) td {
+      background: #fafbff;
+    }
+    code {
+      font-family: "Fira Code", "Consolas", monospace;
+      font-size: 0.9em;
+    }
+  </style>
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['\\(','\\)'], ['$', '$']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+</head>
+<body>
+  <h1>Motor V5 Primitives Table (Improved v3)</h1>
+  <p class="subtitle">
+    Updated according to the latest rules: division of fractions as “multiply by reciprocal”, 
+    improper fraction numerator decomposition, and mixed number → whole + fraction.
+  </p>
+  <table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>№</th>
+      <th>ID</th>
+      <th>Category</th>
+      <th>Initial_State</th>
+      <th>Result_After_Primitive</th>
+      <th>Constraints</th>
+      <th>Color</th>
+      <th>UI_Mode</th>
+      <th>Action_Class</th>
+      <th>Notes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>P.INT_ADD</td>
+      <td>Integer Operations</td>
+      <td>\(a + b\)</td>
+      <td>c</td>
+      <td>a,b,c ∈ ℤ</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Direct addition of two integers</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>P.INT_SUB</td>
+      <td>Integer Operations</td>
+      <td>\(a - b\)</td>
+      <td>c</td>
+      <td>a,b,c ∈ ℤ</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Direct subtraction of two integers</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>P.INT_MUL</td>
+      <td>Integer Operations</td>
+      <td>\(a × b\)</td>
+      <td>c</td>
+      <td>a,b,c ∈ ℤ</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Direct multiplication of two integers</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>P.INT_DIV_EXACT</td>
+      <td>Integer Operations</td>
+      <td>\(a ÷ b\)</td>
+      <td>c</td>
+      <td>a,b,c ∈ ℤ; b≠0; a mod b = 0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Integer division with no remainder</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>P.INT_DIV_TO_FRAC</td>
+      <td>Integer Operations</td>
+      <td>\(a ÷ b\)</td>
+      <td>\(\frac{a}{b}\)</td>
+      <td>a,b ∈ ℤ; b≠0; a mod b ≠ 0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Convert non-exact division to fraction</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>P.FRAC_ADD_SAME_DEN</td>
+      <td>Fraction Operations - Same Denominator</td>
+      <td>\(\frac{a}{b} + \frac{c}{b}\)</td>
+      <td>\(\frac{a+c}{b}\)</td>
+      <td>a,c,b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Add numerators with same denominator</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>P.FRAC_SUB_SAME_DEN</td>
+      <td>Fraction Operations - Same Denominator</td>
+      <td>\(\frac{a}{b} -\frac{c}{b}\)</td>
+      <td>\(\frac{a-c}{b}\)</td>
+      <td>a,c,b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Subtract numerators with same denominator</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>P.FRAC_MUL</td>
+      <td>Fraction Operations - Multiplication</td>
+      <td>\(\frac{a}{b} \times \frac{c}{d}\)</td>
+      <td>\(\frac{a\times c}{b\times d}\)</td>
+      <td>a,b,c,d ∈ ℤ; b,d≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Create product fraction (numerators stay as product)</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>P.FRAC_DIV</td>
+      <td>Fraction Operations - Division</td>
+      <td>\(\frac{a}{b} \div \frac{c}{d}\)</td>
+      <td>\(\frac{a}{b} \times \frac{d}{c}\)</td>
+      <td>a,b,c,d ∈ ℤ; b,c,d≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Create division fraction (multiply by reciprocal)</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>P.INT_TO_FRAC</td>
+      <td>Type Conversion</td>
+      <td>n</td>
+      <td>\(\frac{n}{1}\)</td>
+      <td>n ∈ ℤ</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Convert integer to fraction with denominator 1</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>P.FRAC_TIMES_ONE</td>
+      <td>Preparation for Equivalence</td>
+      <td>\(\frac{a}{b}\)</td>
+      <td>\(\frac{a}{b} × 1\)</td>
+      <td>a,b ∈ ℤ; b≠0</td>
+      <td>yellow</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>First step in creating equivalent fraction</td>
+    </tr>
+    <tr>
+      <td>12</td>
+      <td>P.ONE_TO_UNIT_FRAC_2</td>
+      <td>Unit Fraction Conversion</td>
+      <td>1</td>
+      <td>\(\frac{2}{2}\)</td>
+      <td>Always applicable</td>
+      <td>blue</td>
+      <td>context-menu</td>
+      <td>normal</td>
+      <td>Convert 1 to unit fraction 2/2</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>P.ONE_TO_UNIT_FRAC_3</td>
+      <td>Unit Fraction Conversion</td>
+      <td>1</td>
+      <td>\(\frac{3}{3}\)</td>
+      <td>Always applicable</td>
+      <td>blue</td>
+      <td>context-menu</td>
+      <td>normal</td>
+      <td>Convert 1 to unit fraction 3/3</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>P.ONE_TO_UNIT_FRAC_5</td>
+      <td>Unit Fraction Conversion</td>
+      <td>1</td>
+      <td>\(\frac{5}{5}\)</td>
+      <td>Always applicable</td>
+      <td>blue</td>
+      <td>context-menu</td>
+      <td>normal</td>
+      <td>Convert 1 to unit fraction 5/5</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>P.ONE_TO_UNIT_FRAC_7</td>
+      <td>Unit Fraction Conversion</td>
+      <td>1</td>
+      <td>\(\frac{7}{7}\)</td>
+      <td>Always applicable</td>
+      <td>blue</td>
+      <td>context-menu</td>
+      <td>normal</td>
+      <td>Convert 1 to unit fraction 7/7</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>P.ONE_TO_UNIT_FRAC_K</td>
+      <td>Unit Fraction Conversion</td>
+      <td>1</td>
+      <td>\(\frac{k}{k}\)</td>
+      <td>k ∈ ℤ; k≠0</td>
+      <td>blue</td>
+      <td>context-menu</td>
+      <td>normal</td>
+      <td>Convert 1 to unit fraction k/k (general case)</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>P.MIXED_TO_SUM</td>
+      <td>Mixed Number Decomposition</td>
+      <td>\(n(\frac{a}{b})\)</td>
+      <td>\(n + \frac{a}{b}\)</td>
+      <td>n,a,b ∈ ℤ; b≠0; 0<a<b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Decompose mixed number into integer plus fraction</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>P.FRAC_ADD_DIFF_PREP</td>
+      <td>Different Denominator Preparation</td>
+      <td>\(\frac{a}{b} + \frac{c}{d}\)</td>
+      <td>\((\frac{a}{b} × 1) + (\frac{c}{d} × 1)\)</td>
+      <td>a,b,c,d ∈ ℤ; b,d≠0; b≠d</td>
+      <td>yellow</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Prepare both fractions for equivalent conversion</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>P.FRAC_SUB_DIFF_PREP</td>
+      <td>Different Denominator Preparation</td>
+      <td>\(\frac{a}{b} -\frac{c}{d}\)</td>
+      <td>\((\frac{a}{b} × 1) - (\frac{c}{d} × 1)\)</td>
+      <td>a,b,c,d ∈ ℤ; b,d≠0; b≠d</td>
+      <td>yellow</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Prepare both fractions for equivalent conversion</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>P.DECIMAL_TO_FRAC</td>
+      <td>Decimal Conversion</td>
+      <td>0.d₁d₂...dₙ</td>
+      <td>m/(10^n)</td>
+      <td>Decimal with n digits after point</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Convert decimal to fraction (required before fraction ops)</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>P.BRACKETS_REMOVE</td>
+      <td>Bracket Operations</td>
+      <td>(a)</td>
+      <td>a</td>
+      <td>No operators outside brackets</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Remove unnecessary parentheses</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>P.BRACKETS_CALC_INSIDE</td>
+      <td>Bracket Operations</td>
+      <td>(expr)</td>
+      <td>value</td>
+      <td>Expression inside can be calculated</td>
+      <td>yellow</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Calculate expression inside brackets first</td>
+    </tr>
+    <tr>
+      <td>23</td>
+      <td>P.DISTRIBUTE_MUL_ADD</td>
+      <td>Distributive Property</td>
+      <td>\(a(b + c)\)</td>
+      <td>\(a×b + a×c\)</td>
+      <td>a,b,c: integers or fractions</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Distribute multiplication over addition</td>
+    </tr>
+    <tr>
+      <td>24</td>
+      <td>P.DISTRIBUTE_MUL_SUB</td>
+      <td>Distributive Property</td>
+      <td>\(a(b - c)\)</td>
+      <td>\(a×b - a×c\)</td>
+      <td>a,b,c: integers or fractions</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Distribute multiplication over subtraction</td>
+    </tr>
+    <tr>
+      <td>25</td>
+      <td>P.FACTOR_ADD</td>
+      <td>Factoring</td>
+      <td>\(a×b + a×c\)</td>
+      <td>\(a(b + c)\)</td>
+      <td>a,b,c: integers or fractions; a≠0</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Factor common term from addition</td>
+    </tr>
+    <tr>
+      <td>26</td>
+      <td>P.FACTOR_SUB</td>
+      <td>Factoring</td>
+      <td>\(a×b - a×c\)</td>
+      <td>\(a(b - c)\)</td>
+      <td>a,b,c: integers or fractions; a≠0</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Factor common term from subtraction</td>
+    </tr>
+    <tr>
+      <td>27</td>
+      <td>P.ZERO_ADD_RIGHT</td>
+      <td>Identity Properties</td>
+      <td>\(a + 0\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Additive identity (right)</td>
+    </tr>
+    <tr>
+      <td>28</td>
+      <td>P.ZERO_ADD_LEFT</td>
+      <td>Identity Properties</td>
+      <td>\(0 + a\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Additive identity (left)</td>
+    </tr>
+    <tr>
+      <td>29</td>
+      <td>P.ZERO_SUB</td>
+      <td>Identity Properties</td>
+      <td>\(a - 0\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Subtracting zero</td>
+    </tr>
+    <tr>
+      <td>30</td>
+      <td>P.ZERO_MUL_RIGHT</td>
+      <td>Zero Properties</td>
+      <td>\(a × 0\)</td>
+      <td>0</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Multiplication by zero (right)</td>
+    </tr>
+    <tr>
+      <td>31</td>
+      <td>P.ZERO_MUL_LEFT</td>
+      <td>Zero Properties</td>
+      <td>\(0 × a\)</td>
+      <td>0</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Multiplication by zero (left)</td>
+    </tr>
+    <tr>
+      <td>32</td>
+      <td>P.ONE_MUL_RIGHT</td>
+      <td>Identity Properties</td>
+      <td>\(a × 1\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Multiplicative identity (right)</td>
+    </tr>
+    <tr>
+      <td>33</td>
+      <td>P.ONE_MUL_LEFT</td>
+      <td>Identity Properties</td>
+      <td>\(1 × a\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Multiplicative identity (left)</td>
+    </tr>
+    <tr>
+      <td>34</td>
+      <td>P.ONE_DIV</td>
+      <td>Identity Properties</td>
+      <td>\(a ÷ 1\)</td>
+      <td>a</td>
+      <td>a ∈ ℤ or fraction</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Division by one</td>
+    </tr>
+    <tr>
+      <td>35</td>
+      <td>P.SELF_DIV</td>
+      <td>Identity Properties</td>
+      <td>\(a ÷ a\)</td>
+      <td>1</td>
+      <td>a ∈ ℤ or fraction; a≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Number divided by itself</td>
+    </tr>
+    <tr>
+      <td>36</td>
+      <td>P.DIV_BY_ZERO</td>
+      <td>Error Diagnostics</td>
+      <td>\(a ÷ 0\)</td>
+      <td>ERROR</td>
+      <td>Any a</td>
+      <td>red</td>
+      <td>diagnostic</td>
+      <td>diagnostic</td>
+      <td>Division by zero is undefined</td>
+    </tr>
+    <tr>
+      <td>37</td>
+      <td>P.ZERO_DIV_NONZERO</td>
+      <td>Zero Properties</td>
+      <td>\(0 ÷ a\)</td>
+      <td>0</td>
+      <td>a ∈ ℤ or fraction; a≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Zero divided by non-zero</td>
+    </tr>
+    <tr>
+      <td>38</td>
+      <td>P.FRAC_SIMPLIFY_GCD</td>
+      <td>Fraction Simplification</td>
+      <td>\(\frac{a}{b}\)</td>
+      <td>\(\frac{a\div g}{b\div g}\)</td>
+      <td>a,b ∈ ℤ; b≠0; g=gcd(a,b)>1</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Reduce fraction to lowest terms</td>
+    </tr>
+    <tr>
+      <td>39</td>
+      <td>P.FRAC_ZERO_NUM</td>
+      <td>Zero Properties</td>
+      <td>\(\frac{0}{b}\)</td>
+      <td>0</td>
+      <td>b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Fraction with zero numerator equals zero</td>
+    </tr>
+    <tr>
+      <td>40</td>
+      <td>P.NEG_NEG</td>
+      <td>Sign Operations</td>
+      <td>\(-(-a)\)</td>
+      <td>a</td>
+      <td>Any a</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Double negative elimination</td>
+    </tr>
+    <tr>
+      <td>41</td>
+      <td>P.NEG_DISTRIBUTE_ADD</td>
+      <td>Sign Operations</td>
+      <td>\(-(a + b)\)</td>
+      <td>\((-a) + (-b)\)</td>
+      <td>Any a and b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Distribute negative over addition</td>
+    </tr>
+    <tr>
+      <td>42</td>
+      <td>P.NEG_DISTRIBUTE_SUB</td>
+      <td>Sign Operations</td>
+      <td>\(-(a - b)\)</td>
+      <td>\((-a) + b\)</td>
+      <td>Any a and b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Distribute negative over subtraction</td>
+    </tr>
+    <tr>
+      <td>43</td>
+      <td>P.NEG_FRAC_NUM</td>
+      <td>Sign Operations</td>
+      <td>\((-a)/b\)</td>
+      <td>\(-(\frac{a}{b})\)</td>
+      <td>a,b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Negative in numerator to front</td>
+    </tr>
+    <tr>
+      <td>44</td>
+      <td>P.NEG_FRAC_DEN</td>
+      <td>Sign Operations</td>
+      <td>\(a/(-b)\)</td>
+      <td>\(-(\frac{a}{b})\)</td>
+      <td>a,b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Negative in denominator to front</td>
+    </tr>
+    <tr>
+      <td>45</td>
+      <td>P.NEG_FRAC_BOTH</td>
+      <td>Sign Operations</td>
+      <td>\((-a)/(-b)\)</td>
+      <td>\(\frac{a}{b}\)</td>
+      <td>a,b ∈ ℤ; b≠0</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Negatives cancel in fraction</td>
+    </tr>
+    <tr>
+      <td>46</td>
+      <td>P.SUB_TO_ADD_NEG</td>
+      <td>Sign Operations</td>
+      <td>\(a - b\)</td>
+      <td>\(a + (-b)\)</td>
+      <td>Any a and b</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Convert subtraction to addition of negative</td>
+    </tr>
+    <tr>
+      <td>47</td>
+      <td>P.ADD_NEG_TO_SUB</td>
+      <td>Sign Operations</td>
+      <td>\(a + (-b)\)</td>
+      <td>\(a - b\)</td>
+      <td>Any a and b</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Convert addition of negative to subtraction</td>
+    </tr>
+    <tr>
+      <td>48</td>
+      <td>P.MUL_NEG_LEFT</td>
+      <td>Sign Operations</td>
+      <td>\((-a) × b\)</td>
+      <td>\(-(a × b)\)</td>
+      <td>Any a and b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Negative times positive</td>
+    </tr>
+    <tr>
+      <td>49</td>
+      <td>P.MUL_NEG_RIGHT</td>
+      <td>Sign Operations</td>
+      <td>\(a × (-b)\)</td>
+      <td>\(-(a × b)\)</td>
+      <td>Any a and b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Positive times negative</td>
+    </tr>
+    <tr>
+      <td>50</td>
+      <td>P.MUL_NEG_BOTH</td>
+      <td>Sign Operations</td>
+      <td>\((-a) × (-b)\)</td>
+      <td>\(a × b\)</td>
+      <td>Any a and b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Negative times negative is positive</td>
+    </tr>
+    <tr>
+      <td>51</td>
+      <td>P.ADD_ASSOC_LEFT</td>
+      <td>Associativity</td>
+      <td>\((a + b) + c\)</td>
+      <td>\(a + (b + c)\)</td>
+      <td>Any a;b;c</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Reassociate addition leftward</td>
+    </tr>
+    <tr>
+      <td>52</td>
+      <td>P.ADD_ASSOC_RIGHT</td>
+      <td>Associativity</td>
+      <td>\(a + (b + c)\)</td>
+      <td>\((a + b) + c\)</td>
+      <td>Any a;b;c</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Reassociate addition rightward</td>
+    </tr>
+    <tr>
+      <td>53</td>
+      <td>P.MUL_ASSOC_LEFT</td>
+      <td>Associativity</td>
+      <td>\((a × b) × c\)</td>
+      <td>\(a × (b × c)\)</td>
+      <td>Any a;b;c</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Reassociate multiplication leftward</td>
+    </tr>
+    <tr>
+      <td>54</td>
+      <td>P.MUL_ASSOC_RIGHT</td>
+      <td>Associativity</td>
+      <td>\(a × (b × c)\)</td>
+      <td>\((a × b) × c\)</td>
+      <td>Any a;b;c</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Reassociate multiplication rightward</td>
+    </tr>
+    <tr>
+      <td>55</td>
+      <td>P.ADD_COMM</td>
+      <td>Commutativity</td>
+      <td>\(a + b\)</td>
+      <td>\(b + a\)</td>
+      <td>Any a and b</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Commute addition operands</td>
+    </tr>
+    <tr>
+      <td>56</td>
+      <td>P.MUL_COMM</td>
+      <td>Commutativity</td>
+      <td>\(a × b\)</td>
+      <td>\(b × a\)</td>
+      <td>Any a and b</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Commute multiplication operands</td>
+    </tr>
+    <tr>
+      <td>57</td>
+      <td>P.FRAC_IMPROPER_TO_MIXED</td>
+      <td>Fraction Conversion</td>
+      <td>\(\frac{a}{b}\)</td>
+      <td>\(\frac{q\times b + r}{b}\)</td>
+      <td>a,b ∈ ℤ; b≠0; a>b; a=q×b+r</td>
+      <td>yellow</td>
+      <td>requires-confirmation</td>
+      <td>normal</td>
+      <td>Convert improper fraction to mixed number</td>
+    </tr>
+    <tr>
+      <td>58</td>
+      <td>P.FRAC_MIXED_TO_IMPROPER</td>
+      <td>Fraction Conversion</td>
+      <td>\(q\frac{r}{b}\)</td>
+      <td>\(q + \frac{r}{b}\)</td>
+      <td>q,r,b ∈ ℤ; b≠0; 0<r<b</td>
+      <td>green</td>
+      <td>auto-apply</td>
+      <td>normal</td>
+      <td>Convert mixed number to improper fraction</td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>

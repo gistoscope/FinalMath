@@ -1,44 +1,40 @@
 /**
- * PrimitiveMaster
+ * PrimitiveMaster (V5)
  *
- * High-level responsibility:
- *  - Given an expression (LaTeX string) and a selection (path / operator index),
- *    decide which primitive (if any) is applicable.
+ * Coordinator for the V5 Decision Layer.
  *
- * This module is deliberately kept independent from HTTP / transport concerns.
+ * Responsibilities:
+ *  - Receive click/context from Orchestrator.
+ *  - Delegate to NodeContextBuilder -> PrimitiveMatcher -> PrimitiveSelector.
+ *  - Return a deterministic SelectedOutcome.
+ *
+ * Legacy Compatibility:
+ *  - Implements `match()` to support existing Orchestrator calls, adapting the V5 outcome
+ *    to the legacy PrimitiveMasterResult format.
  */
-import type { PrimitiveId } from "../primitives/primitives.registry";
-import type { AstNode } from "../mapmaster/ast";
-import { getNodeAt, getNodeByOperatorIndex, toLatex } from "../mapmaster/ast";
-import type {
-    PrimitivePatternRegistry,
-} from "./PrimitivePatterns";
-import { SelectionKind } from "./PrimitivePatterns";
 
+import { PRIMITIVES_V5_TABLE } from "../engine/primitives.registry.v5";
+import { NodeContextBuilder, NodeContext } from "../engine/v5/NodeContextBuilder";
+import { PrimitiveMatcher } from "../engine/v5/PrimitiveMatcher";
+import { PrimitiveSelector, SelectedOutcome } from "../engine/v5/PrimitiveSelector";
+import type { AstNode } from "../mapmaster/ast";
+import { toLatex, getNodeAt, getNodeByOperatorIndex } from "../mapmaster/ast";
+import type { PrimitiveId } from "../engine/primitives.registry.v5";
+
+// --- Legacy Types Re-export (for compatibility) ---
 export type PrimitiveMasterStatus = "match-found" | "no-match" | "error";
 
 export interface PrimitiveMasterRequest {
     expressionLatex: string;
-    /**
-     * Logical selection path produced by the viewer.
-     * For operator selections it may end with ".op".
-     */
     selectionPath: string | null;
-    /**
-     * Ordinal index of the operator within the expression (0-based).
-     */
     operatorIndex?: number;
-    invariantSetId?: string;
+    invariantSetId?: string; // Ignored in V5
     expressionId?: string;
-    context?: unknown;
+    context?: { userRole?: string };
 }
 
 export interface PrimitiveMasterWindow {
     centerPath: string;
-    /**
-     * LaTeX fragment representing at least the selected subexpression.
-     * For now we simply return the full expression; this can be refined later.
-     */
     latexFragment: string;
     leftContextPaths?: string[];
     rightContextPaths?: string[];
@@ -63,9 +59,7 @@ export interface PrimitiveMasterResultMatch {
 
 export interface PrimitiveMasterResultNoMatch {
     status: "no-match";
-    reason:
-    | "selection-out-of-domain"
-    | "no-primitive-for-selection";
+    reason: "selection-out-of-domain" | "no-primitive-for-selection";
     debug?: PrimitiveMasterDebug;
 }
 
@@ -82,167 +76,185 @@ export type PrimitiveMasterResult =
 
 export interface PrimitiveMasterDeps {
     parseLatexToAst: (latex: string, invariantSetId?: string) => Promise<AstNode | undefined>;
-    patternRegistry: PrimitivePatternRegistry;
+    // patternRegistry is no longer needed for V5 logic, but kept signature if needed
     log?: (message: string) => void;
 }
 
-export interface PrimitiveMaster {
-    match(request: PrimitiveMasterRequest): Promise<PrimitiveMasterResult>;
-}
+// --- V5 PrimitiveMaster Class ---
 
-interface AnchorInfo {
-    node: AstNode;
-    path: string;
-    selectionKind: SelectionKind;
-}
+export class PrimitiveMaster {
+    private contextBuilder: NodeContextBuilder;
+    private matcher: PrimitiveMatcher;
+    private selector: PrimitiveSelector;
+    private deps: PrimitiveMasterDeps;
 
-export function createPrimitiveMaster(deps: PrimitiveMasterDeps): PrimitiveMaster {
-    const { parseLatexToAst, patternRegistry, log } = deps;
+    constructor(deps: PrimitiveMasterDeps) {
+        this.deps = deps;
+        this.contextBuilder = new NodeContextBuilder();
+        this.matcher = new PrimitiveMatcher();
+        this.selector = new PrimitiveSelector();
+    }
 
-    async function match(request: PrimitiveMasterRequest): Promise<PrimitiveMasterResult> {
+    /**
+     * Primary V5 API: Resolves the best primitive outcome for a given click.
+     */
+    public async resolvePrimitive(params: {
+        expressionId: string;
+        expressionLatex: string;
+        click: {
+            nodeId: string;
+            kind: "operator" | "number" | "fractionBar" | "bracket" | "other";
+            operatorIndex?: number;
+        };
+    }): Promise<SelectedOutcome> {
+        // 1. Parse AST (if needed)
+        // In a real optimized system we might pass AST. For now, we parse.
+        const ast = await this.deps.parseLatexToAst(params.expressionLatex);
+        if (!ast) {
+            return { kind: "no-candidates", matches: [] };
+        }
+
+        // 2. Build Context
+        const ctx: NodeContext = this.contextBuilder.buildContext({
+            expressionId: params.expressionId,
+            ast,
+            click: {
+                nodeId: params.click.nodeId,
+                kind: params.click.kind,
+                operatorIndex: params.click.operatorIndex
+            }
+        });
+
+        // 3. Match
+        const matches = this.matcher.match({
+            table: PRIMITIVES_V5_TABLE,
+            ctx
+        });
+
+        // 4. Select
+        const outcome = this.selector.select(matches);
+        return outcome;
+    }
+
+    /**
+     * Legacy Adapter: Implements the old `match` interface used by Orchestrator.
+     */
+    public async match(request: PrimitiveMasterRequest): Promise<PrimitiveMasterResult> {
         try {
-            const ast = await parseLatexToAst(request.expressionLatex, request.invariantSetId);
+            // Map legacy request to V5 resolvePrimitive params
+
+            // 1. Parse
+            const ast = await this.deps.parseLatexToAst(request.expressionLatex);
             if (!ast) {
-                return {
-                    status: "error",
-                    errorCode: "parse-error",
-                    message: "Failed to parse expressionLatex into AST",
-                };
+                return { status: "error", errorCode: "parse-error", message: "Parse failed" };
             }
 
-            const anchor = resolveAnchorFromSelection(ast, request.selectionPath, request.operatorIndex);
-            if (!anchor) {
-                return {
-                    status: "no-match",
-                    reason: "selection-out-of-domain",
-                };
+            // 2. Resolve Anchor (borrowing logic from old master)
+            // We need to determine ClickTarget
+            const clickTarget = this.resolveClickTarget(ast, request.selectionPath || "", request.operatorIndex);
+            if (!clickTarget) {
+                return { status: "no-match", reason: "selection-out-of-domain" };
             }
 
-            const patterns = patternRegistry.getPatternsFor({
-                invariantSetId: request.invariantSetId,
-                selectionKind: anchor.selectionKind,
+            // 3. V5 Pipeline
+            const ctx = this.contextBuilder.buildContext({
+                expressionId: request.expressionId || "unknown",
+                ast,
+                click: clickTarget
             });
 
-            const debugCandidates: PrimitiveMasterDebugCandidate[] = [];
+            const matches = this.matcher.match({
+                table: PRIMITIVES_V5_TABLE,
+                ctx
+            });
 
-            for (const pattern of patterns) {
-                const applicable = pattern.match({
-                    ast,
-                    node: anchor.node,
-                    selectionPath: anchor.path,
-                    operatorIndex: request.operatorIndex,
-                });
+            const outcome = this.selector.select(matches);
 
-                debugCandidates.push({
-                    primitiveId: pattern.primitiveId,
-                    verdict: applicable ? "applicable" : "not-applicable",
-                });
-
-                if (applicable) {
-                    const window = buildWindowFragment(ast, anchor.path);
-                    return {
-                        status: "match-found",
-                        primitiveId: pattern.primitiveId,
-                        window,
-                        debug: { candidates: debugCandidates },
-                    };
-                }
+            // 4. Map to Legacy Result
+            if (outcome.kind === "no-candidates" || !outcome.primitive) {
+                return {
+                    status: "no-match",
+                    reason: "no-primitive-for-selection",
+                    debug: {
+                        candidates: outcome.matches.map(m => ({
+                            primitiveId: m.row.id,
+                            verdict: "not-applicable"
+                        }))
+                    }
+                };
             }
 
-            return {
-                status: "no-match",
-                reason: "no-primitive-for-selection",
-                debug: { candidates: debugCandidates },
+            // Note: Legacy `window` logic was simple.
+            const centerPath = ctx.nodeId;
+            const window: PrimitiveMasterWindow = {
+                centerPath,
+                latexFragment: toLatex(ast) // Approximate
             };
-        } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : "Unknown error in PrimitiveMaster.match";
-            if (log) {
-                log(`[PrimitiveMaster] error: ${message}`);
-            }
+
+            const debugCandidates: PrimitiveMasterDebugCandidate[] = outcome.matches.map(m => ({
+                primitiveId: m.row.id,
+                verdict: "applicable",
+                reason: `Score: ${m.score}`
+            }));
+
+            // For now, return "match-found" with the chosen primitive ID.
+
             return {
-                status: "error",
-                errorCode: "internal-error",
-                message,
+                status: "match-found",
+                primitiveId: outcome.primitive.id,
+                window,
+                debug: { candidates: debugCandidates }
             };
+
+        } catch (e: any) {
+            return { status: "error", errorCode: "internal-error", message: e.message };
         }
     }
 
-    return { match };
-}
-
-/**
- * Resolve the anchor node and its classification from the selection.
- *
- * For now we prefer `operatorIndex` when provided, because it is more robust
- * and directly supported by the AST helpers.
- */
-function resolveAnchorFromSelection(
-    ast: AstNode,
-    selectionPath: string | null,
-    operatorIndex?: number,
-): AnchorInfo | undefined {
-    // Prefer operator index if available.
-    if (typeof operatorIndex === "number") {
-        const found = getNodeByOperatorIndex(ast, operatorIndex);
-        if (!found) return undefined;
-
-        const selectionKind = classifyNode(found.node);
-
-        // For reporting we want a stable logical center path.
-        let centerPath: string;
-        if (selectionPath && selectionPath.endsWith(".op")) {
-            centerPath = selectionPath.slice(0, -".op".length);
-        } else if (found.path === "root") {
-            // For top-level operator we normalise to "term[0]" to match UI expectations.
-            centerPath = "term[0]";
-        } else {
-            centerPath = found.path;
+    public resolveClickTarget(ast: AstNode, selectionPath: string, operatorIndex?: number): { nodeId: string; kind: any; operatorIndex?: number } | undefined {
+        // 1. Try Operator Index
+        if (typeof operatorIndex === "number") {
+            const found = getNodeByOperatorIndex(ast, operatorIndex);
+            if (found) {
+                return {
+                    nodeId: found.path,
+                    kind: this.classifyNode(found.node),
+                    operatorIndex
+                };
+            }
         }
 
-        return {
-            node: found.node,
-            path: centerPath,
-            selectionKind,
-        };
+        // 2. Try Path
+        if (selectionPath) {
+            const cleanPath = selectionPath.replace(/\.op$/, "");
+            const node = getNodeAt(ast, cleanPath);
+            if (node) {
+                return {
+                    nodeId: cleanPath,
+                    kind: this.classifyNode(node)
+                };
+            }
+        }
+        return undefined;
     }
 
-    // Fallback: use selectionPath only.
-    if (selectionPath) {
-        const basePath = selectionPath.endsWith(".op")
-            ? selectionPath.slice(0, -".op".length)
-            : selectionPath;
-
-        const node = basePath === "root" || basePath === ""
-            ? ast
-            : getNodeAt(ast, basePath);
-
-        if (!node) return undefined;
-
-        const selectionKind = classifyNode(node);
-
-        return {
-            node,
-            path: basePath,
-            selectionKind,
-        };
+    private classifyNode(node: AstNode): "operator" | "number" | "fractionBar" | "bracket" | "other" {
+        if (node.type === "binaryOp") return "operator";
+        // Most V5 primitives classify fraction bar related ops as operators for now, 
+        // OR as "fractionBar" if specific. Let's map to "operator" for compatibility with existing patterns
+        // unless table specifically distinguishes.
+        // But wait, the V5 spec says `kind: ClickTargetKind`.
+        // Primitives table rows have `clickTargetKind`.
+        // If I map fraction to "operator", then `P.FRAC_SIMPLIFY` (if it targets fraction) must expect "operator".
+        // Let's assume standard "operator" for now.
+        if (node.type === "fraction") return "operator";
+        if (node.type === "integer") return "number";
+        if (node.type === "mixed") return "number";
+        return "other";
     }
-
-    return undefined;
 }
 
-function classifyNode(node: AstNode): SelectionKind {
-    if (node.type === "binaryOp") return "operator";
-    if (node.type === "fraction") return "fraction";
-    if (node.type === "integer") return "integer";
-    return "other";
-}
-
-function buildWindowFragment(ast: AstNode, anchorPath: string): PrimitiveMasterWindow {
-    // For Stage 1 we keep this simple and just return the full expression.
-    return {
-        centerPath: anchorPath,
-        latexFragment: toLatex(ast),
-        leftContextPaths: [],
-        rightContextPaths: [],
-    };
+// Factory for backward compatibility
+export function createPrimitiveMaster(deps: PrimitiveMasterDeps): PrimitiveMaster {
+    return new PrimitiveMaster(deps);
 }

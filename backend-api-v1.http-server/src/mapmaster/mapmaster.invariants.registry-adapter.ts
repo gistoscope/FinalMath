@@ -110,9 +110,25 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
     private determineDomains(windowRootNode: ExpressionAstNode): string[] {
         const domains: Set<string> = new Set();
 
+        // Check for single integer
+        if (this.isInteger(windowRootNode)) {
+            domains.add('Integers');
+        }
+
+        // Check for single fraction
+        const isSelfFraction = this.astHelpers?.isFraction(windowRootNode) ?? this.isFractionFallback(windowRootNode);
+        if (isSelfFraction) {
+            domains.add('FractionsSameDen');
+        }
+
         // Check if this is a binary operation
         if (!this.isBinaryOperation(windowRootNode)) {
             // Not a binary operation - could be other types
+            // If we already added domains (e.g. Integers), we should return those + Other?
+            // Or just return what we have?
+            // If we added domains, we return them. "Other" is fallback.
+            if (domains.size > 0) return Array.from(domains);
+
             domains.add('Other');
             return Array.from(domains);
         }
@@ -133,6 +149,9 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
         if (leftIsFraction && rightIsFraction) {
             // Both are fractions - check denominators
             const sameDenominator = this.haveSameDenominator(left, right);
+
+            // Generic "Fractions" domain applies to all fraction pairs
+            domains.add('Fractions');
 
             if (sameDenominator) {
                 domains.add('FractionsSameDen');
@@ -183,37 +202,49 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
 
         // Check if fractions are required
         if (pattern.requiresFractions) {
-            const operands = this.getOperands(windowRootNode);
-            if (!operands) {
-                return false;
-            }
+            // Check if node itself is a fraction
+            const isSelfFraction = this.astHelpers?.isFraction(windowRootNode) ?? this.isFractionFallback(windowRootNode);
 
-            const leftIsFraction = this.astHelpers?.isFraction(operands.left) ??
-                this.isFractionFallback(operands.left);
-            const rightIsFraction = this.astHelpers?.isFraction(operands.right) ??
-                this.isFractionFallback(operands.right);
-
-            if (!leftIsFraction || !rightIsFraction) {
-                return false;
-            }
-
-            // Check same denominator if required
-            if (pattern.requireSameDenominator) {
-                if (!this.haveSameDenominator(operands.left, operands.right)) {
+            if (isSelfFraction) {
+                if (pattern.requireSameDenominator) return false; // Single fraction cannot have "same denominator" with itself in this context
+            } else {
+                const operands = this.getOperands(windowRootNode);
+                if (!operands) {
                     return false;
+                }
+
+                const leftIsFraction = this.astHelpers?.isFraction(operands.left) ??
+                    this.isFractionFallback(operands.left);
+                const rightIsFraction = this.astHelpers?.isFraction(operands.right) ??
+                    this.isFractionFallback(operands.right);
+
+                if (!leftIsFraction || !rightIsFraction) {
+                    return false;
+                }
+
+                // Check same denominator if required
+                if (pattern.requireSameDenominator) {
+                    if (!this.haveSameDenominator(operands.left, operands.right)) {
+                        return false;
+                    }
                 }
             }
         }
 
         // Check if integers are required
         if (pattern.requiresIntegers) {
-            const operands = this.getOperands(windowRootNode);
-            if (!operands) {
-                return false;
-            }
+            // Check if node itself is an integer
+            const isSelfInteger = this.isInteger(windowRootNode);
 
-            if (!this.isInteger(operands.left) || !this.isInteger(operands.right)) {
-                return false;
+            if (!isSelfInteger) {
+                const operands = this.getOperands(windowRootNode);
+                if (!operands) {
+                    return false;
+                }
+
+                if (!this.isInteger(operands.left) || !this.isInteger(operands.right)) {
+                    return false;
+                }
             }
         }
 

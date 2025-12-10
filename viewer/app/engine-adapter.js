@@ -5,6 +5,7 @@
 /**
  * @typedef {import("./filebus.js").FileBus} FileBus
  */
+import { runV5Step } from "./client/orchestratorV5Client.js";
 
 /**
  * EngineAdapterConfig
@@ -63,7 +64,7 @@ export class EngineAdapter {
   start() {
     if (this.unsubscribe) return;
     this.unsubscribe = this.bus.subscribe(this.handleBusMessage);
-    console.log(`[EngineAdapter] Started in ${this.config.mode} mode`);
+    console.log(`[EngineAdapter] Started in ${this.config.mode} mode (Pure V5)`);
   }
 
   stop() {
@@ -183,6 +184,7 @@ export class EngineAdapter {
             kind === "Relation" ||
             kind === "Fraction" ||
             kind === "FracBar" ||
+            kind === "Fraction" || // Duplicate but harmless
             hasOpIndex;
 
           if (isDouble || isOperator) {
@@ -228,66 +230,101 @@ export class EngineAdapter {
       throw new Error("HTTP mode requires httpEndpoint in config");
     }
 
-    // Only handle applyStep for now via the new Engine
+    // Only handle applyStep for now via the new V5 Engine
     if (request.type !== "applyStep") {
-      // Return a dummy OK response for non-apply steps to keep the UI happy
       return {
         type: "ok",
         requestType: request.type,
         result: {
           latex: request.clientEvent.latex,
-          meta: { status: "ignored-by-new-engine" }
+          meta: { status: "ignored-by-v5" }
         }
       };
     }
 
     const timeout = this.config.httpTimeout || 5000;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    try {
-      // Map to EntryStepRequest
-      const entryStepRequest = {
-        sessionId: "default-session",
-        expressionLatex: request.clientEvent.latex,
-        selectionPath: null, // Not used for simple operator clicks
-        operatorIndex: request.clientEvent.surfaceOperatorIndex,
-        policyId: "student.basic"
-      };
+    // --- V5 PIPELINE ONLY ---
+    // Derive V5 endpoint: assume it's on the same host/port, just different path
+    // e.g. http://localhost:4201/api/entry-step -> http://localhost:4201/api/orchestrator/v5/step
+    const v5Endpoint = endpoint.replace("/api/entry-step", "/api/orchestrator/v5/step");
 
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(entryStepRequest),
-        signal: controller.signal,
-      });
+    const v5Payload = {
+      sessionId: "default-session",
+      expressionLatex: request.clientEvent.latex,
+      selectionPath: null, // Basic click
+      operatorIndex: request.clientEvent.surfaceOperatorIndex,
+      courseId: "default",
+      userRole: "student"
+    };
 
-      clearTimeout(timeoutId);
+    const v5Result = await runV5Step(v5Endpoint, v5Payload, timeout);
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    // Minimal User-Facing Debug
+    console.log(
+      "[V5 step]",
+      v5Result.status,
+      v5Result.primitiveId,
+      v5Result.engineResult?.newExpressionLatex || "(no change)",
+      v5Result.rawResponse
+    );
+
+    // Handle Statuses
+    if (v5Result.status === "step-applied") {
+      const newLatex = v5Result.engineResult?.newExpressionLatex;
+      if (newLatex) {
+        return {
+          type: "ok",
+          requestType: request.type,
+          result: {
+            latex: newLatex,
+            meta: {
+              backendStatus: v5Result.status,
+              primitiveId: v5Result.primitiveId,
+              debugInfo: v5Result.rawResponse.debugInfo
+            }
+          }
+        };
       }
-
-      const engineStepResponse = await response.json();
-
-      // Map back to EngineResponse
+    } else if (v5Result.status === "no-candidates") {
+      // No step available
+      // Do not update latex, just return meta info
       return {
-        type: "ok",
+        type: "ok", // It's not a "client error", just "no step"
         requestType: request.type,
         result: {
-          latex: engineStepResponse.expressionLatex,
+          latex: request.clientEvent.latex, // Unchanged
           meta: {
-            backendStatus: engineStepResponse.status,
-            debugInfo: engineStepResponse.debugInfo
+            backendStatus: "no-candidates",
+            primitiveId: null
           }
         }
       };
-
-    } catch (err) {
-      clearTimeout(timeoutId);
-      throw err;
+    } else if (v5Result.status === "engine-error") {
+      // Show error indication in console (already logged), maybe helpful meta
+      return {
+        type: "error", // Use error type to potentially show red toast? Or just ok with error meta.
+        // Let's use 'ok' type but with error info in meta so Viewer doesn't crash completely
+        // or use 'error' if the viewer has good error UI.
+        // Existing fallback code used errorResponse for catch.
+        // Let's return type: "error" to be safe and visible.
+        requestType: request.type,
+        message: "V5 Engine Error",
+        error: {
+          code: "V5_ENGINE_ERROR",
+          details: JSON.stringify(v5Result.rawResponse)
+        }
+      };
     }
+
+    // Fallback for unknown status (should not happen given types)
+    return {
+      type: "ok",
+      requestType: request.type,
+      result: {
+        latex: request.clientEvent.latex,
+        meta: { status: "unknown-v5-status", raw: v5Result }
+      }
+    };
   }
 }

@@ -90,7 +90,51 @@ export const FRACTIONS_SAME_DEN_STAGE1: LocalInvariantSet = {
                 requiresFractions: true,
                 requireSameDenominator: true
             },
-            primitiveIds: ['P.FRAC_SUB_SAME_DEN']
+        },
+        // NEW: Equivalent fraction expansion
+        {
+            id: 'R.FRAC_EQUIV',
+            stage: 'Stage1',
+            domain: 'FractionsSameDen',
+            operation: 'Equiv',
+            pattern: {
+                operator: undefined, // applies to fraction node itself
+                requiresFractions: true
+            },
+            primitiveIds: ['P.FRAC_EQUIV']
+        }
+    ]
+};
+
+/**
+ * Stage-1 Generic Fraction Invariants (Mul/Div)
+ */
+export const FRACTIONS_GENERIC_STAGE1: LocalInvariantSet = {
+    id: 'fractions-generic-stage1',
+    rules: [
+        {
+            id: 'R.FRAC_MUL',
+            stage: 'Stage1',
+            domain: 'Fractions',
+            operation: 'Mul',
+            pattern: {
+                operator: '*',
+                requiresFractions: true,
+                requireSameDenominator: false
+            },
+            primitiveIds: ['P.FRAC_MUL']
+        },
+        {
+            id: 'R.FRAC_DIV',
+            stage: 'Stage1',
+            domain: 'Fractions',
+            operation: 'Div',
+            pattern: {
+                operator: '/',
+                requiresFractions: true,
+                requireSameDenominator: false
+            },
+            primitiveIds: ['P.FRAC_DIV']
         }
     ]
 };
@@ -143,7 +187,17 @@ export const INTEGERS_STAGE1: LocalInvariantSet = {
                 operator: '/',
                 requiresIntegers: true
             },
-            primitiveIds: ['P.INT_DIV_TO_INT']
+        },
+        // NEW: Integer to Fraction
+        {
+            id: 'R.INT_TO_FRAC',
+            stage: 'Stage1',
+            domain: 'Integers',
+            operation: 'Normalize',
+            pattern: {
+                requiresIntegers: true
+            },
+            primitiveIds: ['P.INT_TO_FRAC']
         }
     ]
 };
@@ -185,6 +239,7 @@ export const MIXED_STAGE1: LocalInvariantSet = {
  */
 export const STAGE1_INVARIANT_SETS: LocalInvariantSet[] = [
     FRACTIONS_SAME_DEN_STAGE1,
+    FRACTIONS_GENERIC_STAGE1,
     INTEGERS_STAGE1,
     MIXED_STAGE1
 ];
