@@ -1,7 +1,12 @@
 // main.js
 // Демо: каноническая формула KaTeX + SurfaceNodeMap + интерактивный hover/click.
 
-import { buildSurfaceNodeMap, surfaceMapToSerializable, enhanceSurfaceMap } from "./surface-map.js";
+import { buildSurfaceNodeMap, surfaceMapToSerializable, enhanceSurfaceMap, correlateOperatorsWithAST, hitTestPoint } from "./surface-map.js";
+
+// Expose hitTestPoint globally for coordinate-based hit-testing
+if (typeof window !== "undefined") {
+  window.__surfaceMapUtils = { hitTestPoint };
+}
 import { DisplayAdapter, ClientEventRecorder } from "./display-adapter.js";
 import { FileBus } from "./filebus.js";
 import { EngineAdapter } from "./engine-adapter.js";
@@ -199,6 +204,7 @@ function buildAndShowMap() {
 
   let map = buildSurfaceNodeMap(container);
   map = enhanceSurfaceMap(map, container);
+  map = correlateOperatorsWithAST(map, currentLatex); // NEW: Correlate with AST
   const serializable = surfaceMapToSerializable(map);
 
   const pre = document.getElementById("surface-json");
@@ -681,14 +687,36 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (container) {
-    // Helper: find SurfaceNode by DOM element (bubbling up)
-    function findNodeByElement(target) {
-      if (!current || !current.map || !current.map.byElement) return null;
+    // Helper: find SurfaceNode by coordinates or DOM element
+    // CRITICAL FIX: For synthetic nodes (created from segmented mixed content like "2*5"),
+    // DOM-based lookup fails because all synthetic nodes share the same parent element.
+    // We MUST use coordinate-based hit-testing to correctly identify which segment was clicked.
+    function findNodeByElement(target, e) {
+      if (!current || !current.map) return null;
+
+      // Primary: Use coordinate-based hit-testing (works for synthetic nodes)
+      if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+        const { hitTestPoint } = window.__surfaceMapUtils || {};
+        if (hitTestPoint) {
+          const node = hitTestPoint(current.map, e.clientX, e.clientY, container);
+          if (node) {
+            console.log("[HIT-TEST] Coordinate-based hit:", node.id, node.kind, node.latexFragment);
+            return node;
+          }
+        }
+      }
+
+      // Fallback: DOM-based lookup (for non-synthetic nodes)
+      if (!current.map.byElement) return null;
       let el = target;
       while (el && el !== container && !current.map.byElement.has(el)) {
         el = el.parentElement;
       }
-      return el ? current.map.byElement.get(el) : null;
+      const domNode = el ? current.map.byElement.get(el) : null;
+      if (domNode) {
+        console.log("[HIT-TEST] DOM-based fallback:", domNode.id, domNode.kind, domNode.latexFragment);
+      }
+      return domNode;
     }
 
     // PointerDown: старт drag‑выделения (резинка)
@@ -706,8 +734,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const containerBox = container.getBoundingClientRect();
 
       // Обновляем hover (всегда, независимо от drag)
-      // REFACTOR: Use DOM-based hit-testing instead of coordinate-based
-      const node = findNodeByElement(e.target);
+      // CRITICAL FIX: Use coordinate-based hit-testing for hover
+      const node = findNodeByElement(e.target, e);
 
       if (!node) {
         clearDomHighlight();
@@ -805,8 +833,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (e.button !== 0) return; // только левый клик
 
-      // REFACTOR: Use DOM-based hit-testing instead of coordinate-based
-      const node = findNodeByElement(e.target);
+      // CRITICAL FIX: Use coordinate-based hit-testing for clicks
+      const node = findNodeByElement(e.target, e);
 
       // DEBUG: Log click attempt
       console.log("[DEBUG] pointerup target:", e.target, "found node:", node);

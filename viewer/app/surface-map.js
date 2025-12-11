@@ -4,6 +4,8 @@
 // Модель поверх DOM: нас интересуют только семантические элементы —
 // числа, переменные, знаки, скобки, дробные черты и т.п.
 
+import { buildASTFromLatex, enumerateOperators } from "./ast-parser.js";
+
 function toRelativeBox(el, containerBox) {
   const r = el.getBoundingClientRect();
   return {
@@ -33,7 +35,7 @@ function isStructural(classes) {
   return classes.some(isStructuralClass);
 }
 
-const OP_CHARS = "+-−*/:⋅·×";
+const OP_CHARS = "+-−*/:⋅·×÷";
 
 function hasOperatorChar(text) {
   const t = text || "";
@@ -80,8 +82,8 @@ function classifyElement(el, classes, text) {
   // --- БИНАРНЫЕ ОПЕРАТОРЫ ---
 
   // Одиночный символ‑оператор.
-  // Поддерживаем как ASCII, так и типичные Unicode варианты KaTeX (⋅, ·, ×, −).
-  const opChars = "+-−*/:⋅·×";
+  // Поддерживаем как ASCII, так и типичные Unicode варианты KaTeX (⋅, ·, ×, −, ÷).
+  const opChars = "+-−*/:⋅·×÷";
   if (t.length === 1 && opChars.includes(t)) {
     console.log("[DEBUG] classifyElement found op:", t);
     return { kind: "BinaryOp", role: "operator", idPrefix: "op", atomic: true };
@@ -145,6 +147,80 @@ function classifyElement(el, classes, text) {
   return { kind: "Other", role: "group", idPrefix: "node", atomic: false };
 }
 
+/**
+ * Segment mixed content (e.g., "2*5") into individual tokens.
+ * Returns array of {type, text} objects where type is "num", "op", or "other".
+ */
+function segmentMixedContent(text) {
+  const segments = [];
+  let i = 0;
+
+  while (i < text.length) {
+    const char = text[i];
+
+    // Skip whitespace
+    if (/\s/.test(char)) {
+      i++;
+      continue;
+    }
+
+    // Number segment (including decimals)
+    if (/\d/.test(char)) {
+      let numText = char;
+      i++;
+      while (i < text.length && (/\d/.test(text[i]) || text[i] === '.')) {
+        numText += text[i];
+        i++;
+      }
+      segments.push({ type: "num", text: numText });
+      continue;
+    }
+
+    // Operator segment
+    if (OP_CHARS.includes(char)) {
+      segments.push({ type: "op", text: char });
+      i++;
+      continue;
+    }
+
+    // Variable or other single character
+    if (/[A-Za-z]/.test(char)) {
+      segments.push({ type: "var", text: char });
+      i++;
+      continue;
+    }
+
+    // Greek or other unicode
+    if (/[\u0370-\u03FF\u1F00-\u1FFF]/.test(char)) {
+      segments.push({ type: "var", text: char });
+      i++;
+      continue;
+    }
+
+    // Unknown - skip
+    i++;
+  }
+
+  return segments;
+}
+
+/**
+ * Create an interpolated bounding box for a segment within a parent element.
+ * Divides the parent's width equally among all segments.
+ */
+function interpolateBBox(parentBBox, segmentIndex, totalSegments) {
+  const width = parentBBox.right - parentBBox.left;
+  const segmentWidth = width / totalSegments;
+
+  return {
+    left: parentBBox.left + (segmentIndex * segmentWidth),
+    top: parentBBox.top,
+    right: parentBBox.left + ((segmentIndex + 1) * segmentWidth),
+    bottom: parentBBox.bottom
+  };
+}
+
+
 function isAtomicKind(kind) {
   return (
     kind === "Num" ||
@@ -199,10 +275,73 @@ export function buildSurfaceNodeMap(containerElement) {
       hasDigitChar(text) && hasOperatorChar(text);
 
     if (mixedNumAndOp) {
-      Array.from(element.children || []).forEach((child) =>
-        traverse(child, parentNode)
-      );
-      return;
+      // If element has children, descend into them (KaTeX structured it properly)
+      if (element.children && element.children.length > 0) {
+        Array.from(element.children).forEach((child) =>
+          traverse(child, parentNode)
+        );
+        return;
+      }
+
+      // No children - this is a leaf node with mixed content like "2*5"
+      // Segment it character-by-character and create synthetic nodes
+      console.log("[SurfaceMap] Segmenting mixed content:", text);
+      const segments = segmentMixedContent(text);
+      const bbox = toRelativeBox(element, containerBox);
+
+      segments.forEach((segment, idx) => {
+        const segmentBBox = interpolateBBox(bbox, idx, segments.length);
+
+        let kind, role, idPrefix, atomic;
+        if (segment.type === "num") {
+          kind = "Num";
+          role = "operand";
+          idPrefix = "num";
+          atomic = true;
+        } else if (segment.type === "op") {
+          kind = "BinaryOp";
+          role = "operator";
+          idPrefix = "op";
+          atomic = true;
+        } else if (segment.type === "var") {
+          kind = "Var";
+          role = "operand";
+          idPrefix = "var";
+          atomic = true;
+        } else {
+          kind = "Other";
+          role = "group";
+          idPrefix = "node";
+          atomic = false;
+        }
+
+        const syntheticNode = {
+          id: nextId(idPrefix),
+          kind,
+          role,
+          bbox: segmentBBox,
+          dom: element, // Share parent DOM element
+          latexFragment: segment.text,
+          children: [],
+          parent: parentNode,
+          synthetic: true // Mark as synthetic for debugging
+        };
+
+        if (parentNode) {
+          parentNode.children.push(syntheticNode);
+        }
+
+        // Note: Last segment wins for byElement lookup
+        // This is OK because hit-testing uses bounding boxes
+        byElement.set(element, syntheticNode);
+
+        if (atomic && segment.text.trim().length > 0) {
+          atoms.push(syntheticNode);
+          console.log("[SurfaceMap] Created synthetic atom:", syntheticNode.kind, syntheticNode.latexFragment);
+        }
+      });
+
+      return; // Done processing this mixed element
     }
 
     const info = classifyElement(element, classes, text);
@@ -409,3 +548,99 @@ export function enhanceSurfaceMap(map, containerEl) {
   }
   return map;
 }
+
+/**
+ * Correlate surface map operators with AST node IDs.
+ * This enables accurate operator-to-nodeId mapping for the backend.
+ * @param {{root:any, atoms:any[], byElement:Map}} map - Surface map
+ * @param {string} latex - LaTeX expression
+ * @returns {{root:any, atoms:any[], byElement:Map}} Enhanced map
+ */
+export function correlateOperatorsWithAST(map, latex) {
+  if (!map || !Array.isArray(map.atoms) || !latex) return map;
+
+  // 1. Build AST from LaTeX
+  const ast = buildASTFromLatex(latex);
+  if (!ast) {
+    console.warn("[SurfaceMap] Failed to parse LaTeX for AST correlation:", latex);
+    return map;
+  }
+
+  // 2. Enumerate operators in AST (in-order traversal)
+  // These are the "truth" for the backend execution.
+  const astOperators = enumerateOperators(ast);
+
+  // 3. Collect surface operators in left-to-right order (visual)
+  // We trust that KaTeX renders them in logical order for linear expressions.
+  const surfaceOperators = map.atoms
+    .filter(n => {
+      const k = n.kind;
+      return k === "BinaryOp" || k === "MinusBinary" || k === "Relation";
+    })
+    .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
+
+  const DEBUG = true; // Keep debug on for now to trace fix
+
+  if (DEBUG) {
+    console.log("[SurfaceMap] AST Operators:", astOperators.map(o => `${o.operator} id=${o.nodeId}`));
+    console.log("[SurfaceMap] Surface Operators:", surfaceOperators.map(o => `${o.latexFragment} id=${o.id}`));
+  }
+
+  // 4. Match surface operators to AST operators
+  // We match by "grouping by symbol" to avoid mistakenly matching a '+' to a '*' if counts align but types don't.
+  // BUT: The AST Parser must produce the SAME operator symbols as the surface map sees.
+  // Normalized comparison is key.
+
+  // Normalize surface symbol
+  const norm = (s) => {
+    s = (s || "").trim();
+    if (s === "−") return "-";
+    if (s === "×" || s === "·" || s === "⋅") return "*";
+    if (s === "÷" || s === ":") return "/";
+    return s;
+  };
+
+  // Group AST operators by normalized symbol
+  const astBySymbol = {};
+  astOperators.forEach(op => {
+    const sym = normalizeOp(op.operator); // Ensure AST op is normalized too, though parser usually does it
+    if (!astBySymbol[sym]) astBySymbol[sym] = [];
+    astBySymbol[sym].push(op);
+  });
+
+  // Group Surface operators by normalized symbol
+  const surfaceBySymbol = {};
+  surfaceOperators.forEach(op => {
+    const sym = norm(op.latexFragment);
+    if (!surfaceBySymbol[sym]) surfaceBySymbol[sym] = [];
+    surfaceBySymbol[sym].push(op);
+  });
+
+  // Match each group
+  for (const sym in astBySymbol) {
+    const astOps = astBySymbol[sym];
+    const surfOps = surfaceBySymbol[sym] || [];
+
+    // Match 1-to-1 in order
+    const count = Math.min(astOps.length, surfOps.length);
+    for (let i = 0; i < count; i++) {
+      const astOp = astOps[i];
+      const surfOp = surfOps[i];
+
+      surfOp.astNodeId = astOp.nodeId;
+      surfOp.astOperator = astOp.operator;
+      // Optionally store index if needed by legacy
+      // surfOp.operatorIndex = astOp.position; 
+    }
+  }
+
+  return map;
+}
+
+function normalizeOp(op) {
+  if (op === "−") return "-";
+  if (["×", "·", "⋅"].includes(op)) return "*";
+  if (["÷", ":"].includes(op)) return "/";
+  return op;
+}
+

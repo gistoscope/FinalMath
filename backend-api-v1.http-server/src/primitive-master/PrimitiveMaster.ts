@@ -115,15 +115,19 @@ export class PrimitiveMaster {
             return { kind: "no-candidates", matches: [] };
         }
 
-        // 2. Build Context
+        // 2. Normalize Target (Binary Op Normalization)
+        // If the user clicked a number inside a binary operation, we treat the operator as the target.
+        const normalizedClick = this.normalizeClick(ast, {
+            nodeId: params.click.nodeId,
+            kind: params.click.kind,
+            operatorIndex: params.click.operatorIndex
+        });
+
+        // 3. Build Context
         const ctx: NodeContext = this.contextBuilder.buildContext({
             expressionId: params.expressionId,
             ast,
-            click: {
-                nodeId: params.click.nodeId,
-                kind: params.click.kind,
-                operatorIndex: params.click.operatorIndex
-            }
+            click: normalizedClick
         });
 
         // 3. Match
@@ -253,6 +257,43 @@ export class PrimitiveMaster {
         if (node.type === "integer") return "number";
         if (node.type === "mixed") return "number";
         return "other";
+    }
+
+    private normalizeClick(ast: AstNode, click: { nodeId: string; kind: string; operatorIndex?: number }): { nodeId: string; kind: any; operatorIndex?: number } {
+        // Only normalize numbers/integers
+        if (click.kind !== "number" && click.kind !== "integer") return click;
+
+        // Determine parent path
+        let parentPath = "";
+        if (click.nodeId === "root") return click; // Root cannot have parent
+
+        const lastDotIndex = click.nodeId.lastIndexOf('.');
+        if (lastDotIndex === -1) {
+            // e.g. "term[0]" -> parent is "root" (which is mapped to "" by some, or "root" by getNodeAt if passed as path?)
+            // getNodeAt expects "root" or nested path.
+            // If click.nodeId is "term[0]", parent is root.
+            parentPath = "root";
+        } else {
+            parentPath = click.nodeId.substring(0, lastDotIndex);
+        }
+
+        const parentNode = getNodeAt(ast, parentPath);
+        if (parentNode && parentNode.type === "binaryOp") {
+            // Normalization Rule: If parent is binaryOp (+, -, *, /, etc), target the operator.
+            // We verify the op is a standard binary op just in case.
+            if (["+", "-", "*", "/", "\\times", "\\div"].includes(parentNode.op)) {
+
+                const normalized = {
+                    nodeId: parentPath,
+                    kind: "operator" as const,
+                    operatorIndex: click.operatorIndex
+                };
+
+                console.log(`[V5-TARGET] rawKind=${click.kind}, parentKind=${parentNode.type}, normalizedKind=operator, normalizedNodeId=${normalized.nodeId}`);
+                return normalized;
+            }
+        }
+        return click;
     }
 }
 

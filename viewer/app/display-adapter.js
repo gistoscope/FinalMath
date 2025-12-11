@@ -15,7 +15,7 @@ export class DisplayAdapter {
   constructor(getLatex, getSelectionState, onClientEvent) {
     this._getLatex = typeof getLatex === "function" ? getLatex : () => "";
     this._getSelectionState = typeof getSelectionState === "function" ? getSelectionState : () => null;
-    this._onClientEvent = typeof onClientEvent === "function" ? onClientEvent : () => {};
+    this._onClientEvent = typeof onClientEvent === "function" ? onClientEvent : () => { };
   }
 
   /**
@@ -34,6 +34,16 @@ export class DisplayAdapter {
    * @param {PointerEvent} e
    */
   emitClick(node, e) {
+    console.log("[VIEWER-CLICK] Raw Click Target:", {
+      nodeId: node ? node.id : "null",
+      kind: node ? node.kind : "null",
+      role: node ? node.role : "null",
+      latexFragment: node ? node.latexFragment : "null",
+      operatorIndex: node ? node.operatorIndex : "undefined",
+      astNodeId: node ? node.astNodeId : "undefined",
+      latex: this._getLatex()
+    });
+
     const evt = this._baseEvent("click", node, e);
     evt.click = {
       button: e.button === 2 ? "right" : "left",
@@ -74,6 +84,8 @@ export class DisplayAdapter {
       node && typeof node.operatorIndex === "number" && Number.isFinite(node.operatorIndex)
         ? node.operatorIndex
         : undefined;
+    const astNodeId =
+      node && node.astNodeId ? String(node.astNodeId) : undefined;
 
     return {
       type,
@@ -83,11 +95,12 @@ export class DisplayAdapter {
       surfaceNodeKind: node && node.kind ? String(node.kind) : undefined,
       surfaceNodeRole: node && node.role ? String(node.role) : undefined,
       surfaceOperatorIndex: operatorIndex,
+      astNodeId: astNodeId, // NEW: AST node ID for backend
       pointer: e
         ? {
-            clientX: e.clientX,
-            clientY: e.clientY,
-          }
+          clientX: e.clientX,
+          clientY: e.clientY,
+        }
         : undefined,
     };
   }

@@ -79,6 +79,10 @@ export class NodeContextBuilder {
             "inside-brackets": false,
             "left-negative": false,
             "right-negative": false,
+            "divisor-zero": false,
+            "remainder-zero": false,
+            "remainder-nonzero": false,
+            "is-decimal": false
         };
 
         // Recalculate Denominators Equal using Parent
@@ -102,6 +106,70 @@ export class NodeContextBuilder {
         let rightType: OperandType = 'any';
 
         const actionNode = actionNodeId ? this.findNode(ast, actionNodeId) : node;
+
+        // Compute division-related guards for integer and decimal division
+        if (actionNode && (actionNode as any).op === '\\div') {
+            const left = (actionNode as any).left;
+            const right = (actionNode as any).right;
+
+            // Only compute if operands are integer/numeric types (NodeContext "int" usually covers decimals if parser labeled them integer)
+            if (left && right && left.type === 'integer' && right.type === 'integer') {
+                const leftStr = left.value as string;
+                const rightStr = right.value as string;
+
+                const isDecimal = leftStr.includes('.') || rightStr.includes('.');
+
+                if (!isDecimal) {
+                    // Integer Path (Strict BigInt)
+                    try {
+                        const leftVal = BigInt(leftStr);
+                        const rightVal = BigInt(rightStr);
+
+                        // Compute divisor guards
+                        if (rightVal === 0n) {
+                            guards['divisor-zero'] = true;
+                            guards['divisor-nonzero'] = false;
+                        } else {
+                            guards['divisor-zero'] = false;
+                            guards['divisor-nonzero'] = true;
+
+                            // Compute remainder guards (only if divisor is non-zero)
+                            const remainder = leftVal % rightVal;
+                            if (remainder === 0n) {
+                                guards['remainder-zero'] = true;
+                                guards['remainder-nonzero'] = false;
+                            } else {
+                                guards['remainder-zero'] = false;
+                                guards['remainder-nonzero'] = true;
+                            }
+                        }
+                    } catch (e) {
+                        // If BigInt conversion fails, leave guards as false
+                    }
+                } else {
+                    // Decimal Path (Safe numeric check)
+                    // We only strictly require divisor-nonzero for decimal division.
+                    // We do NOT compute remainder guards for decimals.
+                    const rightVal = parseFloat(rightStr);
+
+                    // Simple check for zero (including 0.0, -0.0)
+                    // Note: parseFloat("0.0") === 0
+                    if (rightVal === 0) {
+                        guards['divisor-zero'] = true;
+                        guards['divisor-nonzero'] = false;
+                    } else if (!isNaN(rightVal)) {
+                        guards['divisor-zero'] = false;
+                        guards['divisor-nonzero'] = true;
+                    }
+                }
+            }
+        }
+
+        // Check if clicked node is a decimal
+        if (node && node.type === "integer" && (node as any).value && (node as any).value.includes(".")) {
+            guards['is-decimal'] = true;
+            console.log(`[NodeContext] Setting is-decimal=true for value: ${(node as any).value}`);
+        }
 
         if (actionNode && (actionNode as any).left) leftType = this.normalizeType((actionNode as any).left.type);
         if (actionNode && (actionNode as any).right) rightType = this.normalizeType((actionNode as any).right.type);

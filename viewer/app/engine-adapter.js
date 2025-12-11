@@ -252,11 +252,20 @@ export class EngineAdapter {
     const v5Payload = {
       sessionId: "default-session",
       expressionLatex: request.clientEvent.latex,
-      selectionPath: null, // Basic click
-      operatorIndex: request.clientEvent.surfaceOperatorIndex,
+      selectionPath: request.clientEvent.astNodeId || null, // NEW: Use AST node ID
+      operatorIndex: request.clientEvent.surfaceOperatorIndex, // Fallback
       courseId: "default",
       userRole: "student"
     };
+
+    console.log("[VIEWER-REQUEST] Sending to V5:", {
+      endpoint: v5Endpoint,
+      payload: v5Payload,
+      originalClickContext: {
+        surfaceNodeId: request.clientEvent.surfaceNodeId,
+        surfaceNodeKind: request.clientEvent.surfaceNodeKind
+      }
+    });
 
     const v5Result = await runV5Step(v5Endpoint, v5Payload, timeout);
 

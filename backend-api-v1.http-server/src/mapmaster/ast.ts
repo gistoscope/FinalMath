@@ -31,7 +31,7 @@ export interface MixedNumberNode extends BaseNode {
 
 export interface BinaryOpNode extends BaseNode {
     type: "binaryOp";
-    op: "+" | "-" | "*" | "/";
+    op: "+" | "-" | "*" | "/" | "\\div";
     left: AstNode;
     right: AstNode;
 }
@@ -317,18 +317,36 @@ export function parseExpression(latex: string): AstNode | undefined {
     function parseMulDiv(): AstNode {
         let left = parsePrimary();
 
-        while (peek() && (peek()?.value === "*" || peek()?.value === "/" || peek()?.type === "COLON")) {
-            const opToken = consume()!;
-            // Normalize colon to division operator '/'
-            const opValue = (opToken.type === "COLON") ? "/" : opToken.value;
+        while (true) {
+            const token = peek();
+            if (!token) break;
 
-            const right = parsePrimary();
-            left = {
-                type: "binaryOp",
-                op: opValue as any,
-                left,
-                right
-            };
+            if (token.value === "*" || token.value === "/" || token.type === "COLON") {
+                const opToken = consume()!;
+                const opValue = (opToken.type === "COLON") ? "/" : opToken.value;
+                const right = parsePrimary();
+                left = {
+                    type: "binaryOp",
+                    op: opValue as any,
+                    left,
+                    right
+                };
+                continue;
+            }
+
+            if (token.type === "COMMAND" && token.value === "div") {
+                consume(); // \div
+                const right = parsePrimary();
+                left = {
+                    type: "binaryOp",
+                    op: "\\div",
+                    left,
+                    right
+                };
+                continue;
+            }
+
+            break;
         }
         return left;
     }

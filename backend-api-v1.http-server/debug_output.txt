@@ -1,0 +1,186 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 12.5 / 0.5 -> 25[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.DECIMAL_DIV ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/verify-decimal-div.test.ts > Decimal Division: 12.5 / 0.5 -> 25
+Runner Failed: primitive-failed
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 1.5 / 0.25 -> 6[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.DECIMAL_DIV ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/verify-decimal-div.test.ts > Decimal Division: 1.5 / 0.25 -> 6
+Runner Failed: primitive-failed
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 12.5 / 5 -> 2.5[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.DECIMAL_DIV ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/verify-decimal-div.test.ts > Decimal Division: 12.5 / 5 -> 2.5
+Runner Failed: primitive-failed
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 5 / 0.5 -> 10[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.DECIMAL_DIV ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/verify-decimal-div.test.ts > Decimal Division: 5 / 0.5 -> 10
+Runner Failed: primitive-failed
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 10 / 4 -> 2.5 (Exact Decimal)[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.INT_DIV_TO_FRAC ok=true errorCode=null resultLatex=\frac{10}{4}
+
+[90mstdout[2m | tests/verify-decimal-div.test.ts[2m > [22m[2mDecimal Division: 10.0 / 4 -> 2.5[22m[39m
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-RUNNER-END] primitiveId=P.DECIMAL_DIV ok=false errorCode=primitive-failed resultLatex=null
+
+stderr | tests/verify-decimal-div.test.ts > Decimal Division: 10.0 / 4 -> 2.5
+Runner Failed: primitive-failed
+
+ [33mΓ¥»[39m tests/verify-decimal-div.test.ts [2m ([22m[2m6 tests[22m [2m|[22m [31m5 failed[39m[2m)[22m[90m 16[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/verify-decimal-div.test.ts[2m > [22mDecimal Division: 12.5 / 0.5 -> 25[39m
+[31m     ΓåÆ expected null to be '25' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/verify-decimal-div.test.ts[2m > [22mDecimal Division: 1.5 / 0.25 -> 6[39m
+[31m     ΓåÆ expected null to be '6' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/verify-decimal-div.test.ts[2m > [22mDecimal Division: 12.5 / 5 -> 2.5[39m
+[31m     ΓåÆ expected null to be '2.5' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/verify-decimal-div.test.ts[2m > [22mDecimal Division: 5 / 0.5 -> 10[39m
+[31m     ΓåÆ expected null to be '10' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/verify-decimal-div.test.ts[2m > [22mDecimal Division: 10.0 / 4 -> 2.5[39m
+[31m     ΓåÆ expected null to be '2.5' // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 5 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/verify-decimal-div.test.ts > Decimal Division: 12.5 / 0.5 -> 25
+AssertionError: expected null to be '25' // Object.is equality
+
+- Expected: 
+"25"
+
++ Received: 
+null
+
+ Γ¥» tests/verify-decimal-div.test.ts:73:29
+     71|     const res = await simulateLiveStep("12.5 \\div 0.5");
+     72|     expect(res.primitiveId).toBe("P.DECIMAL_DIV");
+     73|     expect(res.resultLatex).toBe("25");
+       |                             ^
+     74| });
+     75| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/5]ΓÄ»
+
+ FAIL  tests/verify-decimal-div.test.ts > Decimal Division: 1.5 / 0.25 -> 6
+AssertionError: expected null to be '6' // Object.is equality
+
+- Expected: 
+"6"
+
++ Received: 
+null
+
+ Γ¥» tests/verify-decimal-div.test.ts:79:29
+     77|     const res = await simulateLiveStep("1.5 \\div 0.25");
+     78|     expect(res.primitiveId).toBe("P.DECIMAL_DIV");
+     79|     expect(res.resultLatex).toBe("6");
+       |                             ^
+     80| });
+     81| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/5]ΓÄ»
+
+ FAIL  tests/verify-decimal-div.test.ts > Decimal Division: 12.5 / 5 -> 2.5
+AssertionError: expected null to be '2.5' // Object.is equality
+
+- Expected: 
+"2.5"
+
++ Received: 
+null
+
+ Γ¥» tests/verify-decimal-div.test.ts:85:29
+     83|     const res = await simulateLiveStep("12.5 \\div 5");
+     84|     expect(res.primitiveId).toBe("P.DECIMAL_DIV");
+     85|     expect(res.resultLatex).toBe("2.5");
+       |                             ^
+     86| });
+     87| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/5]ΓÄ»
+
+ FAIL  tests/verify-decimal-div.test.ts > Decimal Division: 5 / 0.5 -> 10
+AssertionError: expected null to be '10' // Object.is equality
+
+- Expected: 
+"10"
+
++ Received: 
+null
+
+ Γ¥» tests/verify-decimal-div.test.ts:91:29
+     89|     const res = await simulateLiveStep("5 \\div 0.5");
+     90|     expect(res.primitiveId).toBe("P.DECIMAL_DIV");
+     91|     expect(res.resultLatex).toBe("10");
+       |                             ^
+     92| });
+     93| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/5]ΓÄ»
+
+ FAIL  tests/verify-decimal-div.test.ts > Decimal Division: 10.0 / 4 -> 2.5
+AssertionError: expected null to be '2.5' // Object.is equality
+
+- Expected: 
+"2.5"
+
++ Received: 
+null
+
+ Γ¥» tests/verify-decimal-div.test.ts:124:29
+    122|     const res = await simulateLiveStep("10.0 \\div 4");
+    123|     expect(res.primitiveId).toBe("P.DECIMAL_DIV");
+    124|     expect(res.resultLatex).toBe("2.5");
+       |                             ^
+    125| });
+    126| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/5]ΓÄ»
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 21:30:58
+[2m   Duration [22m 662ms[2m (transform 161ms, setup 0ms, collect 185ms, tests 16ms, environment 0ms, prepare 199ms)[22m
+

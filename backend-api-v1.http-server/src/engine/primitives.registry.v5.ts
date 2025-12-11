@@ -62,7 +62,11 @@ export type GuardId =
     | "operands-free"
     | "inside-brackets"
     | "left-negative"
-    | "right-negative";
+    | "right-negative"
+    | "divisor-zero"
+    | "remainder-zero"
+    | "remainder-nonzero"
+    | "is-decimal";
 
 export type ScenarioId =
     | "SC.FRACTIONS_COMMON_DEN"
@@ -136,6 +140,7 @@ export type PrimitiveId =
     | "P.MIXED_TO_SUM"
     | "P.FRAC_ADD_DIFF_PREP"
     | "P.FRAC_SUB_DIFF_PREP"
+    | "P.DECIMAL_DIV"
     | "P.DECIMAL_TO_FRAC"
     | "P.BRACKETS_REMOVE"
     | "P.BRACKETS_CALC_INSIDE"
@@ -260,12 +265,13 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             domain: "integers",
             category: "Integer Operations",
             clickTargetKind: "operator",
-            operatorLatex: "\\times",
+            operatorLatex: "*",
             color: "green",
             uiMode: "auto-apply",
             actionClass: "normal",
             label: "Integer Multiplication",
             enginePrimitiveId: "P.INT_MUL",
+            operandTypes: { left: "int", right: "int" },
             notes: "Direct multiplication of two integers. Constraints: a,b,c ∈ ℤ"
         },
         {
@@ -279,6 +285,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Integer Division Exact",
             enginePrimitiveId: "P.INT_DIV_EXACT",
+            requiredGuards: ["divisor-nonzero", "remainder-zero"],
             notes: "Integer division with no remainder. Constraints: a,b,c ∈ ℤ; b≠0; a mod b = 0"
         },
         {
@@ -292,7 +299,23 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Integer Division to Fraction",
             enginePrimitiveId: "P.INT_DIV_TO_FRAC",
+            requiredGuards: ["divisor-nonzero", "remainder-nonzero"],
             notes: "Convert non-exact division to fraction. Constraints: a,b ∈ ℤ; b≠0; a mod b ≠ 0"
+        },
+        {
+            id: "P.DECIMAL_DIV",
+            domain: "integers", // or generic numeric
+            category: "Decimal Operations",
+            clickTargetKind: "operator",
+            operatorLatex: "\\div",
+            color: "green",
+            uiMode: "auto-apply",
+            actionClass: "normal",
+            label: "Decimal Division",
+            enginePrimitiveId: "P.DECIMAL_DIV",
+            operandTypes: { left: "int", right: "int" },
+            requiredGuards: ["divisor-nonzero"],
+            notes: "Decimal division. Constraints: divisor != 0"
         },
         {
             id: "P.FRAC_ADD_SAME_DEN",
@@ -327,7 +350,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             domain: "fractions",
             category: "Fraction Operations - Multiplication",
             clickTargetKind: "operator",
-            operatorLatex: "\\times",
+            operatorLatex: "*",
+            operandTypes: { left: "fraction", right: "fraction" },
             color: "green",
             uiMode: "auto-apply",
             actionClass: "normal",
@@ -335,6 +359,21 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             enginePrimitiveId: "P.FRAC_MUL",
             notes: "Create product fraction. Constraints: a,b,c,d ∈ ℤ; b,d≠0"
         },
+        {
+            id: "P.FRAC_DIV_AS_MUL",
+            domain: "fractions",
+            category: "Fraction Operations - Division",
+            clickTargetKind: "operator",
+            operatorLatex: "\\div",
+            operandTypes: { left: "fraction", right: "fraction" },
+            color: "green",
+            uiMode: "auto-apply",
+            actionClass: "normal",
+            label: "Fraction Div as Mul",
+            enginePrimitiveId: "P.FRAC_DIV_AS_MUL",
+            notes: "Convert division to multiplication by reciprocal (Keep-Change-Flip)"
+        },
+        /* P.FRAC_DIV DISABLED for Student Mode - replaced by Div as Mul
         {
             id: "P.FRAC_DIV",
             domain: "fractions",
@@ -348,6 +387,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             enginePrimitiveId: "P.FRAC_DIV",
             notes: "Create division fraction (reciprocal). Constraints: a,b,c,d ∈ ℤ; b,c,d≠0"
         },
+        */
         {
             id: "P.INT_TO_FRAC",
             domain: "integers",
@@ -358,7 +398,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Integer to Fraction",
             enginePrimitiveId: "P.INT_TO_FRAC",
-            notes: "Convert integer to fraction. Constraints: n ∈ ℤ"
+            forbiddenGuards: ["is-decimal"],
+            notes: "Convert integer to fraction. Constraints: n \u2208 \u2124"
         },
         {
             id: "P.FRAC_TIMES_ONE",
@@ -370,7 +411,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Fraction Times One",
             enginePrimitiveId: "P.FRAC_TIMES_ONE",
-            notes: "First step in creating equivalent fraction. Constraints: a,b ∈ ℤ; b≠0"
+            forbiddenGuards: ["is-decimal"],
+            notes: "First step in creating equivalent fraction. Constraints: a,b \u2208 \u2124; b\u22600"
         },
         {
             id: "P.ONE_TO_UNIT_FRAC_2",
@@ -382,6 +424,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "1 to 2/2",
             enginePrimitiveId: "P.ONE_TO_UNIT_FRAC_2",
+            forbiddenGuards: ["is-decimal"],
             notes: "Convert 1 to unit fraction 2/2. Always applicable"
         },
         {
@@ -394,6 +437,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "1 to 3/3",
             enginePrimitiveId: "P.ONE_TO_UNIT_FRAC_3",
+            forbiddenGuards: ["is-decimal"],
             notes: "Convert 1 to unit fraction 3/3. Always applicable"
         },
         {
@@ -406,6 +450,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "1 to 5/5",
             enginePrimitiveId: "P.ONE_TO_UNIT_FRAC_5",
+            forbiddenGuards: ["is-decimal"],
             notes: "Convert 1 to unit fraction 5/5. Always applicable"
         },
         {
@@ -418,6 +463,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "1 to 7/7",
             enginePrimitiveId: "P.ONE_TO_UNIT_FRAC_7",
+            forbiddenGuards: ["is-decimal"],
             notes: "Convert 1 to unit fraction 7/7. Always applicable"
         },
         {
@@ -430,6 +476,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "1 to k/k",
             enginePrimitiveId: "P.ONE_TO_UNIT_FRAC_K",
+            forbiddenGuards: ["is-decimal"],
             notes: "Convert 1 to unit fraction k/k. Constraints: k ∈ ℤ; k≠0"
         },
         {
@@ -480,6 +527,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Decimal to Fraction",
             enginePrimitiveId: "P.DECIMAL_TO_FRAC",
+            requiredGuards: ["is-decimal"],
             notes: "Convert decimal to fraction. Constraints: Decimal with n digits"
         },
         {
@@ -686,7 +734,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "diagnostic",
             label: "Division by Zero",
             enginePrimitiveId: "P.DIV_BY_ZERO",
-            notes: "Division by zero is undefined. Constraints: Any a"
+            notes: "Division by zero is undefined. Constraints: Any a",
+            requiredGuards: ["divisor-zero"]
         },
         {
             id: "P.ZERO_DIV_NONZERO",
@@ -968,18 +1017,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             notes: "Convert mixed number to improper fraction"
         },
         // --- Compatibility/Shim for existing code if needed ---
-        {
-            id: "P.FRAC_DIV_AS_MUL",
-            domain: "fractions",
-            category: "Compatibility",
-            clickTargetKind: "operator",
-            color: "green",
-            uiMode: "auto-apply",
-            actionClass: "normal",
-            label: "Fraction Div as Mul",
-            enginePrimitiveId: "P.FRAC_DIV", // Map to new main primitive
-            notes: "Legacy ID"
-        },
+        // P.FRAC_DIV_AS_MUL moved to main section
+
         {
             id: "P.FRAC_EQUIV",
             domain: "fractions",

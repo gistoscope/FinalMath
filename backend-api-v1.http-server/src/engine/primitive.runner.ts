@@ -194,22 +194,11 @@ export class PrimitiveRunner {
             case "P.INT_ADD":
             case "P.INT_SUB":
             case "P.INT_MUL":
+            case "P.INT_DIV_EXACT":
             case "P.INT_DIV_TO_INT":
-                return this.runIntegerOp(root, target, id, path);
             case "P.INT_DIV_TO_FRAC":
-                if (target?.type === "binaryOp" && (target.op as string) === ":") { // Assuming : is parsed as binaryOp
-                    // But wait, our parser might parse : as / or something else?
-                    // Standard parser usually handles / or :.
-                    // Let's assume binaryOp.
-                    if (target.left.type === "integer" && target.right.type === "integer") {
-                        return replaceNodeAt(root, path, {
-                            type: "fraction",
-                            numerator: target.left.value,
-                            denominator: target.right.value
-                        });
-                    }
-                }
-                return undefined;
+            case "P.DECIMAL_DIV":
+                return this.runIntegerOp(root, target, id, path);
 
             // --- C. Fractions ---
             case "P.FRAC_ADD_SAME_DEN":
@@ -258,6 +247,10 @@ export class PrimitiveRunner {
 
             case "P.FRAC_EQUIV":
                 return this.runFracEquiv(root, target, path);
+
+            // --- E. Decimal Conversion ---
+            case "P.DECIMAL_TO_FRAC":
+                return this.runDecimalToFraction(root, target, path);
 
             case "P.FRAC_ADD_AFTER_LIFT":
                 // a/b + c/b -> (a+c)/b
@@ -326,43 +319,248 @@ export class PrimitiveRunner {
 
 
     private static runIntegerOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {
-        let a: number, b: number;
-
         // Handle Fraction as Division
         if (target?.type === "fraction" && (id === "P.INT_DIV_TO_INT" || id === "P.INT_DIV_TO_FRAC")) {
-            a = parseInt(target.numerator, 10);
-            b = parseInt(target.denominator, 10);
-        } else {
-            if (target?.type !== "binaryOp") return undefined;
-            if (target.left.type !== "integer" || target.right.type !== "integer") return undefined;
-            a = parseInt(target.left.value, 10);
-            b = parseInt(target.right.value, 10);
+            const a = parseInt(target.numerator, 10);
+            const b = parseInt(target.denominator, 10);
+            switch (id) {
+                case "P.INT_DIV_TO_INT":
+                    if (b === 0) throw new Error("division-by-zero");
+                    if (a % b !== 0) return undefined; // Not exact
+                    return replaceNodeAt(root, path, { type: "integer", value: (a / b).toString() });
+                case "P.INT_DIV_TO_FRAC":
+                    if (b === 0) throw new Error("division-by-zero");
+                    return replaceNodeAt(root, path, {
+                        type: "fraction",
+                        numerator: a.toString(),
+                        denominator: b.toString()
+                    });
+            }
+            return undefined;
         }
 
-        let res: number | null = null;
+        if (target?.type !== "binaryOp") return undefined;
+        if (target.left.type !== "integer" || target.right.type !== "integer") return undefined;
+
+        let resValue: string | null = null;
 
         switch (id) {
-            case "P.INT_ADD": res = a + b; break;
-            case "P.INT_SUB": res = a - b; break;
-            case "P.INT_MUL": res = a * b; break;
-            case "P.INT_DIV_TO_INT":
-                if (b === 0) throw new Error("division-by-zero");
-                if (a % b !== 0) return undefined; // Not exact
-                res = a / b;
+            case "P.INT_ADD":
+                resValue = this.runNumericBinaryOp("+", target.left.value, target.right.value);
+                break;
+            case "P.INT_SUB":
+                resValue = this.runNumericBinaryOp("-", target.left.value, target.right.value);
+                break;
+            case "P.INT_MUL":
+                resValue = this.runNumericBinaryOp("*", target.left.value, target.right.value);
+                break;
+            case "P.INT_DIV_EXACT":
+            case "P.INT_DIV_TO_INT": // Legacy support if needed, but EXACT is the V5 standard
+                if (target.left.value.includes(".") || target.right.value.includes(".")) return undefined;
+                try {
+                    const a = BigInt(target.left.value);
+                    const b = BigInt(target.right.value);
+                    if (b === 0n) throw new Error("division-by-zero");
+                    if (a % b !== 0n) return undefined; // Not exact
+                    resValue = (a / b).toString();
+                } catch (e: any) {
+                    if (e.message === "division-by-zero") throw e;
+                    return undefined;
+                }
                 break;
             case "P.INT_DIV_TO_FRAC":
-                if (b === 0) throw new Error("division-by-zero");
-                return replaceNodeAt(root, path, {
-                    type: "fraction",
-                    numerator: a.toString(),
-                    denominator: b.toString()
-                });
+                if (target.left.value.includes(".") || target.right.value.includes(".")) return undefined;
+                try {
+                    const num = BigInt(target.left.value);
+                    const den = BigInt(target.right.value);
+                    if (den === 0n) throw new Error("division-by-zero");
+                    // Return fraction node
+                    return replaceNodeAt(root, path, {
+                        type: "fraction",
+                        numerator: num.toString(),
+                        denominator: den.toString()
+                    });
+                } catch (e: any) {
+                    if (e.message === "division-by-zero") throw e;
+                    return undefined;
+                }
+            case "P.DECIMAL_DIV":
+                resValue = this.runNumericDivision(target.left.value, target.right.value);
+                break;
         }
 
-        if (res !== null) {
-            return replaceNodeAt(root, path, { type: "integer", value: res.toString() });
+        if (resValue !== null) {
+            return replaceNodeAt(root, path, { type: "integer", value: resValue });
         }
         return undefined;
+    }
+
+    private static parseNumericToScaledInt(value: string): { n: bigint; scale: number } {
+        // Handle optional sign
+        let sign = 1n;
+        let workVal = value;
+        if (workVal.startsWith("-")) {
+            sign = -1n;
+            workVal = workVal.substring(1);
+        } else if (workVal.startsWith("+")) {
+            workVal = workVal.substring(1);
+        }
+
+        const dotIndex = workVal.indexOf(".");
+        if (dotIndex === -1) {
+            // Integer
+            return { n: sign * BigInt(workVal), scale: 0 };
+        }
+
+        // Decimal
+        const intPart = workVal.substring(0, dotIndex);
+        const fracPart = workVal.substring(dotIndex + 1);
+        const scale = fracPart.length;
+
+        // Combine parts: "12" + "5" -> "125"
+        const combined = intPart + fracPart;
+        return { n: sign * BigInt(combined), scale };
+    }
+
+    private static scaledIntToDecimalString(n: bigint, scale: number): string {
+        if (scale === 0) return n.toString();
+
+        const sign = n < 0n ? "-" : "";
+        let absN = n < 0n ? -n : n;
+        let s = absN.toString();
+
+        if (s.length <= scale) {
+            // Pad left
+            const padding = "0".repeat(scale - s.length);
+            s = "0." + padding + s;
+        } else {
+            // Insert decimal point
+            const insertAt = s.length - scale;
+            s = s.substring(0, insertAt) + "." + s.substring(insertAt);
+        }
+
+        // Optional: Trim trailing zeros in fractional part, but keep .0 if we decide to?
+        // User said: "You may optionally trim trailing zeros in the fractional part, but keep at least one digit after the decimal point"
+        // Let's implement trimming.
+        if (s.includes(".")) {
+            while (s.endsWith("0")) {
+                s = s.substring(0, s.length - 1);
+            }
+            if (s.endsWith(".")) {
+                // Should not happen via trimming if we ensure at least one digit, but if input was 100 and scale 2 -> 1.00 -> 1.
+                // If we strictly want to preserve decimal nature, we might keep .0, but usually 1. is not valid, should be 1.
+                // Let's strip the dot if it is last.
+                s = s.substring(0, s.length - 1);
+            }
+        }
+
+        return sign + s;
+    }
+
+    private static runNumericBinaryOp(op: "+" | "-" | "*", leftValue: string, rightValue: string): string {
+        const { n: n1, scale: s1 } = this.parseNumericToScaledInt(leftValue);
+        const { n: n2, scale: s2 } = this.parseNumericToScaledInt(rightValue);
+
+        if (op === "*") {
+            const res = n1 * n2;
+            const newScale = s1 + s2;
+            return this.scaledIntToDecimalString(res, newScale);
+        }
+
+        const commonScale = Math.max(s1, s2);
+
+        // Rescale
+        const m1 = 10n ** BigInt(commonScale - s1);
+        const m2 = 10n ** BigInt(commonScale - s2);
+
+        const val1 = n1 * m1;
+        const val2 = n2 * m2;
+
+        let res: bigint;
+        if (op === "+") {
+            res = val1 + val2;
+        } else {
+            res = val1 - val2;
+        }
+
+        return this.scaledIntToDecimalString(res, commonScale);
+    }
+
+    private static runDecimalToFraction(root: AstNode, target: AstNode | undefined, path: string): AstNode | undefined {
+        if (!target || target.type !== "integer" || !target.value.includes(".")) {
+            return undefined;
+        }
+
+        const { n, scale } = this.parseNumericToScaledInt(target.value);
+        const denominator = 10n ** BigInt(scale);
+
+        // Simplify using GCD (convert to number for gcd function)
+        const absN = n < 0n ? -n : n;
+        const gcdValue = BigInt(this.gcd(Number(absN), Number(denominator)));
+        const numerator = n / gcdValue;
+        const den = denominator / gcdValue;
+
+        return replaceNodeAt(root, path, {
+            type: "fraction",
+            numerator: numerator.toString(),
+            denominator: den.toString()
+        });
+    }
+
+    private static runNumericDivision(leftValue: string, rightValue: string): string | null {
+        const { n: n1, scale: s1 } = this.parseNumericToScaledInt(leftValue);
+        const { n: n2, scale: s2 } = this.parseNumericToScaledInt(rightValue);
+
+        if (n2 === 0n) throw new Error("division-by-zero");
+
+
+        // Division: (n1 * 10^s2) / (n2 * 10^s1)
+        // Check if finite: check if denominator (of simplified fraction) is 2^j * 5^k.
+        // Simplified denominator logic:
+        // Result Value in rationals = (n1 * 10^s2) / (n2 * 10^s1).
+
+        // Actually, we can just try to compute it with high precision or check divisibility.
+        // Or, simpler:
+        // We want result = K / 10^S.
+        // (n1 * 10^s2) / (n2 * 10^s1) = R
+        // Let num = n1 * 10^s2
+        // Let den = n2 * 10^s1
+        // We want num/den to be finite decimal.
+
+        let num = n1 * (10n ** BigInt(s2));
+        let den = n2 * (10n ** BigInt(s1));
+
+
+        // Simplify fraction num/den
+        // But we need BigInt gcd.
+        // Let's assume for now we just handle cases that divide cleanly with some power of 10 adjustment?
+        // Or implement basic long division for BigInt until remainder is zero or loop detected?
+        // Since we don't have infinite loop protection easily without a limit, let's limit scale.
+        // User requested: 12.5 / 0.5 -> 25. 1.5 / 0.25 -> 6. 12.5 / 5 -> 2.5.
+        // These are simple.
+
+        // Let's multiply num by 10^K until num % den == 0.
+        // Limit K to say 10 (arbitrary reasonable precision for these elementary steps).
+
+        let extraScale = 0;
+        const LIMIT = 10;
+
+        // Handle negative signs first to simplify loop
+        let sign = 1n;
+        if (num < 0n) { num = -num; sign = -sign; }
+        if (den < 0n) { den = -den; sign = -sign; }
+
+        while (num % den !== 0n && extraScale < LIMIT) {
+            num = num * 10n;
+            extraScale++;
+        }
+
+        if (num % den === 0n) {
+            const res = (num / den) * sign;
+            return this.scaledIntToDecimalString(res, extraScale);
+        }
+
+        return null; // Not a finite decimal within limit
     }
 
     private static runFractionOp(root: AstNode, target: AstNode | undefined, id: string, path: string): AstNode | undefined {

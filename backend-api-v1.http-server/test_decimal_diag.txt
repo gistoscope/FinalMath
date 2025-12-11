@@ -1,0 +1,84 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/diagnose-decimal.test.ts[2m > [22m[2mDecimal Diagnosis[2m > [22m[2mparses decimals as integers[22m[39m
+AST for 12.5: {
+  "type": "integer",
+  "value": "12.5"
+}
+
+[90mstdout[2m | tests/diagnose-decimal.test.ts[2m > [22m[2mDecimal Diagnosis[2m > [22m[2mtruncates decimals in addition[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: +
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Missing Guard: denominators-equal
+[V5-STEPMASTER] chosenPrimitiveId=P.INT_ADD operator=+ kind=green-primitive score=1
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Enforcing locality for target: root
+[StepMaster] Candidate v5-match rejected: repetitive
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/diagnose-decimal.test.ts[2m > [22m[2mDecimal Diagnosis[2m > [22m[2mtruncates decimals in addition[22m[39m
+[STEP SNAPSHOT] id=step-1765401725077 status=no-candidates
+Decimal Add Result: {
+  "status": "no-candidates",
+  "engineResult": null,
+  "history": {
+    "entries": [
+      {
+        "stepId": "step-1765399967601-oi8jm",
+        "candidateId": "v5-match",
+        "decisionStatus": "chosen",
+        "timestampIso": "2025-12-10T20:52:47.601Z",
+        "invariantRuleId": "v5-rule",
+        "targetPath": "root",
+        "expressionBefore": "2 + 3",
+        "expressionAfter": "5"
+      },
+      {
+        "stepId": "step-1765401725074-znqz6",
+        "candidateId": null,
+        "decisionStatus": "no-candidates",
+        "timestampIso": "2025-12-10T21:22:05.074Z",
+        "expressionBefore": "12.5 + 0.75",
+        "errorCode": "no-candidates"
+      }
+    ]
+  },
+  "debugInfo": null
+}
+
+ [33mΓ¥»[39m tests/diagnose-decimal.test.ts [2m ([22m[2m2 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[90m 14[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/diagnose-decimal.test.ts[2m > [22mDecimal Diagnosis[2m > [22mtruncates decimals in addition[39m
+[31m     ΓåÆ expected 'no-candidates' to be 'step-applied' // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 1 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/diagnose-decimal.test.ts > Decimal Diagnosis > truncates decimals in addition
+AssertionError: expected 'no-candidates' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ no-candidates
+
+ Γ¥» tests/diagnose-decimal.test.ts:52:31
+     50| 
+     51|         // We expect result to be 12 (12 + 0)
+     52|         expect(result.status).toBe('step-applied');
+       |                               ^
+     53|         expect(result.engineResult?.newExpressionLatex).toBe('12');
+     54|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/1]ΓÄ»
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m   Start at [22m 16:22:04
+[2m   Duration [22m 744ms[2m (transform 263ms, setup 1ms, collect 360ms, tests 14ms, environment 0ms, prepare 147ms)[22m
+

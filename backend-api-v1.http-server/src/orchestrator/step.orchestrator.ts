@@ -122,18 +122,52 @@ export async function runOrchestratorStep(
     // Helper to augment AST with IDs if they are missing (since parser returns raw AST)
     function augmentAstWithIds(root: any) {
         if (!root) return;
+
         const traverse = (node: any, path: string) => {
-            if (!node) return;
-            node.id = path; // Assign ID
-            if (node.type === "binaryOp") {
-                traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
-                traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
-            } else if (node.type === "fraction") {
-                // Fraction children (numerator/denominator) are strict strings in current AstNode def,
-                // so we don't traverse them as nodes unless we change the parser/types.
-                // If they were nodes, we'd do: traverse(node.numerator, ...);
+            if (!node || typeof node !== 'object') return;
+
+            // Assign ID to this node
+            node.id = path;
+
+            // Handle different node types
+            switch (node.type) {
+                case "binaryOp":
+                    // For binary operations, traverse left and right children
+                    if (node.left) {
+                        traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
+                    }
+                    if (node.right) {
+                        traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
+                    }
+                    break;
+
+                case "fraction":
+                    // Fractions have numerator/denominator as strings in current AST,
+                    // so no child traversal needed
+                    break;
+
+                case "mixed":
+                    // Mixed numbers have whole, numerator, denominator as strings
+                    break;
+
+                case "integer":
+                case "variable":
+                    // Leaf nodes, no children to traverse
+                    break;
+
+                default:
+                    // For any other node types, try to traverse common child properties
+                    if (node.left) traverse(node.left, `${path}.left`);
+                    if (node.right) traverse(node.right, `${path}.right`);
+                    if (node.children && Array.isArray(node.children)) {
+                        node.children.forEach((child: any, i: number) => {
+                            traverse(child, `${path}.child[${i}]`);
+                        });
+                    }
+                    break;
             }
         };
+
         traverse(root, "root");
         return root;
     }
@@ -171,7 +205,7 @@ export async function runOrchestratorStep(
                         id: "v5-match",
                         invariantRuleId: "v5-rule",
                         primitiveIds: [pmPrimitiveId],
-                        targetPath: v5Outcome.matches[0]?.ctx?.actionNodeId ?? clickTarget.nodeId,
+                        targetPath: v5Outcome.matches[0]?.ctx?.actionNodeId ?? v5Outcome.matches[0]?.ctx?.clickTarget?.nodeId ?? clickTarget.nodeId,
                         description: v5Outcome.primitive.label,
                     };
 

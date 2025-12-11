@@ -1,0 +1,152 @@
+
+[7m[1m[36m RUN [39m[22m[27m [36mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA1: 10 / 2[22m[39m
+
+--- [DIAGNOSIS] Int Div Slash: 10 / 2 ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA1: 10 / 2[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=fraction
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: fraction
+[NodeContext] Operator: undefined
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: undefined
+[V5-STEPMASTER] chosenPrimitiveId=none operator=? kind=no-candidates score=0
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA1: 10 / 2[22m[39m
+[STEP SNAPSHOT] id=step-1765407905954 status=no-candidates
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA2: 7 / 2[22m[39m
+
+--- [DIAGNOSIS] Int Div Slash NonExact: 7 / 2 ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA2: 7 / 2[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=fraction
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: fraction
+[NodeContext] Operator: undefined
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: undefined
+[V5-STEPMASTER] chosenPrimitiveId=none operator=? kind=no-candidates score=0
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA2: 7 / 2[22m[39m
+[STEP SNAPSHOT] id=step-1765407905958 status=no-candidates
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA3: 10 \div 2[22m[39m
+
+--- [DIAGNOSIS] Int Div LaTeX: 10 \div 2 ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mA3: 10 \div 2[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-STEPMASTER] chosenPrimitiveId=P.DIV_BY_ZERO operator=\div kind=red-diagnostic score=1
+[Orchestrator] V5 Red Diagnostic Detected
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mB1: 1/2 div 3/5[22m[39m
+
+--- [DIAGNOSIS] Frac Div LaTeX: \frac{1}{2} \div \frac{3}{5} ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mB1: 1/2 div 3/5[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-STEPMASTER] chosenPrimitiveId=P.DIV_BY_ZERO operator=\div kind=red-diagnostic score=1
+[Orchestrator] V5 Red Diagnostic Detected
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mB2: 2/3 div 4/5[22m[39m
+
+--- [DIAGNOSIS] Frac Div LaTeX 2: \frac{2}{3} \div \frac{4}{5} ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mB2: 2/3 div 4/5[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=binaryOp
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: binaryOp
+[NodeContext] Operator: \div
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: \div
+[V5-STEPMASTER] chosenPrimitiveId=P.DIV_BY_ZERO operator=\div kind=red-diagnostic score=1
+[Orchestrator] V5 Red Diagnostic Detected
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC1: 1.5 / 0.5[22m[39m
+
+--- [DIAGNOSIS] Dec Div Slash: 1.5 / 0.5 ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC1: 1.5 / 0.5[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=fraction
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: fraction
+[NodeContext] Operator: undefined
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: undefined
+[V5-STEPMASTER] chosenPrimitiveId=none operator=? kind=no-candidates score=0
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC1: 1.5 / 0.5[22m[39m
+[STEP SNAPSHOT] id=step-1765407905971 status=no-candidates
+RESULT: Status=no-candidates
+No engine result
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC2: 0.6 / 0.2[22m[39m
+
+--- [DIAGNOSIS] Dec Div Slash 2: 0.6 / 0.2 ---
+
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC2: 0.6 / 0.2[22m[39m
+[Orchestrator] Using V5 PrimitiveMaster Path
+[V5-ORCH] rootAst.id=root, kind=fraction
+[NodeContext] Building for Click: {"nodeId":"root","kind":"operator"}
+[DEBUG-VISIT] root
+[NodeContext] Found Node type: fraction
+[NodeContext] Operator: undefined
+[Matcher] Checking P.FRAC_ADD_SAME_DEN
+[Matcher] FAIL: Operator mismatch. Row: +, Ctx: undefined
+[V5-STEPMASTER] chosenPrimitiveId=none operator=? kind=no-candidates score=0
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+ [32mΓ£ô[39m tests/diagnose-div-only.test.ts [2m ([22m[2m7 tests[22m[2m)[22m[90m 29[2mms[22m[39m
+[90mstdout[2m | tests/diagnose-div-only.test.ts[2m > [22m[2mDivision Diagnostics[2m > [22m[2mC2: 0.6 / 0.2[22m[39m
+[STEP SNAPSHOT] id=step-1765407905974 status=no-candidates
+RESULT: Status=no-candidates
+No engine result
+
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 18:05:05
+[2m   Duration [22m 885ms[2m (transform 311ms, setup 0ms, collect 427ms, tests 29ms, environment 0ms, prepare 171ms)[22m
+

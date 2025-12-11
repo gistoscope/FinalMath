@@ -16,7 +16,7 @@ const mockDeps = {
                 op: '+',
                 left: { type: 'fraction', numerator: '1', denominator: '7' },
                 right: { type: 'fraction', numerator: '3', denominator: '7' }
-            };
+            } as any;
         }
         if (latex === '2 + 3') {
             return {
@@ -24,7 +24,7 @@ const mockDeps = {
                 op: '+',
                 left: { type: 'integer', value: '2' },
                 right: { type: 'integer', value: '3' }
-            };
+            } as any;
         }
         return undefined;
     }
@@ -122,6 +122,29 @@ describe('V5 Fraction Execution Wiring', () => {
         // Wait, does PrimitiveRunner implement P.INT_ADD? 
         // src/engine/primitive.runner.ts likely implements it.
         // If real engine is used, 2+3 -> 5.
+        expect(result.engineResult?.newExpressionLatex).toBe('5');
+    });
+
+
+    it('should execute P.INT_ADD when integer node is clicked (Target Normalization)', async () => {
+        const registry = new InMemoryInvariantRegistry({
+            model: { primitives: [], invariantSets: [{ id: 'default', name: 'D', description: 'D', version: '1', rules: [] }] }
+        });
+        const policy = createDefaultStudentPolicy();
+        const primitiveMaster = createPrimitiveMaster(mockDeps);
+        const ctx = { invariantRegistry: registry, policy, primitiveMaster };
+
+        const req = {
+            sessionId: 'test-session-int-click',
+            courseId: 'default',
+            expressionLatex: '2 + 3',
+            selectionPath: 'term[0]', // Clicking the integer "2"
+            userRole: 'student' as const
+        };
+
+        const result = await runOrchestratorStep(ctx, req);
+
+        expect(result.status).toBe('step-applied');
         expect(result.engineResult?.newExpressionLatex).toBe('5');
     });
 });
