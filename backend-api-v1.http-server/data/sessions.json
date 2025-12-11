@@ -3320,6 +3320,334 @@
           "timestampIso": "2025-12-11T08:28:54.286Z",
           "expressionBefore": "2*(3+5*7) - 8",
           "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765476829497-wpyoi",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:13:49.497Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "expressionAfter": "10 - 3 * 8 * 4"
+        },
+        {
+          "stepId": "step-1765476832646-yltjw",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:13:52.646Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765476834070-idrhf",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:13:54.070Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "expressionAfter": "10 - 24 * 4"
+        },
+        {
+          "stepId": "step-1765476835518-9a7q6",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:13:55.518Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 24 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765476836782-snvkq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T18:13:56.782Z",
+          "expressionBefore": "10 - 24 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765476838420-36j2q",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:13:58.420Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 24 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765477403951-h5evn",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T18:23:23.951Z",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765477405115-hk2df",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:23:25.115Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765477406517-x2vj4",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:23:26.517Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "expressionAfter": "10 - 3 * 8 * 4"
+        },
+        {
+          "stepId": "step-1765477409411-gxcv3",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:23:29.411Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765477410596-tze98",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:23:30.596Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "expressionAfter": "10 - 24 * 4"
+        },
+        {
+          "stepId": "step-1765477411956-e4du2",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:23:31.956Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 24 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765477413139-6f6o1",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T18:23:33.139Z",
+          "expressionBefore": "10 - 24 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765479288497-8x3tm",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:54:48.497Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "expressionAfter": "10 - 3 * 8 * 4"
+        },
+        {
+          "stepId": "step-1765479354184-8rmsi",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T18:55:54.184Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480940955-av4l8",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:20.955Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "2 * 5 - 3 * 8 * 4",
+          "expressionAfter": "10 - 3 * 8 * 4"
+        },
+        {
+          "stepId": "step-1765480944719-b6iym",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:24.719Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480946112-3e1zm",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:26.112Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480947390-i82xk",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:27.390Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480947949-rkcxm",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:27.949Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480948142-6ysio",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:28.142Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480949285-99a5p",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:29.285Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480949806-5wbnf",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:29.806Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480950238-pqmhu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:30.238Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480950952-2v2zl",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:30.952Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480952385-77i0m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:32.385Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480953711-rcidg",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:33.711Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480954574-wccvz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:34.574Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480955534-d3xsq",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:35.534Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480956320-xc4gx",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:36.320Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765480957184-2fzqj",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:22:37.184Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765480957879-gbibo",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-11T19:22:37.879Z",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765482049767-qpc57",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:40:49.767Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "expressionBefore": "10 - 3 * 8 * 4",
+          "expressionAfter": "10 - 24 * 4"
+        },
+        {
+          "stepId": "step-1765482051374-oj3hf",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:40:51.374Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "expressionBefore": "10 - 24 * 4",
+          "expressionAfter": "10 - 96"
+        },
+        {
+          "stepId": "step-1765482053151-hrcru",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-11T19:40:53.151Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "10 - 96",
+          "expressionAfter": "-86"
         }
       ]
     },

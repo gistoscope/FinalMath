@@ -132,12 +132,12 @@ function isAddSub(op) {
 }
 
 function isMulDiv(op) {
-    return ["*", "×", "·", "⋅", "/", ":", "÷"].includes(op);
+    return ["*", "×", "·", "⋅", "∗", "/", ":", "÷"].includes(op);
 }
 
 function normalizeOp(op) {
     if (op === "−") return "-";
-    if (["×", "·", "⋅"].includes(op)) return "*";
+    if (["×", "·", "⋅", "∗"].includes(op)) return "*";
     if (["÷", ":"].includes(op)) return "/";
     return op;
 }
@@ -216,7 +216,7 @@ function tokenize(input) {
         }
 
         // Operators
-        if ("+-−*×·⋅/:".includes(char)) {
+        if ("+-−*×·⋅∗/:".includes(char)) {
             tokens.push({ type: "OP", value: char });
             i++;
             continue;

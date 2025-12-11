@@ -86,6 +86,10 @@ export class DisplayAdapter {
         : undefined;
     const astNodeId =
       node && node.astNodeId ? String(node.astNodeId) : undefined;
+    const astOperatorIndex =
+      node && typeof node.astOperatorIndex === "number" && Number.isFinite(node.astOperatorIndex)
+        ? node.astOperatorIndex
+        : undefined;
 
     return {
       type,
@@ -95,7 +99,8 @@ export class DisplayAdapter {
       surfaceNodeKind: node && node.kind ? String(node.kind) : undefined,
       surfaceNodeRole: node && node.role ? String(node.role) : undefined,
       surfaceOperatorIndex: operatorIndex,
-      astNodeId: astNodeId, // NEW: AST node ID for backend
+      astNodeId: astNodeId, // AST node ID for backend
+      astOperatorIndex: astOperatorIndex, // NEW: Local operator index within AST node
       pointer: e
         ? {
           clientX: e.clientX,

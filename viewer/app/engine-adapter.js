@@ -252,8 +252,8 @@ export class EngineAdapter {
     const v5Payload = {
       sessionId: "default-session",
       expressionLatex: request.clientEvent.latex,
-      selectionPath: request.clientEvent.astNodeId || null, // NEW: Use AST node ID
-      operatorIndex: request.clientEvent.surfaceOperatorIndex, // Fallback
+      selectionPath: request.clientEvent.astNodeId || null, // Use AST node ID
+      operatorIndex: request.clientEvent.astNodeId ? undefined : request.clientEvent.surfaceOperatorIndex, // FIXED: Only use as fallback
       courseId: "default",
       userRole: "student"
     };

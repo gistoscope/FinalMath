@@ -411,6 +411,26 @@ export function buildSurfaceNodeMap(containerElement) {
   };
 }
 
+/**
+ * Maps various Unicode operator glyphs to canonical ASCII operators.
+ * Ensures consistent matching between AST (ASCII) and Surface (Unicode).
+ * @param {string} ch - The character or string to normalize.
+ * @returns {string} Normalized operator or original string.
+ */
+function normalizeOpSymbol(ch) {
+  const s = (ch || "").trim();
+  // Multiplication: *, × (U+00D7), · (U+00B7), ⋅ (U+22C5), ∗ (U+2217)
+  if (s === "*" || s === "×" || s === "·" || s === "⋅" || s === "∗") return "*";
+  // Subtraction: -, − (U+2212)
+  if (s === "-" || s === "−") return "-";
+  // Division: /, ÷ (U+00F7), : (ASCII colon)
+  if (s === "/" || s === "÷" || s === ":") return "/";
+  // Addition: + (usually fine, but good to be explicit if variants appear)
+  if (s === "+") return "+";
+
+  return s;
+}
+
 // Сериализация карты в JSON-дружелюбный вид
 export function surfaceMapToSerializable(map) {
   function toPlain(node) {
@@ -579,31 +599,30 @@ export function correlateOperatorsWithAST(map, latex) {
     })
     .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
 
-  const DEBUG = true; // Keep debug on for now to trace fix
+  const DEBUG = true; // Keep debug on for diagnostic purposes
 
-  if (DEBUG) {
-    console.log("[SurfaceMap] AST Operators:", astOperators.map(o => `${o.operator} id=${o.nodeId}`));
-    console.log("[SurfaceMap] Surface Operators:", surfaceOperators.map(o => `${o.latexFragment} id=${o.id}`));
-  }
+  // DIAGNOSTIC LOGGING: AST Operators
+  console.log("=== [AST-OPS] Operator sequence from AST ===");
+  astOperators.forEach((op, idx) => {
+    console.log(`[AST-OPS] index=${idx} op="${op.operator}" nodeId="${op.nodeId}" position=${op.position}`);
+  });
+
+  // DIAGNOSTIC LOGGING: Surface Operators (before correlation)
+  console.log("=== [SURFACE-OPS] Operator sequence from Surface Map (before correlation) ===");
+  surfaceOperators.forEach((op, idx) => {
+    console.log(`[SURFACE-OPS] index=${idx} op="${op.latexFragment}" surfaceId="${op.id}" bbox.left=${Math.round(op.bbox.left)} operatorIndex=${op.operatorIndex} astNodeId=${op.astNodeId || "NOT_SET"}`);
+  });
 
   // 4. Match surface operators to AST operators
   // We match by "grouping by symbol" to avoid mistakenly matching a '+' to a '*' if counts align but types don't.
-  // BUT: The AST Parser must produce the SAME operator symbols as the surface map sees.
-  // Normalized comparison is key.
-
-  // Normalize surface symbol
-  const norm = (s) => {
-    s = (s || "").trim();
-    if (s === "−") return "-";
-    if (s === "×" || s === "·" || s === "⋅") return "*";
-    if (s === "÷" || s === ":") return "/";
-    return s;
-  };
+  // We use normalizeOpSymbol for both sides to ensure "∗" matches "*".
 
   // Group AST operators by normalized symbol
   const astBySymbol = {};
   astOperators.forEach(op => {
-    const sym = normalizeOp(op.operator); // Ensure AST op is normalized too, though parser usually does it
+    const raw = op.operator;
+    const sym = normalizeOpSymbol(raw);
+    console.log(`[DEBUG-NORM] AST: raw="${raw}" (U+${raw.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')}) => normalized="${sym}"`);
     if (!astBySymbol[sym]) astBySymbol[sym] = [];
     astBySymbol[sym].push(op);
   });
@@ -611,15 +630,23 @@ export function correlateOperatorsWithAST(map, latex) {
   // Group Surface operators by normalized symbol
   const surfaceBySymbol = {};
   surfaceOperators.forEach(op => {
-    const sym = norm(op.latexFragment);
+    const raw = op.latexFragment;
+    const sym = normalizeOpSymbol(raw);
+    console.log(`[DEBUG-NORM] Surface: raw="${raw}" (U+${raw.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0')}) => normalized="${sym}"`);
     if (!surfaceBySymbol[sym]) surfaceBySymbol[sym] = [];
     surfaceBySymbol[sym].push(op);
   });
 
   // Match each group
-  for (const sym in astBySymbol) {
-    const astOps = astBySymbol[sym];
+  console.log("=== [SURFACE-OPS] Correlating surface operators with AST ===");
+  // Iterate over keys from both sets to handle potential mismatches gracefully
+  const allSymbols = new Set([...Object.keys(astBySymbol), ...Object.keys(surfaceBySymbol)]);
+
+  for (const sym of allSymbols) {
+    const astOps = astBySymbol[sym] || [];
     const surfOps = surfaceBySymbol[sym] || [];
+
+    console.log(`[SURFACE-OPS] Matching symbol "${sym}": ${astOps.length} AST ops, ${surfOps.length} surface ops`);
 
     // Match 1-to-1 in order
     const count = Math.min(astOps.length, surfOps.length);
@@ -629,18 +656,24 @@ export function correlateOperatorsWithAST(map, latex) {
 
       surfOp.astNodeId = astOp.nodeId;
       surfOp.astOperator = astOp.operator;
-      // Optionally store index if needed by legacy
-      // surfOp.operatorIndex = astOp.position; 
+
+      // CRITICAL FIX: Compute LOCAL operator index within the AST node
+      // For binary operators, the local index is typically 0 or 1
+      // We need to count how many operators with the same nodeId we've seen before this one
+      const sameNodeOps = astOps.filter((op, idx) => idx < i && op.nodeId === astOp.nodeId);
+      surfOp.astOperatorIndex = sameNodeOps.length;
+
+      console.log(`[SURFACE-OPS]   Matched: surface[${i}] "${surfOp.latexFragment}" (${surfOp.id}) -> AST nodeId="${astOp.nodeId}" localIndex=${surfOp.astOperatorIndex}`);
     }
   }
 
-  return map;
-}
+  // DIAGNOSTIC LOGGING: Surface Operators (after correlation)
+  console.log("=== [SURFACE-OPS] Final operator sequence (after correlation) ===");
+  surfaceOperators.forEach((op, idx) => {
+    const astLocal = typeof op.astOperatorIndex === "number" ? op.astOperatorIndex : "?";
+    console.log(`[SURFACE-OPS] index=${idx} op="${op.latexFragment}" surfaceId="${op.id}" astNodeId="${op.astNodeId || "UNMATCHED"}" astLocalIndex=${astLocal} globalIndex=${op.operatorIndex}`);
+  });
 
-function normalizeOp(op) {
-  if (op === "−") return "-";
-  if (["×", "·", "⋅"].includes(op)) return "*";
-  if (["÷", ":"].includes(op)) return "/";
-  return op;
+  return map;
 }
 
