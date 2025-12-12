@@ -1,0 +1,969 @@
+
+> @motor/backend-api-v1-http-server@0.1.0 test
+> vitest tests/verify-infrastructure.test.ts tests/EngineHttpServer.contract.test.ts tests/atomic/atomic-stage1.test.ts tests/EntryStepPrimitiveDebug.test.ts
+
+
+[7m[1m[34m DEV [39m[22m[27m [34mv1.6.1[39m [90mD:/G/backend-api-v1.http-server[39m
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+--- TEST START: FRAC_ADD_SAME 1/7 + 3/7 ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{1}{7} + \frac{3}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+[NodeContext] Building for Click: {"nodeId":"","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[DEBUG-VISIT] term[1]
+[DEBUG-ROOT] {
+  "type": "binaryOp",
+  "op": "+",
+  "left": {
+    "type": "fraction",
+    "numerator": "1",
+    "denominator": "7",
+    "id": "term[0]"
+  },
+  "right": {
+    "type": "fraction",
+    "numerator": "3",
+    "denominator": "7",
+    "id": "term[1]"
+  },
+  "id": "root"
+}
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=bad-window: operator mismatch resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+[NodeContext] FAILED to find node: 
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "bad-window: operator mismatch"
+}
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+[STEP SNAPSHOT] id=step-1765501148456 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+--- TEST START: FRAC_ADD_SAME 5/7 + 2/7 ---
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} + \frac{2}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+[NodeContext] FAILED to find node: 
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "bad-window: operator mismatch"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+[NodeContext] Building for Click: {"nodeId":"","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[DEBUG-VISIT] term[1]
+[DEBUG-ROOT] {
+  "type": "binaryOp",
+  "op": "+",
+  "left": {
+    "type": "fraction",
+    "numerator": "5",
+    "denominator": "7",
+    "id": "term[0]"
+  },
+  "right": {
+    "type": "fraction",
+    "numerator": "2",
+    "denominator": "7",
+    "id": "term[1]"
+  },
+  "id": "root"
+}
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=bad-window: operator mismatch resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+[STEP SNAPSHOT] id=step-1765501148469 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+--- TEST START: FRAC_SUB_SAME 5/7 - 2/7 ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} - \frac{2}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_SUB_SAME_DEN ok=true errorCode=null resultLatex=\frac{3}{7}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[STEP SNAPSHOT] id=step-1765501148477 status=step-applied
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 3 + 5/7 -> no-candidates (Stage-1 Strict)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "3 + \frac{5}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 5/7 + 3 -> no-candidates (Stage-1 Strict)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} + 3" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+--- TEST START: INT_DIV_EXACT ---
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{6}{2} + \frac{12}{2}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+[NodeContext] FAILED to find node: 
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "bad-window: operator mismatch"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+[NodeContext] Building for Click: {"nodeId":"","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[DEBUG-VISIT] term[1]
+[DEBUG-ROOT] {
+  "type": "binaryOp",
+  "op": "+",
+  "left": {
+    "type": "fraction",
+    "numerator": "6",
+    "denominator": "2",
+    "id": "term[0]"
+  },
+  "right": {
+    "type": "fraction",
+    "numerator": "12",
+    "denominator": "2",
+    "id": "term[1]"
+  },
+  "id": "root"
+}
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=bad-window: operator mismatch resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+[STEP SNAPSHOT] id=step-1765501148484 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="fallback:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 5 applicable invariant rules
+[MapMaster] MapMaster: Generated 0 total candidates
+[Orchestrator] MapMaster returned 0 candidates for expression "2 + 3 - 1" using set "default"
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[STEP SNAPSHOT] id=step-1765501148487 status=no-candidates
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{1}{7} + \frac{3}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)
+[NodeContext] FAILED to find node: 
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "bad-window: operator mismatch"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[22m[39m
+[NodeContext] Building for Click: {"nodeId":"","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[DEBUG-VISIT] term[1]
+[DEBUG-ROOT] {
+  "type": "binaryOp",
+  "op": "+",
+  "left": {
+    "type": "fraction",
+    "numerator": "1",
+    "denominator": "7",
+    "id": "term[0]"
+  },
+  "right": {
+    "type": "fraction",
+    "numerator": "3",
+    "denominator": "7",
+    "id": "term[1]"
+  },
+  "id": "root"
+}
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=bad-window: operator mismatch resultLatex=null
+[STEP SNAPSHOT] id=step-1765501148492 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 3 + 6 - (5/7 + 2/7) anchoring[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="fallback:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 5 applicable invariant rules
+[MapMaster] MapMaster: Generated 0 total candidates
+[Orchestrator] MapMaster returned 0 candidates for expression "3 + 6 - (\frac{5}{7} + \frac{2}{7})" using set "default"
+[StepMaster] Deciding among 0 candidates. Last step exists: false
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 3 + 6 - (5/7 + 2/7) anchoring[22m[39m
+[STEP SNAPSHOT] id=step-1765501148496 status=no-candidates
+
+ [33mΓ¥»[39m tests/atomic/atomic-stage1.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m6 failed[39m[2m)[22m[90m 55[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[39m
+[31m     ΓåÆ expected 'no-candidates' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mRegression: 3 + 6 - (5/7 + 2/7) anchoring[39m
+[31m     ΓåÆ expected 'no-candidates' to be 'step-applied' // Object.is equality[39m
+[90mstdout[2m | tests/EntryStepPrimitiveDebug.test.ts[2m > [22m[2mEntry Step Primitive Debug[2m > [22m[2mincludes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7[22m[39m
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="\frac{1}{7} + \frac{3}{7}"
+
+[90mstdout[2m | tests/EntryStepPrimitiveDebug.test.ts[2m > [22m[2mEntry Step Primitive Debug[2m > [22m[2msets primitiveDebug to none for mixed case 2 + 1/3[22m[39m
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="2 + \frac{1}{3}"
+
+ [33mΓ¥»[39m tests/EntryStepPrimitiveDebug.test.ts [2m ([22m[2m2 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[90m 15[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/EntryStepPrimitiveDebug.test.ts[2m > [22mEntry Step Primitive Debug[2m > [22mincludes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/EntryStepPrimitiveDebug.test.ts[2m > [22mEntry Step Primitive Debug[2m > [22msets primitiveDebug to none for mixed case 2 + 1/3[39m
+[31m     ΓåÆ expected undefined not to be undefined[39m
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 200 and a JSON EngineStepResponse from HandlerPostEntryStep[22m[39m
+[EngineHttpServer] Listening on http://localhost:55882/api/entry-step
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 200 and a JSON EngineStepResponse from HandlerPostEntryStep[22m[39m
+[EngineHttpServer] Stopped.
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 400 on invalid JSON[22m[39m
+[EngineHttpServer] Listening on http://localhost:55885/api/entry-step
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 400 on invalid JSON[22m[39m
+<empty line>
+stderr | tests/EngineHttpServer.contract.test.ts > EngineHttpServer ΓÇö /engine/step > returns 400 on invalid JSON
+[EngineHttpServer] JSON parse error: Expected property name or '}' in JSON at position 2 {
+  err: SyntaxError: Expected property name or '}' in JSON at position 2
+      at JSON.parse (<anonymous>)
+      at IncomingMessage.<anonymous> (D:\G\backend-api-v1.http-server\src\server\engineHttpServer.ts:95:49)
+      at IncomingMessage.emit (node:events:524:28)
+      at endReadableNT (node:internal/streams/readable:1698:12)
+      at processTicksAndRejections (node:internal/process/task_queues:82:21)
+}
+
+stderr | tests/EngineHttpServer.contract.test.ts > EngineHttpServer ΓÇö /engine/step > returns 400 on invalid JSON
+<empty line>
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 400 on invalid JSON[22m[39m
+[EngineHttpServer] Stopped.
+
+ [32mΓ£ô[39m tests/EngineHttpServer.contract.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 74[2mms[22m[39m
+[2025-12-11 19:59:08.561 -0500] [32mINFO[39m: [36m[EngineHttpServer] Listening on http://localhost:4203/api/entry-step[39m
+[2025-12-11 19:59:08.622 -0500] [31mERROR[39m: [36m[EngineHttpServer] JSON parse error: Unexpected token 'i', "invalid-json" is not valid JSON[39m
+    err: {
+      "type": "SyntaxError",
+      "message": "Unexpected token 'i', \"invalid-json\" is not valid JSON",
+      "stack":
+          SyntaxError: Unexpected token 'i', "invalid-json" is not valid JSON
+              at JSON.parse (<anonymous>)
+              at IncomingMessage.<anonymous> (D:\G\backend-api-v1.http-server\src\server\engineHttpServer.ts:95:49)
+              at IncomingMessage.emit (node:events:524:28)
+              at endReadableNT (node:internal/streams/readable:1698:12)
+              at processTicksAndRejections (node:internal/process/task_queues:82:21)
+    }
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="fallback:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "1/2+1/2" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+[NodeContext] FAILED to find node: 
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "bad-window: operator mismatch"
+}
+
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[NodeContext] Building for Click: {"nodeId":"","kind":"operator"}
+[DEBUG-VISIT] root
+[DEBUG-VISIT] term[0]
+[DEBUG-VISIT] term[1]
+[DEBUG-ROOT] {
+  "type": "binaryOp",
+  "op": "+",
+  "left": {
+    "type": "fraction",
+    "numerator": "1",
+    "denominator": "2",
+    "id": "term[0]"
+  },
+  "right": {
+    "type": "fraction",
+    "numerator": "1",
+    "denominator": "2",
+    "id": "term[1]"
+  },
+  "id": "root"
+}
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=bad-window: operator mismatch resultLatex=null
+
+stderr | tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+<empty line>
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[STEP SNAPSHOT] id=step-1765501148639 status=engine-error
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="1/2+1/2"
+
+[2025-12-11 19:59:08.650 -0500] [32mINFO[39m: [36m[EngineHttpServer] Stopped.[39m
+ [33mΓ¥»[39m tests/verify-infrastructure.test.ts [2m ([22m[2m3 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[90m 95[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/verify-infrastructure.test.ts[2m > [22mInfrastructure Verification[2m > [22mPOST /api/entry-step with valid JSON returns 200[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 9 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/EntryStepPrimitiveDebug.test.ts > Entry Step Primitive Debug > includes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/EntryStepPrimitiveDebug.test.ts:65:33
+     63|         const response = await HandlerPostEntryStep(body, deps);
+     64| 
+     65|         expect(response.status).toBe("step-applied");
+       |                                 ^
+     66|         expect(response.primitiveDebug).toBeDefined();
+     67|         expect(response.primitiveDebug?.primitiveId).toBe("FRAC_ADD_SAΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/9]ΓÄ»
+
+ FAIL  tests/EntryStepPrimitiveDebug.test.ts > Entry Step Primitive Debug > sets primitiveDebug to none for mixed case 2 + 1/3
+AssertionError: expected undefined not to be undefined
+ Γ¥» tests/EntryStepPrimitiveDebug.test.ts:85:41
+     83|         // Actually, we just want to check primitiveDebug.
+     84| 
+     85|         expect(response.primitiveDebug).toBeDefined();
+       |                                         ^
+     86|         // We expect "none" because we haven't implemented mixed numbeΓÇª
+     87|         expect(response.primitiveDebug?.status).toBe("none");
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/9]ΓÄ»
+
+ FAIL  tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/verify-infrastructure.test.ts:66:29
+     64|         expect(res.status).toBe(200);
+     65|         const json = await res.json();
+     66|         expect(json.status).toBe("step-applied"); // or whatever defauΓÇª
+       |                             ^
+     67|     });
+     68| });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:32:28
+     30|         });
+     31| 
+     32|         expect(res.status).toBe("step-applied");
+       |                            ^
+     33|         // Expect exact fraction, no decimals
+     34|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{4}{7ΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:48:28
+     46|         });
+     47| 
+     48|         expect(res.status).toBe("step-applied");
+       |                            ^
+     49|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{7}{7ΓÇª
+     50|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:110:28
+    108| 
+    109|         // We expect FRAC_ADD_SAME to apply.
+    110|         expect(res.status).toBe("step-applied");
+       |                            ^
+    111|         // 6/2 + 12/2 = 18/2
+    112|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{18}{ΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)
+AssertionError: expected 'no-candidates' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ no-candidates
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:128:28
+    126|         });
+    127| 
+    128|         expect(res.status).toBe("step-applied");
+       |                            ^
+    129|         expect(res.engineResult?.newExpressionLatex).toBe("5 - 1");
+    130| 
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:157:28
+    155|         });
+    156| 
+    157|         expect(res.status).toBe("step-applied");
+       |                            ^
+    158|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{4}{7ΓÇª
+    159|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/9]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 3 + 6 - (5/7 + 2/7) anchoring
+AssertionError: expected 'no-candidates' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ no-candidates
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:173:28
+    171|         });
+    172| 
+    173|         expect(res.status).toBe("step-applied");
+       |                            ^
+    174|         // 9 - (5/7 + 2/7)
+    175|         // Printer adds spaces around binary ops
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/9]ΓÄ»
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 19:59:07
+[2m   Duration [22m 886ms[2m (transform 493ms, setup 0ms, collect 1.72s, tests 239ms, environment 1ms, prepare 552ms)[22m
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+[3Jc
+[7m[1m[34m RERUN [39m[22m[27m[2m src/engine/v5/NodeContextBuilder.ts[22m
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+--- TEST START: FRAC_ADD_SAME 1/7 + 3/7 ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{1}{7} + \frac{3}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "Cannot access 'effectiveClick' before initialization"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=Cannot access 'effectiveClick' before initialization resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[22m[39m
+<empty line>
+[STEP SNAPSHOT] id=step-1765516987655 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+--- TEST START: FRAC_ADD_SAME 5/7 + 2/7 ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} + \frac{2}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=Cannot access 'effectiveClick' before initialization resultLatex=null
+
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "Cannot access 'effectiveClick' before initialization"
+}
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[22m[39m
+[STEP SNAPSHOT] id=step-1765516987671 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+--- TEST START: FRAC_SUB_SAME 5/7 - 2/7 ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} - \frac{2}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_SUB_SAME_DEN ok=true errorCode=null resultLatex=\frac{3}{7}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mFRAC_SUB_SAME: 5/7 - 2/7 -> 3/7[22m[39m
+[STEP SNAPSHOT] id=step-1765516987677 status=step-applied
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 3 + 5/7 -> no-candidates (Stage-1 Strict)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "3 + \frac{5}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Candidate cand-1 rejected: repetitive
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 3 + 5/7 -> no-candidates (Stage-1 Strict)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987680 status=no-candidates
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 5/7 + 3 -> no-candidates (Stage-1 Strict)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{5}{7} + 3" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Candidate cand-1 rejected: repetitive
+[StepMaster] Valid candidates: 0
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_PLUS_FRAC: 5/7 + 3 -> no-candidates (Stage-1 Strict)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987684 status=no-candidates
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+--- TEST START: INT_DIV_EXACT ---
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{6}{2} + \frac{12}{2}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "Cannot access 'effectiveClick' before initialization"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=Cannot access 'effectiveClick' before initialization resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987691 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[term[0]], anchorKind=Operator, trace="input.selectionPath"
+[MapMaster] MapMaster: Resolved semantic window - path=[term[0]], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "2 + 3 - 1" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Enforcing locality for target: term[0]
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[V5-RUNNER-END] primitiveId=P.INT_ADD ok=true errorCode=null resultLatex=5 - 1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987699 status=step-applied
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "5 - 1" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: true
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[V5-RUNNER-END] primitiveId=P.INT_SUB ok=true errorCode=null resultLatex=4
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 2 + 3 - 1 flow (INT_ADD then INT_SUB)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987704 status=step-applied
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="input.selectionPath:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "\frac{1}{7} + \frac{3}{7}" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "Cannot access 'effectiveClick' before initialization"
+}
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=Cannot access 'effectiveClick' before initialization resultLatex=null
+
+stderr | tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)
+<empty line>
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[22m[39m
+[STEP SNAPSHOT] id=step-1765516987708 status=engine-error
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 3 + 6 - (5/7 + 2/7) anchoring[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[term[0]], anchorKind=Operator, trace="input.selectionPath"
+[MapMaster] MapMaster: Resolved semantic window - path=[term[0]], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "3 + 6 - (\frac{5}{7} + \frac{2}{7})" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Enforcing locality for target: term[0]
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 3 + 6 - (5/7 + 2/7) anchoring[22m[39m
+[V5-RUNNER-END] primitiveId=P.INT_ADD ok=true errorCode=null resultLatex=9 - (\frac{5}{7} + \frac{2}{7})
+
+[90mstdout[2m | tests/atomic/atomic-stage1.test.ts[2m > [22m[2mStage-1 Atomic Behavior[2m > [22m[2mRegression: 3 + 6 - (5/7 + 2/7) anchoring[22m[39m
+[STEP SNAPSHOT] id=step-1765516987713 status=step-applied
+
+ [33mΓ¥»[39m tests/atomic/atomic-stage1.test.ts [2m ([22m[2m9 tests[22m [2m|[22m [31m4 failed[39m[2m)[22m[90m 76[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mFRAC_ADD_SAME: 1/7 + 3/7 -> 4/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mFRAC_ADD_SAME: 5/7 + 2/7 -> 7/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mINT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/atomic/atomic-stage1.test.ts[2m > [22mStage-1 Atomic Behavior[2m > [22mRegression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[90mstdout[2m | tests/EntryStepPrimitiveDebug.test.ts[2m > [22m[2mEntry Step Primitive Debug[2m > [22m[2mincludes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7[22m[39m
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="\frac{1}{7} + \frac{3}{7}"
+
+[90mstdout[2m | tests/EntryStepPrimitiveDebug.test.ts[2m > [22m[2mEntry Step Primitive Debug[2m > [22m[2msets primitiveDebug to none for mixed case 2 + 1/3[22m[39m
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="2 + \frac{1}{3}"
+
+ [33mΓ¥»[39m tests/EntryStepPrimitiveDebug.test.ts [2m ([22m[2m2 tests[22m [2m|[22m [31m2 failed[39m[2m)[22m[90m 19[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/EntryStepPrimitiveDebug.test.ts[2m > [22mEntry Step Primitive Debug[2m > [22mincludes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[31m   [33mΓ¥»[31m tests/EntryStepPrimitiveDebug.test.ts[2m > [22mEntry Step Primitive Debug[2m > [22msets primitiveDebug to none for mixed case 2 + 1/3[39m
+[31m     ΓåÆ expected undefined not to be undefined[39m
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 200 and a JSON EngineStepResponse from HandlerPostEntryStep[22m[39m
+[EngineHttpServer] Listening on http://localhost:59605/api/entry-step
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 200 and a JSON EngineStepResponse from HandlerPostEntryStep[22m[39m
+[EngineHttpServer] Stopped.
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 400 on invalid JSON[22m[39m
+[EngineHttpServer] Listening on http://localhost:59608/api/entry-step
+
+stderr | tests/EngineHttpServer.contract.test.ts > EngineHttpServer ΓÇö /engine/step > returns 400 on invalid JSON
+[EngineHttpServer] JSON parse error: Expected property name or '}' in JSON at position 2 {
+  err: SyntaxError: Expected property name or '}' in JSON at position 2
+      at JSON.parse (<anonymous>)
+      at IncomingMessage.<anonymous> (D:\G\backend-api-v1.http-server\src\server\engineHttpServer.ts:95:49)
+      at IncomingMessage.emit (node:events:524:28)
+      at endReadableNT (node:internal/streams/readable:1698:12)
+      at processTicksAndRejections (node:internal/process/task_queues:82:21)
+}
+
+[90mstdout[2m | tests/EngineHttpServer.contract.test.ts[2m > [22m[2mEngineHttpServer ΓÇö /engine/step[2m > [22m[2mreturns 400 on invalid JSON[22m[39m
+[EngineHttpServer] Stopped.
+
+ [32mΓ£ô[39m tests/EngineHttpServer.contract.test.ts [2m ([22m[2m2 tests[22m[2m)[22m[90m 79[2mms[22m[39m
+[2025-12-12 00:23:07.765 -0500] [32mINFO[39m: [36m[EngineHttpServer] Listening on http://localhost:4203/api/entry-step[39m
+[2025-12-12 00:23:07.827 -0500] [31mERROR[39m: [36m[EngineHttpServer] JSON parse error: Unexpected token 'i', "invalid-json" is not valid JSON[39m
+    err: {
+      "type": "SyntaxError",
+      "message": "Unexpected token 'i', \"invalid-json\" is not valid JSON",
+      "stack":
+          SyntaxError: Unexpected token 'i', "invalid-json" is not valid JSON
+              at JSON.parse (<anonymous>)
+              at IncomingMessage.<anonymous> (D:\G\backend-api-v1.http-server\src\server\engineHttpServer.ts:95:49)
+              at IncomingMessage.emit (node:events:524:28)
+              at endReadableNT (node:internal/streams/readable:1698:12)
+              at processTicksAndRejections (node:internal/process/task_queues:82:21)
+    }
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[MapMaster] MapMaster: Normalized selection - anchorPath=[], anchorKind=Operator, trace="fallback:root"
+[MapMaster] MapMaster: Resolved semantic window - path=[], kind=binaryOp
+[MapMaster] MapMaster: Found 1 applicable invariant rules
+[MapMaster] MapMaster: Generated 1 total candidates
+[Orchestrator] MapMaster returned 1 candidates for expression "1/2+1/2" using set "default"
+[StepMaster] Deciding among 1 candidates. Last step exists: false
+[StepMaster] Valid candidates: 1
+[StepMaster] Chosen: cand-1
+
+stderr | tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+[Orchestrator] [V5-RUNNER-FAIL] Error details: {
+  "ok": false,
+  "errorCode": "Cannot access 'effectiveClick' before initialization"
+}
+
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[V5-RUNNER-END] primitiveId=P.FRAC_ADD_SAME_DEN ok=false errorCode=Cannot access 'effectiveClick' before initialization resultLatex=null
+
+stderr | tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+<empty line>
+[90mstdout[2m | tests/verify-infrastructure.test.ts[2m > [22m[2mInfrastructure Verification[2m > [22m[2mPOST /api/entry-step with valid JSON returns 200[22m[39m
+[STEP SNAPSHOT] id=step-1765516987849 status=engine-error
+[V5-HTTP-RESPONSE] status=engine-error expressionLatex="1/2+1/2"
+
+ [33mΓ¥»[39m tests/verify-infrastructure.test.ts [2m ([22m[2m3 tests[22m [2m|[22m [31m1 failed[39m[2m)[22m[90m 99[2mms[22m[39m
+[31m   [33mΓ¥»[31m tests/verify-infrastructure.test.ts[2m > [22mInfrastructure Verification[2m > [22mPOST /api/entry-step with valid JSON returns 200[39m
+[31m     ΓåÆ expected 'engine-error' to be 'step-applied' // Object.is equality[39m
+[2025-12-12 00:23:07.857 -0500] [32mINFO[39m: [36m[EngineHttpServer] Stopped.[39m
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ» Failed Tests 7 ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 1/7 + 3/7 -> 4/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:32:28
+     30|         });
+     31| 
+     32|         expect(res.status).toBe("step-applied");
+       |                            ^
+     33|         // Expect exact fraction, no decimals
+     34|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{4}{7ΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/7]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > FRAC_ADD_SAME: 5/7 + 2/7 -> 7/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:48:28
+     46|         });
+     47| 
+     48|         expect(res.status).toBe("step-applied");
+       |                            ^
+     49|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{7}{7ΓÇª
+     50|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/7]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > INT_DIV_EXACT: Should NOT be chosen on '+' click in (6/2 + 12/2)
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:110:28
+    108| 
+    109|         // We expect FRAC_ADD_SAME to apply.
+    110|         expect(res.status).toBe("step-applied");
+       |                            ^
+    111|         // 6/2 + 12/2 = 18/2
+    112|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{18}{ΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/7]ΓÄ»
+
+ FAIL  tests/atomic/atomic-stage1.test.ts > Stage-1 Atomic Behavior > Regression: 1/7 + 3/7 anchoring (FRAC_ADD_SAME vs INT_DIV_EXACT)
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/atomic/atomic-stage1.test.ts:157:28
+    155|         });
+    156| 
+    157|         expect(res.status).toBe("step-applied");
+       |                            ^
+    158|         expect(res.engineResult?.newExpressionLatex).toBe("\\frac{4}{7ΓÇª
+    159|     });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/7]ΓÄ»
+
+ FAIL  tests/EntryStepPrimitiveDebug.test.ts > Entry Step Primitive Debug > includes primitiveDebug for a Stage1 fraction sum 1/7 + 3/7
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/EntryStepPrimitiveDebug.test.ts:65:33
+     63|         const response = await HandlerPostEntryStep(body, deps);
+     64| 
+     65|         expect(response.status).toBe("step-applied");
+       |                                 ^
+     66|         expect(response.primitiveDebug).toBeDefined();
+     67|         expect(response.primitiveDebug?.primitiveId).toBe("FRAC_ADD_SAΓÇª
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/7]ΓÄ»
+
+ FAIL  tests/EntryStepPrimitiveDebug.test.ts > Entry Step Primitive Debug > sets primitiveDebug to none for mixed case 2 + 1/3
+AssertionError: expected undefined not to be undefined
+ Γ¥» tests/EntryStepPrimitiveDebug.test.ts:85:41
+     83|         // Actually, we just want to check primitiveDebug.
+     84| 
+     85|         expect(response.primitiveDebug).toBeDefined();
+       |                                         ^
+     86|         // We expect "none" because we haven't implemented mixed numbeΓÇª
+     87|         expect(response.primitiveDebug?.status).toBe("none");
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/7]ΓÄ»
+
+ FAIL  tests/verify-infrastructure.test.ts > Infrastructure Verification > POST /api/entry-step with valid JSON returns 200
+AssertionError: expected 'engine-error' to be 'step-applied' // Object.is equality
+
+- Expected
++ Received
+
+- step-applied
++ engine-error
+
+ Γ¥» tests/verify-infrastructure.test.ts:66:29
+     64|         expect(res.status).toBe(200);
+     65|         const json = await res.json();
+     66|         expect(json.status).toBe("step-applied"); // or whatever defauΓÇª
+       |                             ^
+     67|     });
+     68| });
+
+ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/7]ΓÄ»
+
+[2m Test Files [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[31m7 failed[39m[22m[2m | [22m[1m[32m9 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 00:23:07
+[2m   Duration [22m 933ms
+
+
+[1m[7m[31m FAIL [39m[27m[22m[31m Tests failed. Watching for file changes...[39m
+       [2mpress [22m[1mh[22m[2m to show help[22m[2m, [22m[2mpress [22m[1mq[22m[2m to quit[22m
+^C^C

@@ -108,6 +108,35 @@ export class MapMasterAstHelpers implements AstHelpers {
             // If it comes from client, it might be array of strings.
 
             if (typeof segment === 'string') {
+                // Support ast.ts-style paths like "term[0]" / "term[1]" (left/right for binary ops)
+                // and generic "prop[index]" for array-like children.
+                const m = /^([a-zA-Z_][a-zA-Z0-9_]*)\[(\d+)\]$/.exec(segment);
+                if (m) {
+                    const key = m[1];
+                    const idx = Number(m[2]);
+
+                    // Special case: term[0]/term[1] for binary operators (left/right)
+                    if (key === 'term' && current && typeof current === 'object' && (('left' in current) || ('right' in current))) {
+                        if (idx === 0) {
+                            current = (current as any).left;
+                            continue;
+                        }
+                        if (idx === 1) {
+                            current = (current as any).right;
+                            continue;
+                        }
+                        return undefined;
+                    }
+
+                    const container = (current as any)?.[key];
+                    if (Array.isArray(container)) {
+                        current = container[idx];
+                        continue;
+                    }
+
+                    return undefined;
+                }
+
                 current = current[segment];
             } else if (typeof segment === 'number') {
                 if (Array.isArray(current)) {

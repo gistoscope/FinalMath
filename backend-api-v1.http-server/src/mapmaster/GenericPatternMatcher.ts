@@ -64,7 +64,7 @@ export class GenericPatternMatcher {
         // 2. Type Mismatch
         if (pattern.type !== target.type) {
             // Special case: Pattern is a/b (binaryOp /) but target is Fraction
-            if (pattern.type === "binaryOp" && pattern.op === "/" && target.type === "fraction") {
+            if (pattern.type === "binaryOp" && (pattern.op === "/" || pattern.op === "\\div") && target.type === "fraction") {
                 // Treat target as binaryOp /
                 const targetAsBinary: any = {
                     type: "binaryOp",

@@ -17,19 +17,30 @@ export class NodeContextBuilder {
     }): NodeContext {
         const { ast, click } = params;
 
-        console.log(`[NodeContext] Building for Click: ${JSON.stringify(click)}`);
+        // Normalize effectiveClick.nodeId: empty string means "root" in several Stage-1 paths.
+        // NodeContextBuilder must always be able to resolve a concrete nodeId.
+        // NOTE: we must NOT reference `effectiveClick` before it is initialized (TDZ).
+        const rawNodeId = (click.nodeId ?? "").trim();
+        const effectiveNodeId = rawNodeId.length > 0
+            ? rawNodeId
+            : ((ast as any).id ?? "root");
+
+        const effectiveClick: ClickTarget = { ...click, nodeId: effectiveNodeId };
+
+
+        console.log(`[NodeContext] Building for Click: ${JSON.stringify(effectiveClick)}`);
 
         // 1. Resolve Target Node
-        const node = this.findNode(ast, click.nodeId);
+        const node = this.findNode(ast, effectiveClick.nodeId);
         if (!node) {
-            console.error(`[NodeContext] FAILED to find node: ${click.nodeId}`);
+            console.error(`[NodeContext] FAILED to find node: ${effectiveClick.nodeId}`);
             // Log Root structure to debug
             console.log(`[DEBUG-ROOT]`, JSON.stringify(ast, null, 2));
-            // throw new Error(`Node not found: ${click.nodeId}`); // Don't throw, return empty to prevent crash
+            // throw new Error(`Node not found: ${effectiveClick.nodeId}`); // Don't throw, return empty to prevent crash
             return {
                 expressionId: params.expressionId,
-                nodeId: click.nodeId,
-                clickTarget: click,
+                nodeId: effectiveClick.nodeId,
+                clickTarget: effectiveClick,
                 guards: {} as any
             };
         }
@@ -48,7 +59,7 @@ export class NodeContextBuilder {
 
         // 3. Parent Lookup
         if (!operatorLatex) {
-            const parent = this.findParent(ast, click.nodeId);
+            const parent = this.findParent(ast, effectiveClick.nodeId);
             if (parent) {
                 console.log(`[NodeContext] Found Parent: ${parent.type}`);
                 if ((parent as any).op) {
@@ -85,9 +96,42 @@ export class NodeContextBuilder {
             "is-decimal": false
         };
 
-        // Recalculate Denominators Equal using Parent
-        const parent = this.findParent(ast, click.nodeId);
-        if (parent && (parent as any).left && (parent as any).right) {
+        // Helper function to extract a comparable key from a denominator (which may be string, number, or AST node)
+        function denomKey(den: any): string | null {
+            if (!den) return null;
+            if (typeof den === 'string') return den;
+            if (typeof den === 'number' || typeof den === 'bigint') return String(den);
+            if (typeof den === 'object') {
+                // Common AST shapes
+                if (typeof (den as any).value === 'string' || typeof (den as any).value === 'number') return String((den as any).value);
+                if (typeof (den as any).latex === 'string') return (den as any).latex;
+                if (typeof (den as any).text === 'string') return (den as any).text;
+                if (typeof (den as any).id === 'string') return (den as any).id; // fallback
+            }
+            return String(den);
+        }
+
+        // Recalculate Denominators Equal using Parent OR the node itself (if it's a binaryOp at root)
+        const parent = this.findParent(ast, effectiveClick.nodeId);
+
+        // First try: check the clicked node itself if it's a binaryOp with left/right children
+        // This handles the case when clicking on the root expression (operator click at root level)
+        if (node.type === 'binaryOp' && (node as any).left && (node as any).right) {
+            const left = (node as any).left;
+            const right = (node as any).right;
+            const leftDen = (left as any).denominator;
+            const rightDen = (right as any).denominator;
+
+            if (leftDen && rightDen) {
+                const leftKey = denomKey(leftDen);
+                const rightKey = denomKey(rightDen);
+                guards['denominators-equal'] = (leftKey !== null && rightKey !== null && leftKey === rightKey);
+                guards['denominators-different'] = !guards['denominators-equal'];
+                console.log(`[NodeContext] Computed denominators from node itself: leftKey=${leftKey}, rightKey=${rightKey}, equal=${guards['denominators-equal']}, different=${guards['denominators-different']}`);
+            }
+        }
+        // Fallback: check parent if node itself didn't have fraction operands
+        else if (parent && (parent as any).left && (parent as any).right) {
             const left = (parent as any).left;
             const right = (parent as any).right;
             // Check for fractions directly or fractions inside wrappers (Mixed/etc) - though current types used are just checking props
@@ -96,8 +140,11 @@ export class NodeContextBuilder {
             const rightDen = (right as any).denominator;
 
             if (leftDen && rightDen) {
-                guards['denominators-equal'] = (leftDen === rightDen);
+                const leftKey = denomKey(leftDen);
+                const rightKey = denomKey(rightDen);
+                guards['denominators-equal'] = (leftKey !== null && rightKey !== null && leftKey === rightKey);
                 guards['denominators-different'] = !guards['denominators-equal'];
+                console.log(`[NodeContext] Computed denominators from parent: leftKey=${leftKey}, rightKey=${rightKey}, equal=${guards['denominators-equal']}, different=${guards['denominators-different']}`);
             }
         }
 
@@ -176,8 +223,8 @@ export class NodeContextBuilder {
 
         return {
             expressionId: params.expressionId,
-            nodeId: click.nodeId,
-            clickTarget: click,
+            nodeId: effectiveClick.nodeId,
+            clickTarget: effectiveClick,
             operatorLatex,
             leftOperandType: leftType,
             rightOperandType: rightType,
@@ -190,7 +237,9 @@ export class NodeContextBuilder {
 
     private findNode(root: AstNode, id: string): AstNode | undefined {
         if (!root) return undefined;
-        console.log("[DEBUG-VISIT]", (root as any).id); // Uncommented for debugging
+        if (process.env.MOTOR_DEBUG_NODE_SEARCH === "1") {
+            console.log("[DEBUG-VISIT]", (root as any).id);
+        }
 
         if ((root as any).id === id) return root;
 

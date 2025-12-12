@@ -321,9 +321,16 @@ export function parseExpression(latex: string): AstNode | undefined {
             const token = peek();
             if (!token) break;
 
+            // Handle standard * and / and :
             if (token.value === "*" || token.value === "/" || token.type === "COLON") {
                 const opToken = consume()!;
-                const opValue = (opToken.type === "COLON") ? "/" : opToken.value;
+                let opValue = opToken.value;
+
+                // Normalize division tokens to "\div"
+                if (opToken.type === "COLON" || opValue === "/") {
+                    opValue = "\\div";
+                }
+
                 const right = parsePrimary();
                 left = {
                     type: "binaryOp",
@@ -334,12 +341,26 @@ export function parseExpression(latex: string): AstNode | undefined {
                 continue;
             }
 
+            // Handle \div command
             if (token.type === "COMMAND" && token.value === "div") {
                 consume(); // \div
                 const right = parsePrimary();
                 left = {
                     type: "binaryOp",
                     op: "\\div",
+                    left,
+                    right
+                };
+                continue;
+            }
+
+            // Handle \cdot and \times commands -> map to "*"
+            if (token.type === "COMMAND" && (token.value === "cdot" || token.value === "times")) {
+                consume(); // \cdot or \times
+                const right = parsePrimary();
+                left = {
+                    type: "binaryOp",
+                    op: "*",
                     left,
                     right
                 };
@@ -539,7 +560,7 @@ function shouldParen(parentOp: string, child: AstNode, isRightChild: boolean): b
     const childOp = child.op;
 
     const prec = (op: string) => {
-        if (op === "*" || op === "/") return 2;
+        if (op === "*" || op === "/" || op === "\\div") return 2;
         if (op === "+" || op === "-") return 1;
         return 0;
     };

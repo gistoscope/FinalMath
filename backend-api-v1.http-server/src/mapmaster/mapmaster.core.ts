@@ -38,6 +38,7 @@ export interface MapMasterCandidate {
     description: string;               // debug/teacher description
     bindings?: Record<string, any>;    // Variable bindings from pattern match
     resultPattern?: string;            // Result pattern for generic execution
+    category?: 'direct' | 'support';   // Candidate type: direct rule or support step
 }
 
 export interface MapMasterResult {
