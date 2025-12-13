@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Builds
+dist/
+build/
+**/dist/
+**/build/
+
+# Tooling caches
+.vite/
+**/.vite/
+coverage/
+**/coverage/
+
+# Logs
+*.log
+
+# Archives/artifacts
+*.zip
+*.7z
+*.rar
+*.tar
+*.tgz
+
+# OS
+.DS_Store
+Thumbs.db
