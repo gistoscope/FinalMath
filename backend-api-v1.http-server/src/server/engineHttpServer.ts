@@ -49,7 +49,7 @@ export function createEngineHttpServer(
       // Enable CORS
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-trace-id");
 
       if (req.method === "OPTIONS") {
         res.writeHead(204);
@@ -247,6 +247,48 @@ export function createEngineHttpServer(
         StepSnapshotStore.resetSession();
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "ok", message: "Step snapshot session reset" }));
+        return;
+      }
+
+      // ============================================================
+      // TRACEHUB DEBUG ENDPOINTS
+      // ============================================================
+
+      if (req.method === "GET" && req.url === "/debug/trace/latest") {
+        const { TraceHub } = await import("../debug/TraceHub.js");
+        const count = TraceHub.count();
+        const lastTraceId = TraceHub.getLastTraceId();
+        const lastStepId = TraceHub.getLastStepId();
+        const lastNEvents = TraceHub.getLastN(20);
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({
+          count,
+          lastTraceId,
+          lastStepId,
+          lastNEvents
+        }));
+        return;
+      }
+
+      if (req.method === "GET" && req.url === "/debug/trace/download") {
+        const { TraceHub } = await import("../debug/TraceHub.js");
+        const jsonl = TraceHub.toJsonl();
+        const filename = `tracehub-${new Date().toISOString().replace(/[:.]/g, "-")}.jsonl`;
+
+        res.writeHead(200, {
+          "Content-Type": "application/x-ndjson",
+          "Content-Disposition": `attachment; filename="${filename}"`
+        });
+        res.end(jsonl);
+        return;
+      }
+
+      if (req.method === "POST" && req.url === "/debug/trace/reset") {
+        const { TraceHub } = await import("../debug/TraceHub.js");
+        TraceHub.reset();
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ status: "ok", message: "TraceHub buffer reset" }));
         return;
       }
 

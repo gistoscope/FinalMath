@@ -594,11 +594,21 @@ export function correlateIntegersWithAST(map, latex) {
   const astIntegers = enumerateIntegers(ast);
 
   // 3. Collect surface numbers in left-to-right order
-  const surfaceNumbers = map.atoms
-    .filter(n => n.kind === "Num")
-    .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
+  // IMPORTANT: KaTeX surface maps often contain nested Num nodes (e.g. Num -> Num).
+  // We want the *leaf* Num nodes because hit-testing usually returns the deepest node.
+  // Then we propagate the matched astNodeId upward so both leaf and parent Num nodes are clickable.
+  const parentByChild = new Map();
+  for (const n of map.atoms) {
+    if (!n || !Array.isArray(n.children)) continue;
+    for (const ch of n.children) parentByChild.set(ch, n);
+  }
 
-  console.log("=== [SURFACE-NUMS] Integer correlation ===");
+  const allNums = map.atoms.filter(n => n && n.kind === "Num");
+  const leafNums = allNums.filter(n => !(Array.isArray(n.children) && n.children.some(ch => ch && ch.kind === "Num")));
+
+  const surfaceNumbers = leafNums
+    .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
+console.log("=== [SURFACE-NUMS] Integer correlation ===");
   console.log(`[SURFACE-NUMS] Expression: "${latex}"`);
   console.log(`[SURFACE-NUMS] AST integers: ${astIntegers.length}, Surface nums: ${surfaceNumbers.length}`);
 
@@ -622,6 +632,14 @@ export function correlateIntegersWithAST(map, latex) {
 
     surfNum.astNodeId = astInt.nodeId;
     surfNum.astIntegerValue = astInt.value;
+    // Propagate astNodeId upward through nested Num nodes (Num -> Num)
+    let p = parentByChild.get(surfNum);
+    while (p && p.kind === "Num") {
+      if (!p.astNodeId) p.astNodeId = astInt.nodeId;
+      if (p.astIntegerValue == null) p.astIntegerValue = astInt.value;
+      p = parentByChild.get(p);
+    }
+
 
     console.log(`[SURFACE-NUMS] MATCHED: surface[${i}] "${surfNum.text || surfNum.latexFragment}" (id=${surfNum.id}) -> AST nodeId="${astInt.nodeId}" value=${astInt.value}`);
   }

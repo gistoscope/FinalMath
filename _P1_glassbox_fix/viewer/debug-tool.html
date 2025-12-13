@@ -355,35 +355,7 @@
             </div>
         </div>
 
-        <!-- TraceHub Panel -->
-        <div class="panel" id="tracehub-panel" style="background: #0f172a; border: 1px solid #334155;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-weight: bold; color: #22d3ee; font-size: 14px;">📊 TraceHub</div>
-                <div style="display: flex; gap: 8px;">
-                    <button id="btn-tracehub-download"
-                        style="background: #0891b2; color: white; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Download Trace JSONL
-                    </button>
-                    <button id="btn-tracehub-reset"
-                        style="background: #dc2626; color: white; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Reset TraceHub
-                    </button>
-                    <button id="btn-tracehub-backend"
-                        style="background: #7c3aed; color: white; padding: 4px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        Fetch Backend Trace
-                    </button>
-                </div>
-            </div>
-            <div
-                style="display: flex; gap: 20px; font-family: monospace; font-size: 12px; color: #94a3b8; margin-bottom: 8px;">
-                <span>Viewer Events: <span id="tracehub-viewer-count" style="color: #22d3ee;">0</span></span>
-                <span>Last TraceId: <span id="tracehub-last-traceid" style="color: #a78bfa;">-</span></span>
-            </div>
-            <div id="tracehub-events"
-                style="max-height: 200px; overflow-y: auto; background: #1e293b; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 11px; color: #e2e8f0;">
-                <div style="color: #64748b;">No trace events yet. Perform an action in the viewer to see events.</div>
-            </div>
-        </div>
+        <!-- Results -->
         <div class="results-grid">
             <!-- Col 1: Input / Status -->
             <div class="col">

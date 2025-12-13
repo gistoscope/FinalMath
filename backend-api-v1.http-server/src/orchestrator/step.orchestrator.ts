@@ -40,6 +40,7 @@ import { computePrimitiveDebug } from "../engine/primitives/PrimitiveDebug";
 import type { PrimitiveDebugInfo } from "../protocol/backend-step.types";
 import type { PrimitiveMaster } from "../primitive-master/PrimitiveMaster";
 import { PRIMITIVE_DEFINITIONS, PrimitiveId } from "../engine/primitives.registry";
+import { TraceHub, shortLatex, generateTraceId } from "../debug/TraceHub.js";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
@@ -57,6 +58,7 @@ export interface OrchestratorStepRequest {
     userId?: string;
     preferredPrimitiveId?: string; // NEW: Client's choice from a previous "choice" response
     surfaceNodeKind?: string; // NEW: Surface node kind from viewer (e.g., "Num", "BinaryOp")
+    traceId?: string; // NEW: TraceHub correlation ID from viewer
 }
 
 export type OrchestratorStepStatus =
@@ -86,6 +88,23 @@ export async function runOrchestratorStep(
     ctx: OrchestratorContext,
     req: OrchestratorStepRequest
 ): Promise<OrchestratorStepResult> {
+    // TraceHub: Setup context and emit ORCHESTRATOR_ENTER
+    const traceId = req.traceId || generateTraceId();
+    const stepId = `step-${Date.now()}`;
+    TraceHub.setContext(traceId, stepId);
+
+    TraceHub.emit({
+        module: "backend.orchestrator",
+        event: "ORCHESTRATOR_ENTER",
+        data: {
+            expressionLatex: shortLatex(req.expressionLatex),
+            selectionPath: req.selectionPath,
+            preferredPrimitiveId: req.preferredPrimitiveId,
+            surfaceNodeKind: req.surfaceNodeKind,
+            courseId: req.courseId,
+        }
+    });
+
     // 1. Load history from Session Service
     let history = await SessionService.getHistory(req.sessionId, req.userId, req.userRole);
 
@@ -282,6 +301,7 @@ export async function runOrchestratorStep(
                 expressionId: "expr-temp",
                 expressionLatex: req.expressionLatex,
                 click: clickTarget,
+                preferredPrimitiveId: req.preferredPrimitiveId,
                 ast: ast // Pass the augmented AST
             });
 
@@ -312,16 +332,65 @@ export async function runOrchestratorStep(
                 }
             } else if (v5Outcome.kind === "blue-choice") {
                 // BLUE -> Ask User (Context Menu)
-                console.log("[Orchestrator] V5 Blue Choice Detected");
-                return {
-                    status: "step-applied",
-                    engineResult: null,
-                    history,
-                    debugInfo: {
-                        v5Status: "ask-user",
-                        options: v5Outcome.matches
+                // HOWEVER, if preferredPrimitiveId is provided, we should honor it and apply that primitive
+                console.log(`[Orchestrator] V5 Blue Choice entry - preferredPrimitiveId="${req.preferredPrimitiveId || "NONE"}", matchCount=${v5Outcome.matches?.length || 0}`);
+                if (req.preferredPrimitiveId && v5Outcome.matches && v5Outcome.matches.length > 0) {
+                    // Find the match that corresponds to the preferred primitive
+                    const preferredMatch = v5Outcome.matches.find(
+                        (m: any) => m.row.id === req.preferredPrimitiveId || m.row.enginePrimitiveId === req.preferredPrimitiveId
+                    );
+
+                    if (preferredMatch) {
+                        console.log(`[Orchestrator] V5 Blue Choice with preferredPrimitiveId="${req.preferredPrimitiveId}" - applying directly`);
+                        isPrimitiveMasterPath = true;
+                        pmPrimitiveId = preferredMatch.row.enginePrimitiveId || preferredMatch.row.id;
+
+                        // Create candidate for the runner
+                        const candidate = {
+                            id: "v5-preferred-match",
+                            invariantRuleId: "v5-rule",
+                            primitiveIds: [pmPrimitiveId],
+                            targetPath: preferredMatch.ctx?.actionNodeId ?? preferredMatch.ctx?.clickTarget?.nodeId ?? clickTarget.nodeId,
+                            description: preferredMatch.row.label || "Apply primitive",
+                        };
+
+                        mapResult = {
+                            candidates: [candidate],
+                            resolvedSelectionPath: candidate.targetPath
+                        };
+                    } else {
+                        // Preferred primitive not found in matches - return no-candidates
+                        console.log(`[Orchestrator] V5 Blue Choice: preferredPrimitiveId="${req.preferredPrimitiveId}" not found in matches`);
+                        return {
+                            status: "no-candidates",
+                            engineResult: { ok: false, errorCode: "preferred-primitive-not-in-candidates" },
+                            history,
+                            debugInfo: {
+                                v5Status: "preferred-not-found",
+                                preferredPrimitiveId: req.preferredPrimitiveId,
+                                availableMatches: v5Outcome.matches.map((m: any) => m.row.id)
+                            }
+                        };
                     }
-                };
+                } else {
+                    // No preferredPrimitiveId - return choice to user
+                    console.log("[Orchestrator] V5 Blue Choice Detected - asking user");
+                    return {
+                        status: "choice",
+                        engineResult: null,
+                        history,
+                        choices: v5Outcome.matches.map((m: any) => ({
+                            id: m.row.id,
+                            label: m.row.label || m.row.id,
+                            primitiveId: m.row.enginePrimitiveId || m.row.id,
+                            targetNodeId: m.ctx?.clickTarget?.nodeId
+                        })),
+                        debugInfo: {
+                            v5Status: "ask-user",
+                            options: v5Outcome.matches
+                        }
+                    };
+                }
             } else if (v5Outcome.kind === "red-diagnostic") {
                 // RED -> Diagnostic Message
                 console.log("[Orchestrator] V5 Red Diagnostic Detected");
@@ -387,6 +456,22 @@ export async function runOrchestratorStep(
     // Safety check
     if (!mapResult) mapResult = { candidates: [] };
 
+
+
+    // NEW: If the caller provided a preferredPrimitiveId (e.g. Hint Apply),
+    // we MUST only consider candidates whose PRIMARY primitive matches it.
+    // Otherwise, the orchestrator may apply a different "best" step (e.g. evaluate 2+3 -> 5),
+    // which breaks the intended explicit action.
+    if (req.preferredPrimitiveId && mapResult && Array.isArray(mapResult.candidates)) {
+        const pref = req.preferredPrimitiveId;
+        const before = mapResult.candidates.length;
+        mapResult.candidates = mapResult.candidates.filter(c => {
+            const prims = (c as any).primitiveIds;
+            return Array.isArray(prims) && prims.length > 0 && prims[0] === pref;
+        });
+        const after = mapResult.candidates.length;
+        console.log(`[Orchestrator] preferredPrimitiveId="${pref}" filtered candidates: ${before} -> ${after}`);
+    }
 
     // 4. Build StepMasterInput
     let policy = ctx.policy;
@@ -609,6 +694,13 @@ function captureSnapshot(
         outputLatex: engineResult?.newExpressionLatex,
         selectionPath: req.selectionPath,
         selectionAstPath: mapResult.resolvedSelectionPath,
+        engineRequest: {
+            selectionPath: req.selectionPath,
+            preferredPrimitiveId: req.preferredPrimitiveId,
+            operatorIndex: req.operatorIndex,
+            surfaceNodeKind: (req as any).surfaceNodeKind,
+            expressionLatex: req.expressionLatex,
+        },
         engineResponseStatus: status,
         chosenCandidate,
         allCandidates: mapResult.candidates,

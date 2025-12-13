@@ -12,26 +12,6 @@ import { FileBus } from "./filebus.js";
 import { EngineAdapter } from "./engine-adapter.js";
 import { runV5Step } from "./client/orchestratorV5Client.js";
 
-// ============================================================
-// UNIFIED ENGINE BASE URL UTILITY
-// ============================================================
-// Single source of truth for backend base URL
-function getEngineBaseUrl() {
-  if (typeof window !== "undefined" && window.__v5EndpointUrl) {
-    // Extract base from full URL like "http://localhost:4201/api/orchestrator/v5/step"
-    const url = window.__v5EndpointUrl;
-    const match = url.match(/^(https?:\/\/[^/]+)/);
-    return match ? match[1] : "http://localhost:4201";
-  }
-  return "http://localhost:4201";
-}
-
-// Expose globally for debug tools
-if (typeof window !== "undefined") {
-  window.getEngineBaseUrl = getEngineBaseUrl;
-}
-
-
 // Test suite (6 distinct LaTeX expressions)
 const TESTS = [
   // T14: fraction addition same denominator
@@ -1655,7 +1635,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnDownloadSnapshot) {
     btnDownloadSnapshot.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/latest`);
+        const res = await fetch("http://localhost:4201/debug/step-snapshot/latest");
         if (res.status === 404) {
           alert("No step snapshot available (perform a step first).");
           return;
@@ -1682,7 +1662,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnDownloadSession) {
     btnDownloadSession.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/session`);
+        const res = await fetch("http://localhost:4201/debug/step-snapshot/session");
         if (!res.ok) {
           throw new Error(`Error ${res.status}`);
         }
@@ -1706,7 +1686,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnResetSession) {
     btnResetSession.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/reset`, { method: "POST" });
+        const res = await fetch("http://localhost:4201/debug/step-snapshot/reset", { method: "POST" });
         if (res.ok) {
           alert("Session log reset.");
         } else {

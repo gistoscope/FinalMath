@@ -16564,6 +16564,682 @@
           "targetPath": "root",
           "expressionBefore": "2+3",
           "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765653474566-07f83",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T19:17:54.566Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765653483909-9r8z1",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T19:18:03.909Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765655320738-z5ts8",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T19:48:40.738Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765656120750-crrz8",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:02:00.750Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765657261828-c0t5f",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:21:01.828Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657263144-57cl3",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:21:03.144Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765657341278-to2l9",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:21.278Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657342680-9cwfm",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:22.680Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657343929-rg3b6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:23.929Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657345497-ftnmv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:25.497Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657346153-psbbq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:26.153Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657346834-35k9y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:26.834Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657347817-53rk4",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:22:27.817Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657351923-6wapc",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:22:31.923Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765657388114-emoh5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:23:08.114Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657389272-efe92",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:23:09.272Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765657391697-zylyr",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:23:11.697Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765658529475-dv3yw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:42:09.475Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765658530826-tde4m",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:42:10.826Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765658604142-lkn5v",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:43:24.142Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765658606382-i1ocl",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:43:26.382Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765659447014-i8lmt",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T20:57:27.014Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765659448362-1bwb4",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T20:57:28.362Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765660241290-y8nlu",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T21:10:41.290Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765660243038-m81bj",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T21:10:43.038Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765661437270-aop28",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T21:30:37.270Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765661440452-l7xep",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T21:30:40.452Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765663430952-lvsed",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:03:50.952Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765663431839-qzx1m",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T22:03:51.839Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1765664682493-x0qcr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:24:42.493Z",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664683915-6fpas",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T22:24:43.915Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        },
+        {
+          "stepId": "step-1765664687241-353ha",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:24:47.241Z",
+          "expressionBefore": "\\frac{4}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664689430-lnege",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:24:49.430Z",
+          "expressionBefore": "\\frac{4}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664693009-91ml5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:24:53.009Z",
+          "expressionBefore": "\\frac{4}{7}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664828647-s9frf",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:27:08.647Z",
+          "expressionBefore": "4 * 1/1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664832451-aers5",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:27:12.451Z",
+          "expressionBefore": "4 * 1/1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664834671-5of7j",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:27:14.672Z",
+          "expressionBefore": "4 * 1/1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664835241-61265",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:27:15.242Z",
+          "expressionBefore": "4 * 1/1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664835482-h3y2n",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:27:15.482Z",
+          "expressionBefore": "4 * 1/1",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664932955-9ja2e",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:28:52.955Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664934025-am7id",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:28:54.025Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664934625-tjrjb",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:28:54.625Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664934946-bx3id",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:28:54.946Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664935817-4zuum",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:28:55.817Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664940290-bqcpz",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:29:00.290Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765664942353-91h97",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T22:29:02.353Z",
+          "expressionBefore": "7\\cdot \\frac{1}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667142491-vfn37",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:05:42.491Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        },
+        {
+          "stepId": "step-1765667164448-b1gl3",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:06:04.448Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667165816-di55s",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:06:05.816Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765667169869-lzy6y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:06:09.869Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667170511-w785h",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:06:10.511Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765667171918-bnuvr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:06:11.918Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667173484-rcdg6",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:06:13.484Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765667176020-owm6m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:06:16.020Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667176852-b782n",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:06:16.852Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765667180886-fb277",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:06:20.886Z",
+          "expressionBefore": "5",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667181674-t5e0i",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:06:21.674Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        },
+        {
+          "stepId": "step-1765667665819-umbx7",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:14:25.819Z",
+          "expressionBefore": "5",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667666805-by6iu",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:14:26.805Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        },
+        {
+          "stepId": "step-1765667683127-h7gy3",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:14:43.127Z",
+          "expressionBefore": "5",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667686166-br39c",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:14:46.166Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        },
+        {
+          "stepId": "step-1765667693820-03lhh",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:14:53.820Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667695434-84jq3",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:14:55.434Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765667696891-fhx67",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:14:56.891Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668688978-kuhdm",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:28.978Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765668691507-f9fgr",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:31.507Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668692259-tb3v6",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:32.259Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765668692786-9mbtj",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:32.786Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668694005-7aoto",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:34.005Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765668694265-sod8j",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:34.265Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668699937-vhrq5",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:39.937Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "errorCode": "primitive-failed"
+        },
+        {
+          "stepId": "step-1765668701229-5o16d",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:41.229Z",
+          "expressionBefore": "2+3",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668703433-luggy",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:43.433Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "2+3",
+          "expressionAfter": "5"
+        },
+        {
+          "stepId": "step-1765668705316-3ky6y",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:45.316Z",
+          "expressionBefore": "5",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668706299-vuwnr",
+          "candidateId": "v5-preferred-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:31:46.299Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        },
+        {
+          "stepId": "step-1765668713315-j5w3i",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:53.315Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668714232-hei2v",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:54.232Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1765668715186-4sgij",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2025-12-13T23:31:55.186Z",
+          "expressionBefore": "\\frac{5}{1}",
+          "errorCode": "no-candidates"
         }
       ]
     },
@@ -16756,5 +17432,99 @@
       ]
     },
     "createdAt": 1765647073678
+  },
+  {
+    "id": "smoke-test",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765666281908
+  },
+  {
+    "id": "smoke-test-1",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765666281930
+  },
+  {
+    "id": "smoke-test-2",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765666281945
+  },
+  {
+    "id": "test-e2e-1",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765666874136
+  },
+  {
+    "id": "test-e2e-2",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1765666874149-brz2v",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:01:14.149Z",
+          "invariantRuleId": "R.INT_TO_FRAC",
+          "targetPath": "",
+          "expressionBefore": "5",
+          "expressionAfter": "\\frac{5}{1}"
+        }
+      ]
+    },
+    "createdAt": 1765666874142
+  },
+  {
+    "id": "test-e2e-full",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765666874159
+  },
+  {
+    "id": "test-e2e-full-apply",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1765666874170-mnnxp",
+          "candidateId": "cand-1",
+          "decisionStatus": "chosen",
+          "timestampIso": "2025-12-13T23:01:14.170Z",
+          "invariantRuleId": "R.INT_TO_FRAC",
+          "targetPath": "term[0]",
+          "expressionBefore": "2+3",
+          "expressionAfter": "\\frac{2}{1} + 3"
+        }
+      ]
+    },
+    "createdAt": 1765666874165
+  },
+  {
+    "id": "glassbox-test",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1765670069107
   }
 ]

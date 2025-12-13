@@ -107,6 +107,7 @@ export class PrimitiveMaster {
             operatorIndex?: number;
         };
         ast?: AstNode; // Optional: Pass pre-parsed/mapped AST
+        preferredPrimitiveId?: string; // Optional: force primitive (e.g. Hint Apply)
     }): Promise<SelectedOutcome> {
         // 1. Parse AST (if needed)
         // In a real optimized system we might pass AST. For now, we parse.
@@ -116,14 +117,17 @@ export class PrimitiveMaster {
         }
 
         // 2. Normalize Target (Binary Op Normalization)
-        // If the user clicked a number inside a binary operation, we treat the operator as the target.
-        const normalizedClick = this.normalizeClick(ast, {
-            nodeId: params.click.nodeId,
-            kind: params.click.kind,
-            operatorIndex: params.click.operatorIndex
-        });
-
-        // 3. Build Context
+        // If the user clicked a number inside a binary operation, we often treat the operator as the target.
+        // HOWEVER: when the caller forces a specific primitive (Hint Apply / Double-Click Apply),
+        // we must keep the raw click target so that number-target primitives (e.g. P.INT_TO_FRAC) can apply.
+        const normalizedClick = params.preferredPrimitiveId
+            ? { nodeId: params.click.nodeId, kind: params.click.kind, operatorIndex: params.click.operatorIndex }
+            : this.normalizeClick(ast, {
+                nodeId: params.click.nodeId,
+                kind: params.click.kind,
+                operatorIndex: params.click.operatorIndex
+            });
+// 3. Build Context
         const ctx: NodeContext = this.contextBuilder.buildContext({
             expressionId: params.expressionId,
             ast,
