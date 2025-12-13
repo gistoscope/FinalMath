@@ -79,133 +79,6 @@ const integerCycleState = {
 // P1 double-click threshold in milliseconds
 const P1_DOUBLE_CLICK_THRESHOLD = 350;
 
-// P1: Diagnostics panel state
-const p1DiagnosticsState = {
-  currentLatex: "",
-  selectedSurfaceNodeId: "N/A",
-  resolvedAstNodeId: "N/A",
-  primitiveId: "N/A",
-  hintClickBlocked: "N/A",
-  lastTestResult: "N/A"
-};
-
-// P1: Create and update diagnostics panel (bottom-left)
-function createP1DiagnosticsPanel() {
-  let panel = document.getElementById("p1-diagnostics-panel");
-  if (!panel) {
-    panel = document.createElement("div");
-    panel.id = "p1-diagnostics-panel";
-    panel.style.cssText = `
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      padding: 8px 12px;
-      background: rgba(0, 0, 0, 0.85);
-      color: #0f0;
-      font-family: monospace;
-      font-size: 11px;
-      border-radius: 4px;
-      z-index: 10000;
-      max-width: 400px;
-      white-space: pre-wrap;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    `;
-    document.body.appendChild(panel);
-  }
-  return panel;
-}
-
-function updateP1Diagnostics(updates = {}) {
-  Object.assign(p1DiagnosticsState, updates);
-  if (typeof currentLatex !== "undefined") {
-    p1DiagnosticsState.currentLatex = currentLatex;
-  }
-
-  const panel = createP1DiagnosticsPanel();
-  const astColorClass = p1DiagnosticsState.resolvedAstNodeId === "MISSING" ? "color: red;" : "color: lime;";
-
-  panel.innerHTML = `
-<b>P1 HINT DIAGNOSTICS</b>
-─────────────────────
-currentLatex: <span style="color: cyan;">${escapeHtml(p1DiagnosticsState.currentLatex || "N/A")}</span>
-surfaceNodeId: <span style="color: yellow;">${p1DiagnosticsState.selectedSurfaceNodeId}</span>
-astNodeId: <span style="${astColorClass}">${p1DiagnosticsState.resolvedAstNodeId}</span>
-primitiveId: <span style="color: orange;">${p1DiagnosticsState.primitiveId}</span>
-hintClickBlocked: <span style="color: magenta;">${p1DiagnosticsState.hintClickBlocked}</span>
-lastTestResult: <span style="color: ${p1DiagnosticsState.lastTestResult === 'PASS' ? 'lime' : 'red'};">${p1DiagnosticsState.lastTestResult}</span>
-  `.trim();
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-// P1: Self-test function (can be triggered from console: window.runP1SelfTest())
-async function runP1SelfTest() {
-  console.log("[P1-SELF-TEST] Starting self-test...");
-  updateP1Diagnostics({ lastTestResult: "RUNNING..." });
-
-  // Save current state
-  const originalLatex = currentLatex;
-
-  // Set test expression
-  currentLatex = "2+3";
-  renderFormula();
-  buildAndShowMap();
-  await new Promise(r => setTimeout(r, 300));
-
-  // Simulate clicking "2" (first integer)
-  const map = window.__currentSurfaceMap;
-  if (!map || !map.atoms) {
-    console.error("[P1-SELF-TEST] FAIL: No surface map available");
-    updateP1Diagnostics({ lastTestResult: "FAIL: No surface map" });
-    return;
-  }
-
-  const firstNum = map.atoms.find(n => n.kind === "Num");
-  if (!firstNum) {
-    console.error("[P1-SELF-TEST] FAIL: No Num node found");
-    updateP1Diagnostics({ lastTestResult: "FAIL: No Num node" });
-    return;
-  }
-
-  // Select the integer
-  integerCycleState.selectedNodeId = firstNum.id;
-  integerCycleState.astNodeId = firstNum.astNodeId;
-  integerCycleState.cycleIndex = 0; // GREEN mode
-  applyIntegerHighlight(firstNum.id, 0);
-  await new Promise(r => setTimeout(r, 300));
-
-  // Apply P1 action (simulating hint click)
-  await applyP1Action(firstNum.id, firstNum.astNodeId, 0);
-  await new Promise(r => setTimeout(r, 500));
-
-  // Check result
-  const expected = "\\frac{2}{1}+3";
-  const passed = currentLatex === expected;
-
-  if (passed) {
-    console.log("[P1-SELF-TEST] PASS: Expression correctly converted to", currentLatex);
-    updateP1Diagnostics({ lastTestResult: "PASS" });
-  } else {
-    console.error("[P1-SELF-TEST] FAIL: Expected", expected, "but got", currentLatex);
-    updateP1Diagnostics({ lastTestResult: `FAIL: got "${currentLatex}"` });
-  }
-
-  // Restore original
-  currentLatex = originalLatex;
-  renderFormula();
-  buildAndShowMap();
-  resetIntegerCycleState();
-
-  return passed;
-}
-
-// Expose self-test globally
-if (typeof window !== "undefined") {
-  window.runP1SelfTest = runP1SelfTest;
-}
-
 // P1: Clear integer selection on expression change
 function resetIntegerCycleState() {
   // Clear any pending click timeout
@@ -244,13 +117,12 @@ function clearIntegerHighlight() {
   hideModeIndicator();
 }
 
-// P1: Show clickable mode indicator with CAPTURE-PHASE BLOCKING
+// P1: Show clickable mode indicator
 function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
-  let indicator = document.getElementById("p1-hint-indicator");
+  let indicator = document.getElementById("p1-mode-indicator");
   if (!indicator) {
     indicator = document.createElement("div");
-    indicator.id = "p1-hint-indicator";
-    indicator.className = "p1-hint-container"; // For guard checks
+    indicator.id = "p1-mode-indicator";
     indicator.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -266,20 +138,6 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       user-select: none;
       transition: transform 0.1s, box-shadow 0.1s;
     `;
-
-    // CAPTURE-PHASE BLOCKING: Prevent ALL events from reaching global handlers
-    const captureBlocker = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      console.log(`[P1-HINT][BLOCK] Blocked ${e.type} in capture phase`);
-      updateP1Diagnostics({ hintClickBlocked: "YES" });
-    };
-
-    // Add capture-phase blockers
-    indicator.addEventListener("pointerdown", captureBlocker, { capture: true });
-    indicator.addEventListener("mousedown", captureBlocker, { capture: true });
-
     // Add hover effect
     indicator.addEventListener("mouseenter", () => {
       indicator.style.transform = "scale(1.02)";
@@ -289,7 +147,6 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       indicator.style.transform = "scale(1)";
       indicator.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
     });
-
     document.body.appendChild(indicator);
   }
 
@@ -297,28 +154,16 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
   indicator.style.backgroundColor = primitive.color;
   indicator.style.display = "block";
 
-  // Update diagnostics
-  updateP1Diagnostics({
-    selectedSurfaceNodeId: surfaceNodeId,
-    resolvedAstNodeId: integerCycleState.astNodeId || "MISSING",
-    primitiveId: primitive.id,
-    hintClickBlocked: "N/A"
-  });
-
   // Make indicator clickable - applies the current mode's action
-  // Using onclick (bubbling phase) after capture blockers have run
   indicator.onclick = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
-    console.log(`[P1-HINT] Hint clicked: applying ${primitive.id} to node ${surfaceNodeId}`);
-    updateP1Diagnostics({ hintClickBlocked: "YES - applying" });
+    console.log(`[P1] Hint clicked: applying ${primitive.id} to node ${surfaceNodeId}`);
     applyP1Action(surfaceNodeId, integerCycleState.astNodeId, cycleIndex);
   };
 }
 
 function hideModeIndicator() {
-  const indicator = document.getElementById("p1-hint-indicator");
+  const indicator = document.getElementById("p1-mode-indicator");
   if (indicator) {
     indicator.style.display = "none";
     indicator.onclick = null; // Clear click handler

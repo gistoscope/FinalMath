@@ -7,7 +7,8 @@
 export type OrchestratorStepStatus =
   | "step-applied"
   | "no-candidates"
-  | "engine-error";
+  | "engine-error"
+  | "choice"; // NEW: Multiple actions available for this click
 
 export interface EntryStepRequest {
   sessionId: string;
@@ -17,6 +18,7 @@ export interface EntryStepRequest {
   operatorIndex?: number; // Optional, 0-based index of the operator in the expression
   policyId?: string; // Optional, defaults to "student.basic"
   token?: string; // Optional auth token
+  preferredPrimitiveId?: string; // NEW: Client's choice from a previous "choice" response
 }
 
 export interface PrimitiveDebugInfo {
@@ -26,6 +28,16 @@ export interface PrimitiveDebugInfo {
   reason?: string | null;
 }
 
+/**
+ * StepChoice: One option when status is "choice"
+ */
+export interface StepChoice {
+  id: string;
+  label: string;
+  primitiveId: string;
+  targetNodeId: string;
+}
+
 export interface EngineStepResponse {
   expressionLatex: string;
   status: OrchestratorStepStatus;
@@ -33,6 +45,7 @@ export interface EngineStepResponse {
     allCandidates: unknown[];
   } | null;
   primitiveDebug?: PrimitiveDebugInfo;
+  choices?: StepChoice[]; // NEW: Available when status is "choice"
 }
 
 export interface UndoStepRequest {
@@ -79,3 +92,4 @@ export interface LoginResponse {
   role?: UserRole;
   error?: string;
 }
+

@@ -55,12 +55,17 @@ export interface OrchestratorStepRequest {
     operatorIndex?: number;
     userRole: UserRole;
     userId?: string;
+    preferredPrimitiveId?: string; // NEW: Client's choice from a previous "choice" response
+    surfaceNodeKind?: string; // NEW: Surface node kind from viewer (e.g., "Num", "BinaryOp")
 }
 
 export type OrchestratorStepStatus =
     | "step-applied"
     | "no-candidates"
-    | "engine-error";
+    | "engine-error"
+    | "choice"; // NEW: Multiple actions available for this click
+
+import type { StepChoice } from "../protocol/backend-step.types";
 
 export interface OrchestratorStepResult {
     history: StepHistory;
@@ -71,6 +76,7 @@ export interface OrchestratorStepResult {
         [key: string]: unknown;
     } | null;
     primitiveDebug?: PrimitiveDebugInfo;
+    choices?: StepChoice[]; // NEW: Available when status is "choice"
 }
 
 /**
@@ -170,6 +176,94 @@ export async function runOrchestratorStep(
 
         traverse(root, "root");
         return root;
+    }
+
+    // Helper to find the first integer node path in the AST
+    function findFirstIntegerPath(ast: any): string | null {
+        if (!ast) return null;
+
+        // DFS to find first integer
+        const stack: Array<{ node: any; path: string }> = [{ node: ast, path: "root" }];
+
+        while (stack.length > 0) {
+            const { node, path } = stack.pop()!;
+            if (!node) continue;
+
+            if (node.type === "integer") {
+                return path;
+            }
+
+            // Add children to stack
+            if (node.right) stack.push({ node: node.right, path: `${path}.right` });
+            if (node.left) stack.push({ node: node.left, path: `${path}.left` });
+
+            if (node.children && Array.isArray(node.children)) {
+                node.children.forEach((child: any, i: number) => {
+                    stack.push({ node: child, path: `${path}.child[${i}]` });
+                });
+            }
+        }
+
+        return null;
+    }
+
+    // NEW: Integer Click Detection - return choice response for integers (unless preferredPrimitiveId is provided)
+    if (ast && !req.preferredPrimitiveId) {
+        // Augment AST with IDs first
+        augmentAstWithIds(ast);
+
+        // Check if the clicked node is an integer
+        const clickedNodePath = req.selectionPath || "root";
+        const clickedNode = getNodeAt(ast, clickedNodePath);
+
+        // Detect integer click either by AST node type OR by surfaceNodeKind
+        const isIntegerByAst = clickedNode && clickedNode.type === "integer";
+        const isIntegerBySurface = req.surfaceNodeKind === "Num" || req.surfaceNodeKind === "Number" || req.surfaceNodeKind === "Integer";
+
+        if (isIntegerByAst || isIntegerBySurface) {
+            console.log(`[Orchestrator] Integer click detected: byAst=${isIntegerByAst}, bySurface=${isIntegerBySurface}, path=${clickedNodePath}, surfaceKind=${req.surfaceNodeKind}`);
+
+            // Determine the target node ID for the choice
+            // If we found an integer in AST, use its path; otherwise we need to find one
+            let targetPath = clickedNodePath;
+            let intValue: any = null;
+
+            if (isIntegerByAst && clickedNode) {
+                intValue = (clickedNode as any).value;
+            } else if (isIntegerBySurface && ast) {
+                // Surface says it's a number but AST path doesn't resolve to integer
+                // This happens when selectionPath is null/root - try to find first integer in AST
+                const firstIntPath = findFirstIntegerPath(ast);
+                if (firstIntPath) {
+                    targetPath = firstIntPath;
+                    const intNode = getNodeAt(ast, firstIntPath);
+                    intValue = intNode ? (intNode as any).value : null;
+                }
+            }
+
+            // Return choice response with available integer actions
+            return {
+                status: "choice",
+                engineResult: null,
+                history,
+                choices: [
+                    {
+                        id: "int-to-frac",
+                        label: "Convert to fraction",
+                        primitiveId: "P.INT_TO_FRAC",
+                        targetNodeId: targetPath,
+                    }
+                ],
+                debugInfo: {
+                    clickedNodeType: "integer",
+                    clickedNodePath,
+                    targetNodeId: targetPath,
+                    integerValue: intValue,
+                    detectedByAst: isIntegerByAst,
+                    detectedBySurface: isIntegerBySurface,
+                }
+            };
+        }
     }
 
     if (ctx.primitiveMaster && ast) {

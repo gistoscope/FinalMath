@@ -73,7 +73,10 @@ export async function handlePostOrchestratorStepV5(
             selectionPath: typeof rawSelection === "string" ? rawSelection : null,
             operatorIndex: typeof obj["operatorIndex"] === "number" ? obj["operatorIndex"] : undefined,
             userRole: "student",
-            userId: undefined
+            userId: undefined,
+            preferredPrimitiveId: typeof obj["preferredPrimitiveId"] === "string" ? obj["preferredPrimitiveId"] : undefined,
+            // NEW: Surface node kind for integer click detection
+            surfaceNodeKind: typeof obj["surfaceNodeKind"] === "string" ? obj["surfaceNodeKind"] : undefined,
         };
 
         // Auth & Role Extraction (Optional but good to have)

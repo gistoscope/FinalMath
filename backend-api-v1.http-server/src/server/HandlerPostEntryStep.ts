@@ -82,6 +82,7 @@ export async function HandlerPostEntryStep(
       operatorIndex: typeof obj["operatorIndex"] === "number" ? obj["operatorIndex"] : undefined,
       policyId: typeof obj["policyId"] === "string" ? obj["policyId"] : undefined,
       token: typeof obj["token"] === "string" ? obj["token"] : undefined,
+      preferredPrimitiveId: typeof obj["preferredPrimitiveId"] === "string" ? obj["preferredPrimitiveId"] : undefined,
     };
 
     // Auth & Role Extraction
@@ -115,6 +116,7 @@ export async function HandlerPostEntryStep(
       operatorIndex: request.operatorIndex,
       userRole: userRole,
       userId: userId,
+      preferredPrimitiveId: request.preferredPrimitiveId,
     };
 
     if (deps.performStep) {
@@ -134,6 +136,7 @@ export async function HandlerPostEntryStep(
       expressionLatex: responseLatex,
       debugInfo: result.debugInfo as any,
       primitiveDebug: result.primitiveDebug,
+      choices: result.choices,
     };
 
     console.log(`[V5-HTTP-RESPONSE] status=${response.status} expressionLatex="${response.expressionLatex}"`);

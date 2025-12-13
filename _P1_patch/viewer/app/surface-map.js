@@ -471,11 +471,7 @@ export function hitTestPoint(map, clientX, clientY, containerElement) {
     return areaA - areaB;
   });
 
-  const hit = candidates[0];
-  if (hit && hit.kind === "Num") {
-    console.log(`[HIT-TEST-NUM] Hit Num node: id="${hit.id}" text="${hit.text || hit.latexFragment}" astNodeId="${hit.astNodeId || 'MISSING!'}" value=${hit.astIntegerValue || '?'}`);
-  }
-  return hit;
+  return candidates[0];
 }
 
 // --- Enhancements: classification refinement & UX helpers ---
@@ -599,20 +595,7 @@ export function correlateIntegersWithAST(map, latex) {
     .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
 
   console.log("=== [SURFACE-NUMS] Integer correlation ===");
-  console.log(`[SURFACE-NUMS] Expression: "${latex}"`);
   console.log(`[SURFACE-NUMS] AST integers: ${astIntegers.length}, Surface nums: ${surfaceNumbers.length}`);
-
-  // Dump all AST integers for debugging
-  console.log("[AST-NUMS] All AST integers:");
-  astIntegers.forEach((ai, idx) => {
-    console.log(`  [AST-NUMS] [${idx}] nodeId="${ai.nodeId}" value=${ai.value}`);
-  });
-
-  // Dump all surface numbers for debugging
-  console.log("[SURFACE-NUMS] All surface numbers:");
-  surfaceNumbers.forEach((sn, idx) => {
-    console.log(`  [SURFACE-NUMS] [${idx}] surfaceId="${sn.id}" text="${sn.text || sn.latexFragment}" kind=${sn.kind} bbox=(${Math.round(sn.bbox.left)},${Math.round(sn.bbox.top)})`);
-  });
 
   // 4. Match by position (1-to-1)
   const count = Math.min(astIntegers.length, surfaceNumbers.length);
@@ -623,7 +606,7 @@ export function correlateIntegersWithAST(map, latex) {
     surfNum.astNodeId = astInt.nodeId;
     surfNum.astIntegerValue = astInt.value;
 
-    console.log(`[SURFACE-NUMS] MATCHED: surface[${i}] "${surfNum.text || surfNum.latexFragment}" (id=${surfNum.id}) -> AST nodeId="${astInt.nodeId}" value=${astInt.value}`);
+    console.log(`[SURFACE-NUMS] Matched: surface[${i}] text="${surfNum.text || surfNum.latexFragment}" -> AST nodeId="${astInt.nodeId}" value=${astInt.value}`);
   }
 
   return map;

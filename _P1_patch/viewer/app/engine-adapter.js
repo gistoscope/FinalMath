@@ -283,34 +283,14 @@ export class EngineAdapter {
       request.clientEvent.surfaceNodeKind === "Integer");
     if (isIntegerNode && typeof window !== "undefined" && window.__p1IntegerCycleState) {
       const p1State = window.__p1IntegerCycleState;
-      const clickedSurfaceId = request.clientEvent.surfaceNodeId;
-
-      // Check if this is the same node that was previously selected (single-clicked)
-      const isSameNode = p1State.selectedNodeId === clickedSurfaceId;
-
-      // Use P1 state's cycleIndex if same node, otherwise default to mode 0 (GREEN)
-      const cycleIndex = isSameNode ? p1State.cycleIndex : 0;
-      const primitive = p1State.primitives[cycleIndex];
-
+      const primitive = p1State.primitives[p1State.cycleIndex];
       if (primitive) {
         v5Payload.preferredPrimitiveId = primitive.id;
-
-        // Determine selectionPath with proper fallback chain:
-        // 1) P1 state's astNodeId if same node was selected
-        // 2) clientEvent.astNodeId from surface map
-        // 3) Keep null and rely on backend's surfaceNodeKind detection
-        let targetPath = null;
-        if (isSameNode && p1State.astNodeId) {
-          targetPath = p1State.astNodeId;
-        } else if (request.clientEvent.astNodeId) {
-          targetPath = request.clientEvent.astNodeId;
+        // Use astNodeId from P1 state if available and matches the clicked node
+        if (p1State.selectedNodeId === request.clientEvent.surfaceNodeId && p1State.astNodeId) {
+          v5Payload.selectionPath = p1State.astNodeId;
         }
-
-        if (targetPath) {
-          v5Payload.selectionPath = targetPath;
-        }
-
-        console.log(`[P1] Integer double-click: primitiveId=${primitive.id}, selectionPath=${v5Payload.selectionPath}, mode=${cycleIndex}, isSameNode=${isSameNode}`);
+        console.log(`[P1] Integer double-click: injecting preferredPrimitiveId=${primitive.id}, selectionPath=${v5Payload.selectionPath}`);
       }
     }
 

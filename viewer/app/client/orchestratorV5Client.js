@@ -11,14 +11,24 @@
  * @property {number} [operatorIndex]
  * @property {string} [courseId]
  * @property {string} [userRole]
+ * @property {string} [preferredPrimitiveId] - Client's choice from a previous "choice" response
+ */
+
+/**
+ * @typedef {Object} StepChoice
+ * @property {string} id
+ * @property {string} label
+ * @property {string} primitiveId
+ * @property {string} targetNodeId
  */
 
 /**
  * @typedef {Object} V5StepResult
- * @property {"step-applied" | "no-candidates" | "engine-error"} status
+ * @property {"step-applied" | "no-candidates" | "engine-error" | "choice"} status
  * @property {string|null} [primitiveId]
  * @property {Object} [engineResult]
  * @property {string} [engineResult.newExpressionLatex]
+ * @property {StepChoice[]} [choices] - Available when status is "choice"
  * @property {any} [rawResponse]
  */
 
@@ -62,11 +72,12 @@ export async function runV5Step(endpointUrl, payload, timeoutMs = 5000) {
         const json = await response.json();
 
         // Standardize the response structure provided by backend
-        // Backend returns: { status, primitiveId, engineResult, debugInfo }
+        // Backend returns: { status, primitiveId, engineResult, debugInfo, choices }
         return {
             status: json.status || "engine-error",
             primitiveId: json.primitiveId || null,
             engineResult: json.engineResult,
+            choices: json.choices || null, // NEW: Include choices for status=choice
             rawResponse: json
         };
 

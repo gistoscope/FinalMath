@@ -10,7 +10,6 @@ if (typeof window !== "undefined") {
 import { DisplayAdapter, ClientEventRecorder } from "./display-adapter.js";
 import { FileBus } from "./filebus.js";
 import { EngineAdapter } from "./engine-adapter.js";
-import { runV5Step } from "./client/orchestratorV5Client.js";
 
 // Test suite (6 distinct LaTeX expressions)
 const TESTS = [
@@ -79,133 +78,6 @@ const integerCycleState = {
 // P1 double-click threshold in milliseconds
 const P1_DOUBLE_CLICK_THRESHOLD = 350;
 
-// P1: Diagnostics panel state
-const p1DiagnosticsState = {
-  currentLatex: "",
-  selectedSurfaceNodeId: "N/A",
-  resolvedAstNodeId: "N/A",
-  primitiveId: "N/A",
-  hintClickBlocked: "N/A",
-  lastTestResult: "N/A"
-};
-
-// P1: Create and update diagnostics panel (bottom-left)
-function createP1DiagnosticsPanel() {
-  let panel = document.getElementById("p1-diagnostics-panel");
-  if (!panel) {
-    panel = document.createElement("div");
-    panel.id = "p1-diagnostics-panel";
-    panel.style.cssText = `
-      position: fixed;
-      bottom: 10px;
-      left: 10px;
-      padding: 8px 12px;
-      background: rgba(0, 0, 0, 0.85);
-      color: #0f0;
-      font-family: monospace;
-      font-size: 11px;
-      border-radius: 4px;
-      z-index: 10000;
-      max-width: 400px;
-      white-space: pre-wrap;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-    `;
-    document.body.appendChild(panel);
-  }
-  return panel;
-}
-
-function updateP1Diagnostics(updates = {}) {
-  Object.assign(p1DiagnosticsState, updates);
-  if (typeof currentLatex !== "undefined") {
-    p1DiagnosticsState.currentLatex = currentLatex;
-  }
-
-  const panel = createP1DiagnosticsPanel();
-  const astColorClass = p1DiagnosticsState.resolvedAstNodeId === "MISSING" ? "color: red;" : "color: lime;";
-
-  panel.innerHTML = `
-<b>P1 HINT DIAGNOSTICS</b>
-─────────────────────
-currentLatex: <span style="color: cyan;">${escapeHtml(p1DiagnosticsState.currentLatex || "N/A")}</span>
-surfaceNodeId: <span style="color: yellow;">${p1DiagnosticsState.selectedSurfaceNodeId}</span>
-astNodeId: <span style="${astColorClass}">${p1DiagnosticsState.resolvedAstNodeId}</span>
-primitiveId: <span style="color: orange;">${p1DiagnosticsState.primitiveId}</span>
-hintClickBlocked: <span style="color: magenta;">${p1DiagnosticsState.hintClickBlocked}</span>
-lastTestResult: <span style="color: ${p1DiagnosticsState.lastTestResult === 'PASS' ? 'lime' : 'red'};">${p1DiagnosticsState.lastTestResult}</span>
-  `.trim();
-}
-
-function escapeHtml(str) {
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-// P1: Self-test function (can be triggered from console: window.runP1SelfTest())
-async function runP1SelfTest() {
-  console.log("[P1-SELF-TEST] Starting self-test...");
-  updateP1Diagnostics({ lastTestResult: "RUNNING..." });
-
-  // Save current state
-  const originalLatex = currentLatex;
-
-  // Set test expression
-  currentLatex = "2+3";
-  renderFormula();
-  buildAndShowMap();
-  await new Promise(r => setTimeout(r, 300));
-
-  // Simulate clicking "2" (first integer)
-  const map = window.__currentSurfaceMap;
-  if (!map || !map.atoms) {
-    console.error("[P1-SELF-TEST] FAIL: No surface map available");
-    updateP1Diagnostics({ lastTestResult: "FAIL: No surface map" });
-    return;
-  }
-
-  const firstNum = map.atoms.find(n => n.kind === "Num");
-  if (!firstNum) {
-    console.error("[P1-SELF-TEST] FAIL: No Num node found");
-    updateP1Diagnostics({ lastTestResult: "FAIL: No Num node" });
-    return;
-  }
-
-  // Select the integer
-  integerCycleState.selectedNodeId = firstNum.id;
-  integerCycleState.astNodeId = firstNum.astNodeId;
-  integerCycleState.cycleIndex = 0; // GREEN mode
-  applyIntegerHighlight(firstNum.id, 0);
-  await new Promise(r => setTimeout(r, 300));
-
-  // Apply P1 action (simulating hint click)
-  await applyP1Action(firstNum.id, firstNum.astNodeId, 0);
-  await new Promise(r => setTimeout(r, 500));
-
-  // Check result
-  const expected = "\\frac{2}{1}+3";
-  const passed = currentLatex === expected;
-
-  if (passed) {
-    console.log("[P1-SELF-TEST] PASS: Expression correctly converted to", currentLatex);
-    updateP1Diagnostics({ lastTestResult: "PASS" });
-  } else {
-    console.error("[P1-SELF-TEST] FAIL: Expected", expected, "but got", currentLatex);
-    updateP1Diagnostics({ lastTestResult: `FAIL: got "${currentLatex}"` });
-  }
-
-  // Restore original
-  currentLatex = originalLatex;
-  renderFormula();
-  buildAndShowMap();
-  resetIntegerCycleState();
-
-  return passed;
-}
-
-// Expose self-test globally
-if (typeof window !== "undefined") {
-  window.runP1SelfTest = runP1SelfTest;
-}
-
 // P1: Clear integer selection on expression change
 function resetIntegerCycleState() {
   // Clear any pending click timeout
@@ -244,13 +116,12 @@ function clearIntegerHighlight() {
   hideModeIndicator();
 }
 
-// P1: Show clickable mode indicator with CAPTURE-PHASE BLOCKING
+// P1: Show clickable mode indicator
 function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
-  let indicator = document.getElementById("p1-hint-indicator");
+  let indicator = document.getElementById("p1-mode-indicator");
   if (!indicator) {
     indicator = document.createElement("div");
-    indicator.id = "p1-hint-indicator";
-    indicator.className = "p1-hint-container"; // For guard checks
+    indicator.id = "p1-mode-indicator";
     indicator.style.cssText = `
       position: fixed;
       bottom: 20px;
@@ -266,20 +137,6 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       user-select: none;
       transition: transform 0.1s, box-shadow 0.1s;
     `;
-
-    // CAPTURE-PHASE BLOCKING: Prevent ALL events from reaching global handlers
-    const captureBlocker = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      e.stopImmediatePropagation();
-      console.log(`[P1-HINT][BLOCK] Blocked ${e.type} in capture phase`);
-      updateP1Diagnostics({ hintClickBlocked: "YES" });
-    };
-
-    // Add capture-phase blockers
-    indicator.addEventListener("pointerdown", captureBlocker, { capture: true });
-    indicator.addEventListener("mousedown", captureBlocker, { capture: true });
-
     // Add hover effect
     indicator.addEventListener("mouseenter", () => {
       indicator.style.transform = "scale(1.02)";
@@ -289,7 +146,6 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       indicator.style.transform = "scale(1)";
       indicator.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
     });
-
     document.body.appendChild(indicator);
   }
 
@@ -297,28 +153,16 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
   indicator.style.backgroundColor = primitive.color;
   indicator.style.display = "block";
 
-  // Update diagnostics
-  updateP1Diagnostics({
-    selectedSurfaceNodeId: surfaceNodeId,
-    resolvedAstNodeId: integerCycleState.astNodeId || "MISSING",
-    primitiveId: primitive.id,
-    hintClickBlocked: "N/A"
-  });
-
   // Make indicator clickable - applies the current mode's action
-  // Using onclick (bubbling phase) after capture blockers have run
   indicator.onclick = (e) => {
-    e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
-    console.log(`[P1-HINT] Hint clicked: applying ${primitive.id} to node ${surfaceNodeId}`);
-    updateP1Diagnostics({ hintClickBlocked: "YES - applying" });
+    console.log(`[P1] Hint clicked: applying ${primitive.id} to node ${surfaceNodeId}`);
     applyP1Action(surfaceNodeId, integerCycleState.astNodeId, cycleIndex);
   };
 }
 
 function hideModeIndicator() {
-  const indicator = document.getElementById("p1-hint-indicator");
+  const indicator = document.getElementById("p1-mode-indicator");
   if (indicator) {
     indicator.style.display = "none";
     indicator.onclick = null; // Clear click handler
@@ -330,54 +174,25 @@ function hideModeIndicator() {
 async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
   const primitive = integerCycleState.primitives[cycleIndex];
   if (!primitive) {
-    console.warn("[P1-APPLY] No primitive for cycleIndex", cycleIndex);
+    console.warn("[P1] No primitive for cycleIndex", cycleIndex);
     return;
   }
+
+  // Robust fallback chain for selectionPath:
+  // 1. Provided astNodeId (from P1 state)
+  // 2. integerCycleState.astNodeId (stored during single-click)
+  // 3. "root" fallback for isolated integers
+  let targetPath = astNodeId || integerCycleState.astNodeId || "root";
 
   console.log(`[P1-APPLY] === Hint/DblClick Apply Action ===`);
   console.log(`[P1-APPLY] surfaceNodeId: ${surfaceNodeId}`);
   console.log(`[P1-APPLY] astNodeId (param): ${astNodeId}`);
   console.log(`[P1-APPLY] integerCycleState.astNodeId: ${integerCycleState.astNodeId}`);
-  console.log(`[P1-APPLY] primitive: ${primitive.id}`);
-  console.log(`[P1-APPLY] currentLatex: "${currentLatex}"`);
-
-  // ROBUST FALLBACK CHAIN for selectionPath:
-  // 1. Provided astNodeId (from P1 state or event)
-  // 2. integerCycleState.astNodeId (stored during single-click)
-  // 3. Look up from current surface map using surfaceNodeId
-  // 4. "root" ONLY if the expression is a single isolated integer
-  let targetPath = astNodeId || integerCycleState.astNodeId;
-
-  // If still no targetPath, try to look it up from the current surface map
-  if (!targetPath && surfaceNodeId && typeof window !== "undefined" && window.__currentSurfaceMap) {
-    const map = window.__currentSurfaceMap;
-    const surfaceNode = map.atoms?.find(n => n.id === surfaceNodeId);
-    if (surfaceNode && surfaceNode.astNodeId) {
-      targetPath = surfaceNode.astNodeId;
-      console.log(`[P1-APPLY] Found astNodeId from surface map: "${targetPath}"`);
-    }
-  }
-
-  // Check if we need "root" fallback - ONLY for isolated integers
-  if (!targetPath) {
-    const latex = typeof currentLatex === "string" ? currentLatex.trim() : "";
-    // Check if expression is just a single integer (e.g., "3", "12", "456")
-    const isIsolatedInteger = /^-?\d+$/.test(latex);
-
-    if (isIsolatedInteger) {
-      targetPath = "root";
-      console.log(`[P1-APPLY] Using "root" - expression "${latex}" is an isolated integer`);
-    } else {
-      console.error(`[P1-APPLY] ERROR: No valid astNodeId for non-isolated integer expression!`);
-      console.error(`[P1-APPLY] This likely means correlateIntegersWithAST did not assign an astNodeId to the clicked integer.`);
-      console.error(`[P1-APPLY] Expression: "${latex}", surfaceNodeId: ${surfaceNodeId}`);
-      console.error(`[P1-APPLY] ABORTING - would incorrectly target root node.`);
-      return;
-    }
-  }
-
   console.log(`[P1-APPLY] targetPath (resolved): ${targetPath}`);
+  console.log(`[P1-APPLY] primitive: ${primitive.id}`);
+  console.log(`[P1-APPLY] currentLatex: ${currentLatex}`);
 
+  // Build V5 payload directly (bypass potential FileBus/EngineAdapter issues)
   const v5Payload = {
     sessionId: "default-session",
     expressionLatex: typeof currentLatex === "string" ? currentLatex : "",
@@ -388,26 +203,22 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
     surfaceNodeKind: "Num",
   };
 
-  // Get endpoint from global config (exposed by EngineAdapter init)
-  const endpointUrl = (typeof window !== "undefined" && window.__v5EndpointUrl)
-    ? window.__v5EndpointUrl
-    : "/api/orchestrator/v5/step"; // Fallback to relative URL for dev proxy
-
-  console.log(`[P1-HINT-APPLY] primitiveId: ${primitive.id}`);
-  console.log(`[P1-HINT-APPLY] selectionPath: ${targetPath}`);
-  console.log(`[P1-HINT-APPLY] request URL: ${endpointUrl}`);
-  console.log(`[P1-HINT-APPLY] payload:`, JSON.stringify(v5Payload));
+  console.log(`[P1-APPLY] Sending V5 payload:`, JSON.stringify(v5Payload, null, 2));
 
   try {
-    // Use the shared V5 client for proper request handling
-    const result = await runV5Step(endpointUrl, v5Payload, 8000);
+    // Direct fetch to backend (bypass FileBus chain for robustness)
+    const response = await fetch("http://localhost:4201/api/orchestrator/v5/step", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(v5Payload),
+    });
 
-    console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
-    console.log(`[P1-HINT-APPLY] newExpressionLatex: ${result.engineResult?.newExpressionLatex || "N/A"}`);
+    const result = await response.json();
+    console.log(`[P1-APPLY] Backend response:`, JSON.stringify(result, null, 2));
 
     if (result.status === "step-applied" && result.engineResult?.newExpressionLatex) {
       const newLatex = result.engineResult.newExpressionLatex;
-      console.log(`[P1-HINT-APPLY] SUCCESS! Updating expression to: ${newLatex}`);
+      console.log(`[P1-APPLY] SUCCESS! New expression: ${newLatex}`);
 
       // Update the expression in the viewer
       currentLatex = newLatex;
@@ -417,16 +228,12 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
       // Clear P1 selection state
       resetIntegerCycleState();
     } else if (result.status === "no-candidates") {
-      console.warn(`[P1-HINT-APPLY] No candidates found for primitive ${primitive.id}. Backend may not support this primitive.`);
-    } else if (result.status === "choice") {
-      console.warn(`[P1-HINT-APPLY] Got 'choice' response but expected 'step-applied'. preferredPrimitiveId may not have been honored by backend.`);
-    } else if (result.status === "engine-error") {
-      console.error(`[P1-HINT-APPLY][ERROR] Engine error:`, result.rawResponse);
+      console.warn(`[P1-APPLY] No candidates found. Primitive may not be implemented.`);
     } else {
-      console.warn(`[P1-HINT-APPLY] Unexpected response status: ${result.status}`);
+      console.warn(`[P1-APPLY] Unexpected response status: ${result.status}`);
     }
   } catch (err) {
-    console.error(`[P1-HINT-APPLY][ERROR] Exception calling backend:`, err);
+    console.error(`[P1-APPLY] Error calling backend:`, err);
   }
 }
 
@@ -465,11 +272,9 @@ const engineAdapter = new EngineAdapter(fileBus, {
 
 engineAdapter.start();
 
-// Expose V5 endpoint globally for P1 hint-apply to use
-const V5_ENDPOINT_URL = "http://localhost:4201/api/entry-step".replace("/api/entry-step", "/api/orchestrator/v5/step");
+// Optional: expose EngineAdapter for debug
 if (typeof window !== "undefined") {
   window.__motorEngineAdapter = engineAdapter;
-  window.__v5EndpointUrl = V5_ENDPOINT_URL;
 }
 
 let isDragging = false;
@@ -920,7 +725,6 @@ function buildAndShowMap() {
   current = { map, serializable };
   if (typeof window !== "undefined") {
     window.current = current;
-    window.__currentSurfaceMap = map; // P1: Expose surface map for applyP1Action lookup
   }
   clearDomHighlight();
   updateHoverPanel("hover", null);
@@ -1165,9 +969,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const surfaceId = ev.surfaceNodeId;
             const astId = ev.astNodeId;
             const now = Date.now();
-
-            // Diagnostic: Log the astNodeId from the click event
-            console.log(`[P1-CLICK] Integer click event: surfaceId=${surfaceId}, astId=${astId || 'MISSING!'}, clickCount=${clickCount}`);
 
             // Check if this is a browser-reported double-click (e.detail >= 2)
             if (clickCount === 2) {
