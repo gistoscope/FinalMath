@@ -140,6 +140,9 @@ export type PrimitiveId =
     | "P.MIXED_TO_SUM"
     | "P.FRAC_ADD_DIFF_PREP"
     | "P.FRAC_SUB_DIFF_PREP"
+    | "P.FRAC_ADD_DIFF_DEN_MUL1"
+    | "P.FRAC_SUB_DIFF_DEN_MUL1"
+    | "P.ONE_TO_TARGET_DENOM"
     | "P.DECIMAL_DIV"
     | "P.DECIMAL_TO_FRAC"
     | "P.BRACKETS_REMOVE"
@@ -489,6 +492,7 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             actionClass: "normal",
             label: "Mixed to Sum",
             enginePrimitiveId: "P.MIXED_TO_SUM",
+            forbiddenGuards: ["is-decimal"], // Decimals should use P.DECIMAL_TO_FRAC instead
             notes: "Decompose mixed number. Constraints: n,a,b ∈ ℤ; b≠0; 0<a<b"
         },
         {
@@ -496,7 +500,8 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             domain: "fractions",
             category: "Different Denominator Preparation",
             clickTargetKind: "operator",
-            operatorLatex: "+",
+            operatorLatex: "__DISABLED__", // DISABLED: legacy PREP primitive was being selected incorrectly
+            operandTypes: { left: "int", right: "int" },  // FIXED: Restrict to integers, not fractions
             color: "yellow",
             uiMode: "auto-apply",
             actionClass: "normal",
@@ -509,13 +514,57 @@ export const PRIMITIVES_V5_TABLE: PrimitivesTable = {
             domain: "fractions",
             category: "Different Denominator Preparation",
             clickTargetKind: "operator",
-            operatorLatex: "-",
+            operatorLatex: "__DISABLED__", // DISABLED: legacy PREP primitive was being selected incorrectly
+            operandTypes: { left: "int", right: "int" },  // FIXED: Restrict to integers, not fractions
             color: "yellow",
             uiMode: "auto-apply",
             actionClass: "normal",
             label: "Prep Sub Different Denom",
             enginePrimitiveId: "P.FRAC_SUB_DIFF_PREP",
             notes: "Prepare both fractions. Constraints: a,b,c,d ∈ ℤ; b,d≠0; b≠d"
+        },
+        {
+            id: "P.FRAC_ADD_DIFF_DEN_MUL1",
+            domain: "fractions",
+            category: "Fraction Operations - Different Denominator",
+            clickTargetKind: "operator",
+            operatorLatex: "+",
+            operandTypes: { left: "fraction", right: "fraction" },
+            color: "yellow",
+            uiMode: "auto-apply",
+            actionClass: "normal",
+            label: "Add Frac Diff Denom (Step 1)",
+            enginePrimitiveId: "P.FRAC_ADD_DIFF_DEN_MUL1",
+            forbiddenGuards: ["denominators-equal"],
+            notes: "Step 1: Multiply both fractions by 1. Constraints: a/b + c/d; b≠d"
+        },
+        {
+            id: "P.FRAC_SUB_DIFF_DEN_MUL1",
+            domain: "fractions",
+            category: "Fraction Operations - Different Denominator",
+            clickTargetKind: "operator",
+            operatorLatex: "-",
+            operandTypes: { left: "fraction", right: "fraction" },
+            color: "yellow",
+            uiMode: "auto-apply",
+            actionClass: "normal",
+            label: "Sub Frac Diff Denom (Step 1)",
+            enginePrimitiveId: "P.FRAC_SUB_DIFF_DEN_MUL1",
+            forbiddenGuards: ["denominators-equal"],
+            notes: "Step 1: Multiply both fractions by 1. Constraints: a/b - c/d; b≠d"
+        },
+        {
+            id: "P.ONE_TO_TARGET_DENOM",
+            domain: "integers",
+            category: "Fraction Preparation - Different Denominator",
+            clickTargetKind: "number",
+            color: "yellow",
+            uiMode: "auto-apply",
+            actionClass: "normal",
+            label: "Convert 1 to d/d",
+            enginePrimitiveId: "P.ONE_TO_TARGET_DENOM",
+            forbiddenGuards: ["is-decimal"],
+            notes: "Converts 1 to d/d matches the other fraction's denominator."
         },
         {
             id: "P.DECIMAL_TO_FRAC",

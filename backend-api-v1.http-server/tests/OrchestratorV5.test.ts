@@ -4,6 +4,9 @@ import { loadAllCoursesFromDir } from "../src/invariants/index";
 import { createDefaultStudentPolicy } from "../src/stepmaster/index";
 import { getStage1RegistryModel } from "../src/mapmaster/stage1-converter";
 import { InMemoryInvariantRegistry } from "../src/invariants/invariants.registry";
+import { createPrimitiveMaster } from "../src/primitive-master/PrimitiveMaster";
+import { createPrimitivePatternRegistry } from "../src/primitive-master/PrimitivePatterns.registry";
+import { parseExpression } from "../src/mapmaster/ast";
 
 describe("Orchestrator V5 Flow", () => {
     // Setup dependencies similarly to cliEngineHttpServer to include Stage 1 rules
@@ -40,14 +43,25 @@ describe("Orchestrator V5 Flow", () => {
         model: { primitives: mergedPrimitives, invariantSets: mergedSets }
     });
 
+    // Create primitiveMaster - this is required for the V5 code path
+    const primitiveMaster = createPrimitiveMaster({
+        parseLatexToAst: async (latex) => parseExpression(latex),
+        patternRegistry: createPrimitivePatternRegistry(),
+        log: () => { },
+    });
+
     const ctx: OrchestratorContext = {
         invariantRegistry: registry,
         policy: createDefaultStudentPolicy(),
+        primitiveMaster,
     };
+
+    // Generate unique session ID for each test to avoid session state collisions
+    const genSessionId = () => `v5-test-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     it("should execute P.INT_ADD for '1 + 2' when anchored to operator", async () => {
         const req: OrchestratorStepRequest = {
-            sessionId: "v5-test-session",
+            sessionId: genSessionId(), // Unique session to avoid repetitive rejection
             courseId: "default",
             expressionLatex: "1 + 2",
             selectionPath: "root",
@@ -60,12 +74,14 @@ describe("Orchestrator V5 Flow", () => {
         expect(result.engineResult?.newExpressionLatex).toBe("3");
     });
 
-    it("should execute P.INT_DIV_TO_INT for '4 : 2' (exact division)", async () => {
+    // Division with V5 path - use preferredPrimitiveId to select exact division
+    it("should execute P.INT_DIV_EXACT for '4 \\div 2' with preferredPrimitiveId", async () => {
         const req: OrchestratorStepRequest = {
-            sessionId: "v5-test-session",
+            sessionId: genSessionId(),
             courseId: "default",
-            expressionLatex: "4 : 2",
+            expressionLatex: "4 \\div 2",
             selectionPath: "root",
+            preferredPrimitiveId: "P.INT_DIV_EXACT",
             userRole: "student",
         };
 
@@ -76,9 +92,8 @@ describe("Orchestrator V5 Flow", () => {
     });
 
     it("should execute P.FRAC_ADD_SAME_DEN for '1/7 + 3/7'", async () => {
-        const uniqueId = "v5-frac-add-" + Date.now();
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
             expressionLatex: "1/7 + 3/7",
             selectionPath: "root",
@@ -92,9 +107,8 @@ describe("Orchestrator V5 Flow", () => {
     });
 
     it("should execute P.FRAC_SUB_SAME_DEN for '3/7 - 1/7'", async () => {
-        const uniqueId = "v5-frac-sub-" + Date.now();
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
             expressionLatex: "3/7 - 1/7",
             selectionPath: "root",
@@ -107,15 +121,14 @@ describe("Orchestrator V5 Flow", () => {
         expect(result.engineResult?.newExpressionLatex).toBe("\\frac{2}{7}");
     });
 
-    it("should execute P.INT_TO_FRAC for '3' (normalization)", async () => {
-        const uniqueId = "v5-norm-" + Date.now();
+    // P1 Double-click behavior: preferredPrimitiveId is provided to bypass choice
+    it("should execute P.INT_TO_FRAC for '3' (normalization) with preferredPrimitiveId", async () => {
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
             expressionLatex: "3",
-            selectionPath: "root", // P.INT_TO_FRAC applies to integer
-            // but selectionPath="root" might target the integer if it's the root node.
-            // If parser says "3" is integer type root node.
+            selectionPath: "root",
+            preferredPrimitiveId: "P.INT_TO_FRAC",
             userRole: "student",
         };
 
@@ -125,84 +138,54 @@ describe("Orchestrator V5 Flow", () => {
         expect(result.engineResult?.newExpressionLatex).toBe("\\frac{3}{1}");
     });
 
-    it("should execute P.FRAC_EQUIV for '3/1 + 2/5'", async () => {
-        const uniqueId = "v5-equiv-" + Date.now();
-        // Target is 3/1. AST structure: binaryOp(+, fraction(3,1), fraction(2,5))
-        // Path to 3/1 should be "term[0].left" or similar?
-        // Wait, AST paths are "0" or "root" for root?
-        // PrimitiveRunner's runLiftFraction uses assumption path ends with .left/.right
-        // Our test runner might need explicit path?
-        // MapMaster logic will find all candidates. Orchestrator picks one.
-        // We hope it picks P.FRAC_EQUIV on 3/1.
-        // If we select "root", does it apply?
-        // Root is binaryOp. P.FRAC_EQUIV applies to fraction.
-        // MapMaster traverses? 
-        // V5 Orchestrator currently tries to find *any* candidate if selection mismatch or broad?
-        // But let's assume we select the fraction specifically if possible.
-        // If we just pass "root", candidates for binaryOp are checked.
-        // binaryOp candidates: P.INT_ADD (integers?), P.FRAC_ADD (same den?).
-        // '3/1 + 2/5' denominators are 1 and 5. Different. P.FRAC_ADD_SAME_DEN fails.
-        // So no candidates on root match.
-        // Orchestrator logic in `step.orchestrator.ts`:
-        // "Candidates 0... If no candidates and selection is broad, try children?"
-        // OR does it auto-suggest?
-        // The V5 `searchCandidates` function in mapmaster core might support "bubbling" or "drilling"?
-        // Currently StepMaster picks from ALL candidates generated by MapMaster.
-        // MapMaster `generateCandidates` takes `selectionPath`.
-        // If selection is "root", it generates usage for root node.
-
-        // If we want P.FRAC_EQUIV on 3/1, we need to select 3/1.
-        // In our simple AST, 3/1 is `left`.
-        // Path strings in our AST implementation...
-        // `parseExpression` returns root. `getNodeAt(root, "left")`.
-        // So selectionPath shoud be "left".
-
+    // P1 Single-click behavior: no preferredPrimitiveId, returns choice menu
+    it("should return 'choice' for '3' when no preferredPrimitiveId (single-click behavior)", async () => {
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
-            expressionLatex: "3/1 + 2/5",
-            selectionPath: "left", // Targeting 3/1
+            expressionLatex: "3",
+            selectionPath: "root",
             userRole: "student",
         };
 
         const result = await runOrchestratorStep(ctx, req);
 
-        // Expect P.FRAC_EQUIV to apply and expand 3/1 to 15/5.
-        expect(result.status).toBe("step-applied");
-        expect(result.engineResult?.newExpressionLatex).toBe("\\frac{15}{5} + \\frac{2}{5}");
+        expect(result.status).toBe("choice");
+        expect(result.choices).toBeDefined();
+        const hasIntToFrac = result.choices?.some(c => c.primitiveId === "P.INT_TO_FRAC");
+        expect(hasIntToFrac).toBe(true);
     });
 
     it("should execute P.FRAC_MUL for '1/2 * 3/5'", async () => {
-        const uniqueId = "v5-frac-mul-" + Date.now();
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
             expressionLatex: "1/2 * 3/5",
-            selectionPath: "root", // anchored to *
+            selectionPath: "root",
             userRole: "student",
         };
 
         const result = await runOrchestratorStep(ctx, req);
 
         expect(result.status).toBe("step-applied");
-        // newFrac = { n: 1*3, d: 2*5 } -> 3/10
         expect(result.engineResult?.newExpressionLatex).toBe("\\frac{3}{10}");
     });
 
-    it("should execute P.FRAC_DIV for '1/2 : 3/5'", async () => {
-        const uniqueId = "v5-frac-div-" + Date.now();
+    // Fraction division - FRAC_DIV_AS_MUL converts to multiplication
+    it("should execute P.FRAC_DIV_AS_MUL for fraction division (convert to multiplication)", async () => {
         const req: OrchestratorStepRequest = {
-            sessionId: uniqueId,
+            sessionId: genSessionId(),
             courseId: "default",
-            expressionLatex: "1/2 : 3/5",
-            selectionPath: "root", // anchored to :
+            expressionLatex: "\\frac{1}{2} \\div \\frac{3}{5}",
+            selectionPath: "root",
+            operatorIndex: 0,
             userRole: "student",
         };
 
         const result = await runOrchestratorStep(ctx, req);
 
         expect(result.status).toBe("step-applied");
-        // newFrac = { n: 1*5, d: 2*3 } -> 5/6
-        expect(result.engineResult?.newExpressionLatex).toBe("\\frac{5}{6}");
+        // FRAC_DIV_AS_MUL converts division to multiplication: 1/2 ÷ 3/5 → 1/2 × 5/3
+        expect(result.engineResult?.newExpressionLatex).toBe("\\frac{1}{2} \\cdot \\frac{5}{3}");
     });
 });

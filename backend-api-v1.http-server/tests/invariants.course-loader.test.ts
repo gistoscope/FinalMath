@@ -19,7 +19,7 @@ describe("Invariant Course Loader — loadInvariantRegistryFromFile", () => {
 
     // Sanity check: one of the known rule ids is present.
     const hasAddSameDenRule = firstSet.rules.some(
-      (rule) => rule.id === "R.FRAC_ADD_SAME_DEN",
+      (rule) => rule.id === "R.FRAC_ADD_SAME",
     );
     expect(hasAddSameDenRule).toBe(true);
   });

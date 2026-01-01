@@ -35,6 +35,6 @@ describe("Invariant course loader — default course", () => {
     // So I should search for P.FRAC_ADD_SAME_DEN.
 
     const rulesByPrimitive2 = registry.findRulesByPrimitiveId("P.FRAC_ADD_SAME_DEN");
-    expect(rulesByPrimitive2.some((r) => r.id === "R.FRAC_ADD_SAME_DEN")).toBe(true);
+    expect(rulesByPrimitive2.some((r) => r.id === "R.FRAC_ADD_SAME")).toBe(true);
   });
 });

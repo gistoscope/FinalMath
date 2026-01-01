@@ -41,6 +41,7 @@ import type { PrimitiveDebugInfo } from "../protocol/backend-step.types";
 import type { PrimitiveMaster } from "../primitive-master/PrimitiveMaster";
 import { PRIMITIVE_DEFINITIONS, PrimitiveId } from "../engine/primitives.registry";
 import { TraceHub, shortLatex, generateTraceId } from "../debug/TraceHub.js";
+import { validateOperatorContext, type ValidationResult, type ValidationType } from "../mapmaster/validation.utils";
 
 export interface OrchestratorContext {
     invariantRegistry: InMemoryInvariantRegistry;
@@ -59,6 +60,10 @@ export interface OrchestratorStepRequest {
     preferredPrimitiveId?: string; // NEW: Client's choice from a previous "choice" response
     surfaceNodeKind?: string; // NEW: Surface node kind from viewer (e.g., "Num", "BinaryOp")
     traceId?: string; // NEW: TraceHub correlation ID from viewer
+    // NEW: Click context fields for operator matching
+    clickTargetKind?: string; // "operator" | "number" | "fractionBar" | etc.
+    operator?: string; // "+" | "-" | "*" | "/" etc.
+    surfaceNodeId?: string; // For debugging
 }
 
 export type OrchestratorStepStatus =
@@ -79,6 +84,9 @@ export interface OrchestratorStepResult {
     } | null;
     primitiveDebug?: PrimitiveDebugInfo;
     choices?: StepChoice[]; // NEW: Available when status is "choice"
+    // Smart Operator Selection: validation result for operator clicks
+    validationType?: ValidationType; // "direct" (GREEN) | "requires-prep" (YELLOW)
+    validationDetail?: ValidationResult;
 }
 
 /**
@@ -102,6 +110,10 @@ export async function runOrchestratorStep(
             preferredPrimitiveId: req.preferredPrimitiveId,
             surfaceNodeKind: req.surfaceNodeKind,
             courseId: req.courseId,
+            // NEW: Click context fields for debugging
+            clickTargetKind: req.clickTargetKind,
+            operator: req.operator,
+            surfaceNodeId: req.surfaceNodeId,
         }
     });
 
@@ -140,7 +152,7 @@ export async function runOrchestratorStep(
 
     // We need AST for V5 logic (and legacy anchoring)
     // We need AST for V5 logic (and legacy anchoring)
-    const { parseExpression, getNodeAt } = await import("../mapmaster/ast");
+    const { parseExpression, getNodeAt, replaceNodeAt, toLatex } = await import("../mapmaster/ast");
     const ast = parseExpression(req.expressionLatex);
 
     // [New] Surface AST Logic for V5
@@ -201,7 +213,8 @@ export async function runOrchestratorStep(
     function findFirstIntegerPath(ast: any): string | null {
         if (!ast) return null;
 
-        // DFS to find first integer
+        // DFS to find first integer (left-to-right order)
+        // Use term[0]/term[1] path format compatible with getNodeAt
         const stack: Array<{ node: any; path: string }> = [{ node: ast, path: "root" }];
 
         while (stack.length > 0) {
@@ -212,22 +225,330 @@ export async function runOrchestratorStep(
                 return path;
             }
 
-            // Add children to stack
-            if (node.right) stack.push({ node: node.right, path: `${path}.right` });
-            if (node.left) stack.push({ node: node.left, path: `${path}.left` });
-
-            if (node.children && Array.isArray(node.children)) {
-                node.children.forEach((child: any, i: number) => {
-                    stack.push({ node: child, path: `${path}.child[${i}]` });
-                });
+            // For binaryOp, add children using term[0]/term[1] format
+            // Push right first so left is processed first (left-to-right traversal)
+            if (node.type === "binaryOp") {
+                if (node.right) {
+                    const rightPath = path === "root" ? "term[1]" : `${path}.term[1]`;
+                    stack.push({ node: node.right, path: rightPath });
+                }
+                if (node.left) {
+                    const leftPath = path === "root" ? "term[0]" : `${path}.term[0]`;
+                    stack.push({ node: node.left, path: leftPath });
+                }
             }
         }
 
         return null;
     }
 
-    // NEW: Integer Click Detection - return choice response for integers (unless preferredPrimitiveId is provided)
-    if (ast && !req.preferredPrimitiveId) {
+    // NEW: Direct P.INT_TO_FRAC Application (when preferredPrimitiveId is provided)
+    // This handles the "Hint Apply" case where user already selected INT_TO_FRAC from choice menu
+    // CRITICAL: This path BYPASSES StepMaster entirely to ensure the primitive is always applied
+    if (ast && req.preferredPrimitiveId === "P.INT_TO_FRAC") {
+        // Augment AST with IDs
+        augmentAstWithIds(ast);
+
+        // Resolve the target integer path
+        let targetPath = req.selectionPath || "root";
+        let targetNode = getNodeAt(ast, targetPath);
+
+        // If selectionPath doesn't resolve to an integer, check special cases
+        if (!targetNode || targetNode.type !== "integer") {
+            // Check if the root is an integer (simple case like "6")
+            if (ast.type === "integer" && (targetPath === "root" || !targetPath)) {
+                targetPath = "root";
+                targetNode = ast;
+            }
+            // Don't auto-fallback to first integer - require explicit path for expressions
+        }
+
+        // Validate target is integer
+        if (!targetNode || targetNode.type !== "integer") {
+            const gotKind = targetNode ? targetNode.type : "null";
+            console.log(`[Orchestrator] INT_TO_FRAC target validation failed: selectionPath="${req.selectionPath}", resolved="${targetPath}", nodeType="${gotKind}"`);
+
+            TraceHub.emit({
+                module: "backend.orchestrator",
+                event: "DECISION",
+                data: {
+                    preferredPrimitiveId: "P.INT_TO_FRAC",
+                    selectionPath: req.selectionPath,
+                    resolvedPath: targetPath,
+                    resolvedKind: gotKind,
+                    decision: "reject",
+                    reason: `Target is not integer, got ${gotKind}`
+                }
+            });
+
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `INT_TO_FRAC target must be integer, got ${gotKind}` },
+                history,
+                debugInfo: {
+                    preferredPrimitiveId: req.preferredPrimitiveId,
+                    selectionPath: req.selectionPath,
+                    resolvedTargetPath: targetPath,
+                    targetNodeType: gotKind
+                }
+            };
+        }
+
+        const intValue = (targetNode as any).value;
+        console.log(`[Orchestrator] P.INT_TO_FRAC DIRECT EXECUTION: targetPath="${targetPath}", intValue="${intValue}"`);
+
+        // Log DECISION (accept)
+        TraceHub.emit({
+            module: "backend.orchestrator",
+            event: "DECISION",
+            data: {
+                preferredPrimitiveId: "P.INT_TO_FRAC",
+                selectionPath: req.selectionPath,
+                resolvedPath: targetPath,
+                resolvedKind: "integer",
+                intValue,
+                decision: "apply",
+                reason: "preferredPrimitiveId-direct-execution"
+            }
+        });
+
+        // DIRECT EXECUTION: Apply INT_TO_FRAC transformation
+        // Replace the integer node with a fraction node {numerator: value, denominator: "1"}
+        const fractionNode = {
+            type: "fraction",
+            numerator: intValue,
+            denominator: "1"
+        };
+
+        let newAst;
+        try {
+            newAst = replaceNodeAt(ast, targetPath, fractionNode as any);
+        } catch (replaceError) {
+            console.error(`[Orchestrator] replaceNodeAt failed:`, replaceError);
+
+            TraceHub.emit({
+                module: "backend.orchestrator",
+                event: "RUN_END",
+                data: {
+                    primitiveId: "P.INT_TO_FRAC",
+                    ok: false,
+                    errorMessage: `replaceNodeAt failed: ${replaceError instanceof Error ? replaceError.message : String(replaceError)}`
+                }
+            });
+
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `Replace failed: ${replaceError instanceof Error ? replaceError.message : String(replaceError)}` },
+                history,
+                debugInfo: {
+                    preferredPrimitiveId: req.preferredPrimitiveId,
+                    targetPath,
+                    error: String(replaceError)
+                }
+            };
+        }
+
+        // Convert new AST back to LaTeX
+        const newLatex = toLatex(newAst);
+        console.log(`[Orchestrator] P.INT_TO_FRAC result: "${req.expressionLatex}" => "${newLatex}"`);
+
+        // Update history
+        history = updateLastStep(history, { expressionAfter: newLatex });
+        await SessionService.updateHistory(req.sessionId, history);
+
+        // Log RUN_END (success)
+        TraceHub.emit({
+            module: "backend.orchestrator",
+            event: "RUN_END",
+            data: {
+                primitiveId: "P.INT_TO_FRAC",
+                ok: true,
+                resultLatexShort: shortLatex(newLatex),
+                targetPath,
+                intValue
+            }
+        });
+
+        // Return step-applied (BYPASS StepMaster)
+        return {
+            status: "step-applied",
+            engineResult: {
+                ok: true,
+                newExpressionLatex: newLatex
+            },
+            history,
+            debugInfo: {
+                preferredPrimitiveId: "P.INT_TO_FRAC",
+                chosenPrimitiveId: "P.INT_TO_FRAC",
+                targetPath,
+                intValue,
+                bypassedStepMaster: true
+            },
+            primitiveDebug: {
+                primitiveId: "P.INT_TO_FRAC",
+                status: "ready",
+                domain: "direct-execution",
+                reason: "preferredPrimitiveId-bypass"
+            }
+        };
+    }
+    // NEW: Direct P.ONE_TO_TARGET_DENOM Application (Step2 of frac-add-diff-denom)
+    // This handles converting "1" to "d/d" where d is the opposite fraction's denominator
+    else if (ast && req.preferredPrimitiveId === "P.ONE_TO_TARGET_DENOM") {
+        augmentAstWithIds(ast);
+
+        let targetPath = req.selectionPath || "root";
+        let targetNode = getNodeAt(ast, targetPath);
+
+        // Validate target is integer "1"
+        if (!targetNode || targetNode.type !== "integer" || (targetNode as any).value !== "1") {
+            const gotKind = targetNode ? targetNode.type : "null";
+            const gotValue = targetNode?.type === "integer" ? (targetNode as any).value : "N/A";
+            console.log(`[Orchestrator] ONE_TO_TARGET_DENOM validation failed: path="${targetPath}", type="${gotKind}", value="${gotValue}"`);
+
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `ONE_TO_TARGET_DENOM target must be integer "1", got ${gotKind}:${gotValue}` },
+                history,
+                debugInfo: {
+                    preferredPrimitiveId: req.preferredPrimitiveId,
+                    selectionPath: req.selectionPath,
+                    targetPath,
+                    targetNodeType: gotKind,
+                    targetNodeValue: gotValue
+                }
+            };
+        }
+
+        // Find parent (should be multiplication: frac * 1)
+        const pathParts = targetPath.split(".");
+        if (pathParts.length < 2) {
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: "ONE_TO_TARGET_DENOM: path too short to find parent" },
+                history,
+                debugInfo: { targetPath, pathParts }
+            };
+        }
+
+        pathParts.pop();
+        const parentPath = pathParts.join(".") || "root";
+        const parent = getNodeAt(ast, parentPath);
+
+        if (!parent || parent.type !== "binaryOp" || parent.op !== "*") {
+            console.log(`[Orchestrator] ONE_TO_TARGET_DENOM: parent is not *, got ${parent?.type}:${(parent as any)?.op}`);
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `ONE_TO_TARGET_DENOM: parent must be *, got ${parent?.type}:${(parent as any)?.op}` },
+                history,
+                debugInfo: { targetPath, parentPath, parentType: parent?.type, parentOp: (parent as any)?.op }
+            };
+        }
+
+        // Find grandparent (should be + or -)
+        pathParts.pop();
+        const grandParentPath = pathParts.length > 0 ? pathParts.join(".") : "root";
+        const grandParent = grandParentPath === "root" ? ast : getNodeAt(ast, grandParentPath);
+
+        if (!grandParent || grandParent.type !== "binaryOp" || (grandParent.op !== "+" && grandParent.op !== "-")) {
+            console.log(`[Orchestrator] ONE_TO_TARGET_DENOM: grandparent is not +/-, got ${grandParent?.type}:${(grandParent as any)?.op}`);
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `ONE_TO_TARGET_DENOM: grandparent must be +/-, got ${grandParent?.type}:${(grandParent as any)?.op}` },
+                history,
+                debugInfo: { targetPath, grandParentPath, grandParentType: grandParent?.type, grandParentOp: (grandParent as any)?.op }
+            };
+        }
+
+        // Determine which side we're on and find opposite branch
+        const parentIsLeft = parent === grandParent.left;
+        const otherBranch = parentIsLeft ? grandParent.right : grandParent.left;
+
+        // Extract denominator from other branch
+        const extractDenom = (node: any): string | undefined => {
+            if (node.type === "binaryOp" && node.op === "*") {
+                if (node.left.type === "fraction") return node.left.denominator;
+                if (node.right.type === "fraction") return node.right.denominator;
+            }
+            if (node.type === "fraction") return node.denominator;
+            return undefined;
+        };
+
+        const oppositeD = extractDenom(otherBranch);
+        if (!oppositeD) {
+            console.log(`[Orchestrator] ONE_TO_TARGET_DENOM: could not extract opposite denominator from ${otherBranch?.type}`);
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: "ONE_TO_TARGET_DENOM: could not find opposite denominator" },
+                history,
+                debugInfo: { targetPath, otherBranchType: otherBranch?.type }
+            };
+        }
+
+        console.log(`[Orchestrator] P.ONE_TO_TARGET_DENOM DIRECT EXECUTION: path="${targetPath}" -> \\frac{${oppositeD}}{${oppositeD}}`);
+
+        // Replace "1" with fraction d/d
+        const newFraction = {
+            type: "fraction",
+            numerator: oppositeD,
+            denominator: oppositeD
+        };
+
+        let newAst;
+        try {
+            newAst = replaceNodeAt(ast, targetPath, newFraction as any);
+        } catch (replaceError) {
+            console.error(`[Orchestrator] ONE_TO_TARGET_DENOM replaceNodeAt failed:`, replaceError);
+            return {
+                status: "engine-error",
+                engineResult: { ok: false, errorCode: `Replace failed: ${replaceError}` },
+                history,
+                debugInfo: { targetPath, replaceError: String(replaceError) }
+            };
+        }
+
+        const newLatex = toLatex(newAst);
+        console.log(`[Orchestrator] P.ONE_TO_TARGET_DENOM result: "${req.expressionLatex}" => "${newLatex}"`);
+
+        history = updateLastStep(history, { expressionAfter: newLatex });
+        await SessionService.updateHistory(req.sessionId, history);
+
+        TraceHub.emit({
+            module: "backend.orchestrator",
+            event: "RUN_END",
+            data: {
+                primitiveId: "P.ONE_TO_TARGET_DENOM",
+                ok: true,
+                resultLatexShort: shortLatex(newLatex),
+                targetPath,
+                oppositeDenominator: oppositeD
+            }
+        });
+
+        return {
+            status: "step-applied",
+            engineResult: {
+                ok: true,
+                newExpressionLatex: newLatex
+            },
+            history,
+            debugInfo: {
+                preferredPrimitiveId: "P.ONE_TO_TARGET_DENOM",
+                chosenPrimitiveId: "P.ONE_TO_TARGET_DENOM",
+                targetPath,
+                oppositeDenominator: oppositeD,
+                bypassedStepMaster: true
+            },
+            primitiveDebug: {
+                primitiveId: "P.ONE_TO_TARGET_DENOM",
+                status: "ready",
+                domain: "direct-execution",
+                reason: "preferredPrimitiveId-bypass"
+            }
+        };
+    }
+    // Integer Click Detection - return choice response for integers (unless preferredPrimitiveId is provided)
+    else if (ast && !req.preferredPrimitiveId) {
         // Augment AST with IDs first
         augmentAstWithIds(ast);
 
@@ -285,7 +606,8 @@ export async function runOrchestratorStep(
         }
     }
 
-    if (ctx.primitiveMaster && ast) {
+    // Only use PrimitiveMaster if we haven't already set mapResult (e.g. via P.INT_TO_FRAC direct path)
+    if (ctx.primitiveMaster && ast && !mapResult) {
         console.log("[Orchestrator] Using V5 PrimitiveMaster Path");
 
         // 1. Augment AST with IDs (Surface Map)
@@ -556,6 +878,18 @@ export async function runOrchestratorStep(
                 await SessionService.updateHistory(req.sessionId, history);
             }
 
+            // TraceHub: RUN_END success
+            TraceHub.emit({
+                module: "backend.orchestrator",
+                event: "RUN_END",
+                data: {
+                    primitiveId: pmPrimitiveId || chosenCandidate.primitiveIds?.[0],
+                    ok: true,
+                    errorCode: null,
+                    resultLatex: shortLatex(engineResult.newExpressionLatex || "")
+                }
+            });
+
             captureSnapshot(req, mapResult, "step-applied", chosenCandidate, engineResult);
 
             // Primitive Debug
@@ -576,17 +910,37 @@ export async function runOrchestratorStep(
                 });
             }
 
+            // Smart Operator Selection: Compute validation for operator clicks
+            const validationResult = req.selectionPath
+                ? validateOperatorContext(req.expressionLatex, req.selectionPath)
+                : validateOperatorContext(req.expressionLatex, 'root');
+
             return {
                 status: "step-applied",
                 engineResult,
                 history,
                 debugInfo: buildDebugInfo(policy, mapResult),
-                primitiveDebug
+                primitiveDebug,
+                validationType: validationResult?.validationType,
+                validationDetail: validationResult ?? undefined,
             };
         } else {
             // === V5 LOGGING START ===
             console.error("[Orchestrator] [V5-RUNNER-FAIL] Error details:", JSON.stringify(engineResult, null, 2));
             // === V5 LOGGING END ===
+
+            // TraceHub: RUN_END error
+            TraceHub.emit({
+                module: "backend.orchestrator",
+                event: "RUN_END",
+                data: {
+                    primitiveId: pmPrimitiveId || chosenCandidate.primitiveIds?.[0],
+                    ok: false,
+                    errorCode: engineResult.errorCode,
+                    resultLatex: null,
+                    errorMessage: engineResult.errorCode
+                }
+            });
 
             history = updateLastStep(history, { errorCode: engineResult.errorCode });
             await SessionService.updateHistory(req.sessionId, history);

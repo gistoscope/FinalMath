@@ -330,3 +330,138 @@ export function buildASTFromLatex(latex) {
     return augmentAstWithIds(ast);
 }
 
+/**
+ * Convert AST to instrumented LaTeX with data-ast-id wrappers.
+ * Uses KaTeX's \htmlData command to embed AST node IDs into DOM.
+ * 
+ * @param {Object} ast - Augmented AST with node IDs
+ * @returns {string} Instrumented LaTeX string
+ */
+export function toInstrumentedLatex(ast) {
+    if (!ast) return "";
+
+    function escapeNodeId(id) {
+        // Escape special characters for htmlData value
+        return (id || "").replace(/[{}\\]/g, '');
+    }
+
+    function wrapNumber(value, nodeId) {
+        const escaped = escapeNodeId(nodeId);
+        return `\\htmlData{ast-id=${escaped}, role=number}{${value}}`;
+    }
+
+    function wrapOperator(op, nodeId) {
+        const escaped = escapeNodeId(nodeId);
+        // Map operators to LaTeX commands
+        let latexOp = op;
+        if (op === "*") latexOp = "\\cdot";
+        if (op === "/") latexOp = "\\div";
+        return `\\htmlData{ast-id=${escaped}, role=operator, operator=${op}}{${latexOp}}`;
+    }
+
+    function traverse(node) {
+        if (!node) return "";
+
+        if (node.type === "integer") {
+            return wrapNumber(node.value, node.id);
+        }
+
+        if (node.type === "binaryOp") {
+            const left = traverse(node.left);
+            const op = wrapOperator(node.op, node.id);
+            const right = traverse(node.right);
+            return `${left} ${op} ${right}`;
+        }
+
+        if (node.type === "fraction") {
+            const num = traverse(node.args[0]);
+            const den = traverse(node.args[1]);
+            // Wrap the frac-bar with node id
+            return `\\htmlData{ast-id=${escapeNodeId(node.id)}, role=fraction}{\\frac{${num}}{${den}}}`;
+        }
+
+        if (node.type === "unaryOp") {
+            return `-${traverse(node.arg)}`;
+        }
+
+        return "";
+    }
+
+    return traverse(ast);
+}
+
+/**
+ * Convert LaTeX to instrumented LaTeX by parsing then re-serializing.
+ * This is the main entry point for Stable-ID rendering.
+ * 
+ * NO SILENT FALLBACK: Returns structured result with success/failure status.
+ * 
+ * @param {string} latex - Original LaTeX string
+ * @returns {{ success: boolean, latex: string, reason?: string }} Instrumentation result
+ */
+export function instrumentLatex(latex) {
+    // Integration point: Accept AST from external source (e.g., backend)
+    // For now, we build AST locally. Later this can accept pre-built AST.
+    const ast = buildASTFromLatex(latex);
+
+    if (!ast) {
+        const reason = "AST parser failed to parse expression";
+        console.error(`[BUG] STABLE-ID instrumentation failed: ${reason}. LaTeX: "${latex}"`);
+        return {
+            success: false,
+            latex: latex, // Return original for display-only (NOT for interactive clicks)
+            reason
+        };
+    }
+
+    const instrumented = toInstrumentedLatex(ast);
+
+    if (!instrumented || instrumented.trim() === "") {
+        const reason = "toInstrumentedLatex returned empty result";
+        console.error(`[BUG] STABLE-ID instrumentation failed: ${reason}. LaTeX: "${latex}"`);
+        return {
+            success: false,
+            latex: latex,
+            reason
+        };
+    }
+
+    console.log("[STABLE-ID] Instrumented LaTeX:", instrumented);
+    return {
+        success: true,
+        latex: instrumented
+    };
+}
+
+/**
+ * Integration point for future: Accept pre-built AST from backend.
+ * This allows the backend to be the single source of truth for AST.
+ * 
+ * @param {object} ast - Pre-built AST with node IDs
+ * @returns {{ success: boolean, latex: string, reason?: string }}
+ */
+export function instrumentFromAST(ast) {
+    if (!ast) {
+        return {
+            success: false,
+            latex: "",
+            reason: "No AST provided"
+        };
+    }
+
+    const instrumented = toInstrumentedLatex(ast);
+    if (!instrumented) {
+        return {
+            success: false,
+            latex: "",
+            reason: "toInstrumentedLatex failed for provided AST"
+        };
+    }
+
+    return {
+        success: true,
+        latex: instrumented
+    };
+}
+
+

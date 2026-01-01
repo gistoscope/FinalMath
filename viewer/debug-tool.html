@@ -329,6 +329,10 @@
             </div>
 
             <div class="input-group">
+                <label for="course-id-input">Course Id</label>
+                <input type="text" id="course-id-input" value="default" style="width: 100px;">
+            </div>
+            <div class="input-group">
                 <label for="mm-mode">Mode</label>
                 <select id="mm-mode">
                     <option value="Stage1">Stage 1</option>
@@ -343,6 +347,19 @@
                 <button id="btn-step-debug">Step Debug</button>
                 <button id="btn-global-map">Global Map</button>
                 <button id="btn-force-int-to-frac" style="background: #059669;">Force Apply INT_TO_FRAC</button>
+                <button id="btn-resolve-path" style="background: #7c3aed;">Resolve Path</button>
+            </div>
+
+            <!-- Target Tracking Display for Force Apply -->
+            <div id="force-apply-target-info"
+                style="background: #1e293b; padding: 8px 12px; border-radius: 4px; margin-bottom: 8px; font-family: monospace; font-size: 11px;">
+                <div style="color: #94a3b8; margin-bottom: 4px;">🎯 Force Apply Target:</div>
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <span>selectionPath: <span id="target-path-display" style="color: #fbbf24;">-</span></span>
+                    <span>kind: <span id="target-kind-display" style="color: #22d3ee;">-</span></span>
+                    <span>surfaceNodeId: <span id="target-surface-id-display" style="color: #a78bfa;">-</span></span>
+                    <span>value: <span id="target-value-display" style="color: #10b981;">-</span></span>
+                </div>
             </div>
         </div>
 

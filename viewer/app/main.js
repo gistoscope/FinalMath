@@ -1,7 +1,10 @@
 // main.js
 // Demo: canonical KaTeX formula + SurfaceNodeMap + interactive hover/click.
 
-import { buildSurfaceNodeMap, surfaceMapToSerializable, enhanceSurfaceMap, correlateOperatorsWithAST, correlateIntegersWithAST, hitTestPoint } from "./surface-map.js";
+import { buildSurfaceNodeMap, surfaceMapToSerializable, enhanceSurfaceMap, correlateOperatorsWithAST, hitTestPoint, getOperandNodes } from "./surface-map.js";
+import { instrumentLatex } from "./ast-parser.js";
+import { HintCycle } from "./hint-cycle.js";
+import { createOperatorContext, isCompleteContext, getContextBoundingBoxes } from "./operator-selection-context.js";
 
 // Expose hitTestPoint globally for coordinate-based hit-testing
 if (typeof window !== "undefined") {
@@ -80,24 +83,213 @@ const selectionState = {
   selectedIds: new Set(),
 };
 
-// P1: Integer click-cycle state
-// Single click cycles mode, double click applies action
+// SMART OPERATOR SELECTION: State for operator + operands highlighting
+const operatorSelectionState = {
+  active: false,                    // Whether operator selection is currently active
+  validationType: null,             // "direct" (GREEN) | "requires-prep" (YELLOW)
+  context: null,                    // OperatorSelectionContext from operator-selection-context.js
+  boxes: [],                        // Array of bounding boxes to highlight
+};
+
+// P1: 3-MODE HINT CYCLE STATE MACHINE
+// Mode 0 = GREEN (selection only, no apply)
+// Mode 1 = ORANGE (P.INT_TO_FRAC)
+// Mode 2 = BLUE (P.ONE_TO_TARGET_DENOM for Step2)
+const MODE_GREEN = 0;
+const MODE_ORANGE = 1;
+const MODE_BLUE = 2;
+
+// Mode configurations (independent of primitives array)
+const MODE_CONFIG = [
+  { mode: MODE_GREEN, color: "#4CAF50", label: "Selected", primitiveId: null },
+  { mode: MODE_ORANGE, color: "#FF9800", label: "Convert to fraction", primitiveId: "P.INT_TO_FRAC" },
+  { mode: MODE_BLUE, color: "#2196F3", label: "Convert 1 → target denom", primitiveId: "P.ONE_TO_TARGET_DENOM" }
+];
+
 const integerCycleState = {
   selectedNodeId: null,      // surfaceNodeId of currently selected integer
   astNodeId: null,           // AST path of selected integer
-  cycleIndex: 0,             // Current mode: 0 = Green (Convert to Frac), 1 = Orange (Factor Primes)
+  stableKey: null,           // StableTokenKey for deduplication (astId|role|operator)
+  mode: MODE_GREEN,          // Current mode: 0=GREEN, 1=ORANGE, 2=BLUE
+  isStep2Context: false,     // True if this integer is a Step2 multiplier-1
+  step2Info: null,           // { side, oppositeDenom } for Step2
+  // Legacy primitives array for ensureP1IntegerContext compatibility
   primitives: [
-    { id: "P.INT_TO_FRAC", label: "Convert to fraction", color: "#4CAF50" },     // Green
-    { id: "P.INT_FACTOR_PRIMES", label: "Factor to primes", color: "#FF9800" },  // Orange
+    { id: "P.INT_TO_FRAC", label: "Convert to fraction", color: "#4CAF50" },
+    { id: "P.INT_FACTOR_PRIMES", label: "Factor to primes", color: "#FF9800" },
   ],
+  cycleIndex: 0,             // Keep for compatibility, will be derived from mode
   // Double-click detection state
-  pendingClickTimeout: null, // Timeout ID for delayed single-click processing
-  lastClickTime: 0,          // Timestamp of last click
-  lastClickNodeId: null,     // Node ID of last click
+  pendingClickTimeout: null,
+  lastClickTime: 0,
+  lastClickNodeId: null,
+  dblclickLockUntil: 0,      // Timestamp: suppress cycling until this time (for dblclick)
 };
 
 // P1: Prevent re-entry while hint apply is in progress
 const hintApplyState = { applying: false };
+
+// FIX: Per-token mode storage to prevent left/right "1" sharing state
+// Key: stableKey (e.g., "term[0].term[1]|number|"), Value: { mode, isStep2Context, step2Info }
+const perTokenModeMap = new Map();
+
+/**
+ * Save current token's mode state to perTokenModeMap
+ */
+function saveTokenModeState() {
+  const key = integerCycleState.stableKey;
+  if (!key) return;
+  perTokenModeMap.set(key, {
+    mode: integerCycleState.mode,
+    isStep2Context: integerCycleState.isStep2Context,
+    step2Info: integerCycleState.step2Info ? { ...integerCycleState.step2Info } : null
+  });
+  console.log(`[STEP2-BLUE-TRACE] Saved mode=${integerCycleState.mode} for stableKey="${key}"`);
+}
+
+/**
+ * Restore token's mode state from perTokenModeMap, or default to GREEN
+ * @param {string} stableKey
+ * @returns {{ mode: number, isStep2Context: boolean, step2Info: object|null }}
+ */
+function restoreTokenModeState(stableKey) {
+  if (!stableKey || !perTokenModeMap.has(stableKey)) {
+    return { mode: MODE_GREEN, isStep2Context: false, step2Info: null };
+  }
+  const saved = perTokenModeMap.get(stableKey);
+  console.log(`[STEP2-BLUE-TRACE] Restored mode=${saved.mode} for stableKey="${stableKey}"`);
+  return saved;
+}
+
+/**
+ * Clear all per-token mode state (on expression change)
+ */
+function clearAllTokenModeState() {
+  perTokenModeMap.clear();
+  console.log(`[STEP2-BLUE-TRACE] Cleared perTokenModeMap (expression changed)`);
+}
+
+/**
+ * SINGLE GATEWAY for all apply actions (hint click, double-click)
+ * Reads mode from state at call time - no captured parameters.
+ * @param {string} logPrefix - "[HINT-APPLY]" or "[DOUBLE-CLICK APPLY]"
+ */
+async function applyCurrentHintForStableKey(logPrefix = "[HINT-APPLY]") {
+  // Read state at call time
+  const currentMode = integerCycleState.mode;
+  const currentStableKey = integerCycleState.stableKey;
+  const currentAstId = integerCycleState.astNodeId;
+  const currentSurfaceId = integerCycleState.selectedNodeId;
+  // MODE 0 (GREEN) normally = selection only, no apply.
+  // BUT: user expectation for P1 integers is that DOUBLE-CLICK in GREEN applies INT_TO_FRAC
+  // (unless this is a protected Step2 multiplier-1 token).
+  if (currentMode === MODE_GREEN) {
+    const isStep2 = !!integerCycleState.isStep2Context;
+    const isDoubleClickApply = (typeof logPrefix === "string") && logPrefix.indexOf("DOUBLE-CLICK") >= 0;
+
+    if (isDoubleClickApply && !isStep2) {
+      console.log(`[GREEN-DBLCLICK] Treat GREEN as ORANGE for P1: stableKey=${currentStableKey} -> primitive=P.INT_TO_FRAC`);
+      // Override primitive for this apply
+      // (keeps UI in GREEN, but performs the expected conversion)
+      // NOTE: primitiveId is defined below from MODE_CONFIG; we override later too.
+    } else {
+      console.log(`[APPLY BLOCKED] stableKey=${currentStableKey} mode=0 (GREEN) - selection only`);
+      return { applied: false, reason: "mode-0" };
+    }
+  }
+
+  // Prevent re-entry
+  if (hintApplyState.applying) {
+    console.log(`${logPrefix} Ignored: already applying`);
+    return { applied: false, reason: "re-entry" };
+  }
+
+  // Get primitiveId from MODE_CONFIG
+  const modeConfig = MODE_CONFIG[currentMode];
+  let primitiveId = modeConfig?.primitiveId;
+
+
+  // If GREEN + DOUBLE-CLICK and not Step2: allow P1 INT_TO_FRAC apply.
+  if (currentMode === MODE_GREEN) {
+    const isStep2 = !!integerCycleState.isStep2Context;
+    const isDoubleClickApply = (typeof logPrefix === "string") && logPrefix.indexOf("DOUBLE-CLICK") >= 0;
+    if (isDoubleClickApply && !isStep2) {
+      primitiveId = "P.INT_TO_FRAC";
+    }
+  }
+
+  // Part C: Block ORANGE mode for multiplier-1 tokens (prevents killing Step2)
+  if (currentMode === MODE_ORANGE && integerCycleState.isStep2Context) {
+    console.log(`[APPLY BLOCKED] stableKey=${currentStableKey} mode=1 (ORANGE) - multiplier-1 cannot use INT_TO_FRAC (would kill Step2)`);
+    return { applied: false, reason: "multiplier-1-protected" };
+  }
+
+  // For BLUE mode with Step2 info, ensure correct primitive
+  if (currentMode === MODE_BLUE && integerCycleState.step2Info) {
+    primitiveId = "P.ONE_TO_TARGET_DENOM";
+  }
+
+  if (!primitiveId) {
+    console.warn(`${logPrefix} BLOCKED: No primitiveId for mode=${currentMode}`);
+    return { applied: false, reason: "no-primitive" };
+  }
+
+  // Log target denom for BLUE mode
+  const targetDenom = (currentMode === MODE_BLUE && integerCycleState.step2Info)
+    ? integerCycleState.step2Info.oppositeDenom : null;
+  console.log(`${logPrefix} stableKey=${currentStableKey} astId=${currentAstId} mode=${currentMode} primitive=${primitiveId}${targetDenom ? ` targetDenom=${targetDenom}` : ''}`);
+
+  hintApplyState.applying = true;
+
+  try {
+    // Get endpoint
+    const endpointUrl = (typeof window !== "undefined" && window.__v5EndpointUrl)
+      ? window.__v5EndpointUrl
+      : "/api/orchestrator/v5/step";
+
+    const v5Payload = {
+      sessionId: "default-session",
+      expressionLatex: typeof currentLatex === "string" ? currentLatex : "",
+      selectionPath: currentAstId || "root",
+      preferredPrimitiveId: primitiveId,
+      courseId: "default",
+      userRole: "student",
+      surfaceNodeKind: "Num",
+    };
+
+    console.log(`[VIEWER-REQUEST] preferredPrimitiveId=${primitiveId} selectionPath=${currentAstId || "root"}`);
+
+    const result = await runV5Step(endpointUrl, v5Payload, 8000);
+
+    console.log(`[APPLY RESULT] status=${result.status}`);
+
+    if (result.status === "step-applied" && result.engineResult?.newExpressionLatex) {
+      const newLatex = result.engineResult.newExpressionLatex;
+      console.log(`[APPLY RESULT] SUCCESS! newLatex=${newLatex}`);
+      currentLatex = newLatex;
+      renderFormula();
+      buildAndShowMap();
+      clearSelection("latex-changed");
+      return { applied: true, newLatex };
+    } else {
+      console.warn(`[APPLY RESULT] FAILED status=${result.status}`);
+      return { applied: false, reason: result.status };
+    }
+  } catch (err) {
+    console.error(`${logPrefix} Exception:`, err);
+    return { applied: false, reason: "exception", error: err };
+  } finally {
+    hintApplyState.applying = false;
+  }
+}
+
+// STABLE-ID: Track whether instrumentation succeeded for current formula
+// When disabled, precise click actions (numbers/operators) are blocked
+const stableIdState = {
+  enabled: false,        // Whether Stable-ID is active for current expression
+  reason: null,          // Reason for failure if disabled
+  lastExpression: null   // Track which expression this state applies to
+};
 
 // P1 double-click threshold in milliseconds
 const P1_DOUBLE_CLICK_THRESHOLD = 350;
@@ -255,6 +447,99 @@ if (typeof window !== "undefined") {
   window.runP1SelfTest = runP1SelfTest;
 }
 
+/**
+ * P1 Order-Independence Test
+ * Tests that INT_TO_FRAC applies correctly to each integer regardless of click order.
+ * Usage: window.runP1OrderTest() or window.runP1OrderTest("right-to-left")
+ */
+async function runP1OrderTest(order = "left-to-right") {
+  console.log(`[P1-ORDER-TEST] Starting order-independence test (${order})...`);
+
+  const originalLatex = currentLatex;
+  const results = [];
+
+  // Set test expression
+  currentLatex = "2+3-1-1";
+  renderFormula();
+  buildAndShowMap();
+  await new Promise(r => setTimeout(r, 300));
+
+  const map = window.__currentSurfaceMap;
+  if (!map || !map.atoms) {
+    console.error("[P1-ORDER-TEST] FAIL: No surface map available");
+    return { passed: false, error: "No surface map" };
+  }
+
+  // Get all Num nodes sorted by position
+  let nums = map.atoms.filter(n => n.kind === "Num" && n.astNodeId);
+  nums.sort((a, b) => (a.bbox.left - b.bbox.left));
+
+  if (order === "right-to-left") {
+    nums = nums.reverse();
+  }
+
+  console.log(`[P1-ORDER-TEST] Found ${nums.length} integers in ${order} order:`);
+  nums.forEach((n, i) => {
+    console.log(`  [${i}] surfaceId=${n.id}, astNodeId=${n.astNodeId}, value=${n.latexFragment || n.text}`);
+  });
+
+  // Apply INT_TO_FRAC to each integer in order
+  for (let i = 0; i < nums.length; i++) {
+    const num = nums[i];
+    const beforeLatex = currentLatex;
+
+    console.log(`[P1-ORDER-TEST] Step ${i + 1}: Applying to ${num.latexFragment || num.text} (astNodeId=${num.astNodeId})`);
+
+    // Select and apply
+    integerCycleState.selectedNodeId = num.id;
+    integerCycleState.astNodeId = num.astNodeId;
+    integerCycleState.cycleIndex = 0;
+
+    await applyP1Action(num.id, num.astNodeId, 0);
+    await new Promise(r => setTimeout(r, 400));
+
+    // Record result
+    results.push({
+      step: i + 1,
+      targetValue: num.latexFragment || num.text,
+      targetPath: num.astNodeId,
+      beforeLatex,
+      afterLatex: currentLatex,
+      changed: beforeLatex !== currentLatex
+    });
+
+    console.log(`[P1-ORDER-TEST] Result: "${beforeLatex}" -> "${currentLatex}"`);
+
+    // Rebuild map for next iteration
+    buildAndShowMap();
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  // Summary
+  const allChanged = results.every(r => r.changed);
+  console.log(`[P1-ORDER-TEST] === SUMMARY ===`);
+  console.log(`[P1-ORDER-TEST] Order: ${order}`);
+  console.log(`[P1-ORDER-TEST] All steps applied: ${allChanged ? "YES" : "NO"}`);
+  console.log(`[P1-ORDER-TEST] Final expression: ${currentLatex}`);
+  results.forEach(r => {
+    console.log(`  Step ${r.step}: ${r.targetValue} (${r.targetPath}) -> ${r.changed ? "OK" : "FAILED"}`);
+  });
+
+  // Restore
+  currentLatex = originalLatex;
+  renderFormula();
+  buildAndShowMap();
+  resetIntegerCycleState();
+
+  return { passed: allChanged, order, results, finalLatex: currentLatex };
+}
+
+// Expose order test globally
+if (typeof window !== "undefined") {
+  window.runP1OrderTest = runP1OrderTest;
+}
+
+
 // P1: Clear integer selection on expression change
 function resetIntegerCycleState() {
   // Clear any pending click timeout
@@ -264,25 +549,36 @@ function resetIntegerCycleState() {
   }
   integerCycleState.selectedNodeId = null;
   integerCycleState.astNodeId = null;
+  integerCycleState.stableKey = null;
+  integerCycleState.mode = MODE_GREEN;
+  integerCycleState.isStep2Context = false;
+  integerCycleState.step2Info = null;
   integerCycleState.cycleIndex = 0;
   integerCycleState.lastClickTime = 0;
   integerCycleState.lastClickNodeId = null;
+  // FIX: Do NOT clear perTokenModeMap on expression change!
+  // Tokens that still exist after Step2 apply should retain their saved mode.
+  // The mode will be validated when the token is clicked (if Step2 context is gone, mode will be adjusted).
+  // clearAllTokenModeState(); // REMOVED - was wiping valid mode for remaining Step2 tokens
   clearIntegerHighlight();
+  if (window.__debugStep2Cycle) {
+    console.log("[STEP2-CYCLE] resetIntegerCycleState: Cleared current selection but preserved perTokenModeMap");
+  }
   console.log("[P1] Reset integer cycle state");
 }
 
 // P1: Apply visual highlight to selected integer
-function applyIntegerHighlight(surfaceNodeId, cycleIndex) {
+function applyIntegerHighlight(surfaceNodeId, mode) {
   clearIntegerHighlight();
-  const primitive = integerCycleState.primitives[cycleIndex];
+  const modeConfig = MODE_CONFIG[mode] || MODE_CONFIG[MODE_GREEN];
   const el = document.querySelector(`[data-surface-id="${surfaceNodeId}"]`);
   if (el) {
     el.classList.add("p1-integer-selected");
-    el.style.setProperty("--p1-highlight-color", primitive.color);
-    console.log(`[P1] Applied highlight to ${surfaceNodeId} with color ${primitive.color} (mode=${cycleIndex})`);
+    el.style.setProperty("--p1-highlight-color", modeConfig.color);
+    console.log(`[P1] Applied highlight to ${surfaceNodeId} with color ${modeConfig.color} (mode=${mode})`);
   }
   // Also show mode indicator (now clickable)
-  showModeIndicator(primitive, surfaceNodeId, cycleIndex);
+  showModeIndicator(modeConfig, surfaceNodeId, mode);
 }
 
 function clearIntegerHighlight() {
@@ -342,7 +638,18 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
     document.body.appendChild(indicator);
   }
 
-  indicator.textContent = `${primitive.label} (click to apply)`;
+  // Build label - for BLUE mode, show actual target denom from step2Info
+  let label = primitive.label;
+  if (integerCycleState.mode === MODE_BLUE && integerCycleState.step2Info) {
+    const targetDenom = integerCycleState.step2Info.oppositeDenom;
+    label = `Convert 1 → ${targetDenom}/${targetDenom}`;
+    // Log BLUE display with all Step2 info
+    console.log(`[BLUE-SHOW] stableKey=${integerCycleState.stableKey} astId=${integerCycleState.astNodeId} side=${integerCycleState.step2Info.side} oppositeDenom=${targetDenom} primitiveId=P.ONE_TO_TARGET_DENOM`);
+  } else if (integerCycleState.mode === MODE_GREEN) {
+    label = "Selected (click to cycle)";
+  }
+
+  indicator.textContent = `${label} (click to apply)`;
   indicator.style.backgroundColor = primitive.color;
   indicator.style.display = "block";
 
@@ -355,54 +662,14 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
   });
 
   // Make indicator clickable - applies the current mode's action
-  // Using onclick (bubbling phase) after capture blockers have run
+  // CRITICAL: Use single gateway function, no captured params
   indicator.onclick = async (e) => {
     e.preventDefault();
     e.stopPropagation();
     e.stopImmediatePropagation();
 
-    // Prevent re-entry
-    if (hintApplyState && hintApplyState.applying) {
-      console.log("[P1-HINT] Ignored: already applying");
-      return;
-    }
-
-    console.log(`[P1-HINT] Hint clicked: requesting apply for ${primitive.id} on node ${surfaceNodeId}`);
-
-    if (hintApplyState) hintApplyState.applying = true;
-
-    updateP1Diagnostics({
-      hintClickBlocked: "YES - applying",
-      lastHintApplyStatus: "RUNNING",
-      lastHintApplySelectionPath: integerCycleState.astNodeId || "MISSING",
-      lastHintApplyPreferredPrimitiveId: primitive.id,
-      lastHintApplyEndpoint: (typeof window !== "undefined" && window.__v5EndpointUrl) ? window.__v5EndpointUrl : V5_ENDPOINT_URL,
-      lastHintApplyNewLatex: "N/A",
-      lastHintApplyError: "N/A"
-    });
-
-    try {
-      // Ensure AST nodeId + backend choices are available (even if click event had astNodeId missing)
-      const ctx = await ensureP1IntegerContext(surfaceNodeId, integerCycleState.astNodeId);
-
-      // Keep diagnostics in sync with resolved target
-      updateP1Diagnostics({
-        resolvedAstNodeId: ctx.astNodeId || "MISSING",
-        lastHintApplySelectionPath: ctx.astNodeId || "MISSING",
-        primitiveId: primitive.id
-      });
-
-      // Apply the currently selected primitive (cycleIndex)
-      await applyP1Action(surfaceNodeId, ctx.astNodeId, cycleIndex);
-    } catch (err) {
-      console.error("[P1-HINT][ERROR] Apply failed:", err);
-      updateP1Diagnostics({
-        lastHintApplyStatus: "engine-error",
-        lastHintApplyError: err instanceof Error ? err.message : String(err)
-      });
-    } finally {
-      if (hintApplyState) hintApplyState.applying = false;
-    }
+    // Call single gateway - reads mode from state at call time
+    await applyCurrentHintForStableKey("[HINT-APPLY]");
   };
 }
 
@@ -411,6 +678,236 @@ function hideModeIndicator() {
   if (indicator) {
     indicator.style.display = "none";
     indicator.onclick = null; // Clear click handler
+  }
+}
+
+/**
+ * STABLE-ID: Get astId from DOM element's data-ast-id attribute.
+ * This is the authoritative source for click/hover targeting.
+ * 
+ * @param {Element|null} domElement - The DOM element to get astId from
+ * @returns {string|null} The data-ast-id value or null if not set
+ */
+function getAstIdFromDOM(domElement) {
+  if (!domElement) return null;
+
+  // Try the element itself first
+  if (domElement.hasAttribute && domElement.hasAttribute('data-ast-id')) {
+    return domElement.getAttribute('data-ast-id');
+  }
+
+  // Use closest to find parent with data-ast-id
+  const withAstId = domElement.closest ? domElement.closest('[data-ast-id]') : null;
+  if (withAstId) {
+    return withAstId.getAttribute('data-ast-id');
+  }
+
+  return null;
+}
+
+/**
+ * STABLE-ID: Get role and operator info from DOM element.
+ * @param {Element|null} domElement - The DOM element
+ * @returns {{role: string|null, operator: string|null}}
+ */
+function getRoleFromDOM(domElement) {
+  if (!domElement) return { role: null, operator: null };
+
+  const withRole = domElement.closest ? domElement.closest('[data-role]') : null;
+  if (withRole) {
+    return {
+      role: withRole.getAttribute('data-role'),
+      operator: withRole.getAttribute('data-operator') || null
+    };
+  }
+
+  return { role: null, operator: null };
+}
+
+/**
+ * STEP 2: Detect if clicked integer is a multiplier "1" that participates in diff-denom flow.
+ * Uses data-ast-id attributes (Stable-ID) for precise targeting.
+ * 
+ * For Step2 to apply:
+ * - Expression must be: frac * 1 +/- frac * 1 with different denominators
+ * - OR partial: frac * 1 +/- frac * frac (one side already converted)
+ * - Clicked "1" must have astId matching term[X].term[1] pattern
+ * 
+ * @param {string} surfaceNodeId - The surface node ID clicked
+ * @param {string|null} astNodeId - The astId from DOM (Stable-ID)
+ * @param {object} surfaceMap - The surface map
+ * @returns {{ isStep2Context: boolean, side?: string, path?: string, oppositeDenom?: string }}
+ */
+function detectStep2MultiplierContext(surfaceNodeId, astNodeId, surfaceMap) {
+  // Must have a valid astNodeId from Stable-ID
+  if (!astNodeId) {
+    return { isStep2Context: false };
+  }
+
+  // Check if astNodeId matches the multiplier-1 pattern
+  const leftPattern = /^term\[0\]\.term\[1\]$/;
+  const rightPattern = /^term\[1\]\.term\[1\]$/;
+
+  let side = null;
+  if (leftPattern.test(astNodeId)) {
+    side = "left";
+  } else if (rightPattern.test(astNodeId)) {
+    side = "right";
+  } else {
+    return { isStep2Context: false };
+  }
+
+  const latex = typeof currentLatex === "string" ? currentLatex : "";
+
+  // FIX: Support partial Step2 expressions (one side already converted)
+  // Pattern 1: Both sides have ·1 (original Step2 pattern)
+  const fullPattern = /\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*1\s*([+\-])\s*\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*1/;
+  // Pattern 2: Left side has ·frac, right side has ·1 (left already applied)
+  const leftAppliedPattern = /\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*\\frac\{[^}]+\}\{[^}]+\}\s*([+\-])\s*\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*1/;
+  // Pattern 3: Left side has ·1, right side has ·frac (right already applied)
+  const rightAppliedPattern = /\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*1\s*([+\-])\s*\\frac\{([^}]+)\}\{(\d+)\}\s*\\cdot\s*\\frac\{[^}]+\}\{[^}]+\}/;
+
+  let leftDenom = null;
+  let rightDenom = null;
+  let matchType = null;
+
+  const fullMatch = latex.match(fullPattern);
+  if (fullMatch) {
+    leftDenom = fullMatch[2];
+    rightDenom = fullMatch[5];
+    matchType = "full";
+  } else {
+    const leftAppliedMatch = latex.match(leftAppliedPattern);
+    if (leftAppliedMatch && side === "right") {
+      // Left already applied, right still has ·1
+      leftDenom = leftAppliedMatch[2];
+      rightDenom = leftAppliedMatch[5];
+      matchType = "leftApplied";
+    } else {
+      const rightAppliedMatch = latex.match(rightAppliedPattern);
+      if (rightAppliedMatch && side === "left") {
+        // Right already applied, left still has ·1
+        leftDenom = rightAppliedMatch[2];
+        rightDenom = rightAppliedMatch[5];
+        matchType = "rightApplied";
+      }
+    }
+  }
+
+  if (!leftDenom || !rightDenom) {
+    if (window.__debugStep2Cycle) {
+      console.log(`[STEP2-CYCLE] detectStep2MultiplierContext: No pattern matched for side=${side} latex="${latex.substring(0, 80)}..."`);
+    }
+    return { isStep2Context: false };
+  }
+
+  if (leftDenom === rightDenom) {
+    return { isStep2Context: false };
+  }
+
+  const oppositeDenom = side === "left" ? rightDenom : leftDenom;
+
+  if (window.__debugStep2Cycle) {
+    console.log(`[STEP2-CYCLE] detectStep2MultiplierContext: astNodeId=${astNodeId}, side=${side}, oppositeDenom=${oppositeDenom}, matchType=${matchType}`);
+  }
+
+  console.log(`[STEP2-DETECT] Found Step 2 context via Stable-ID: astNodeId=${astNodeId}, side=${side}, oppositeDenom=${oppositeDenom}`);
+
+  return {
+    isStep2Context: true,
+    side,
+    path: astNodeId,
+    oppositeDenom
+  };
+}
+
+/**
+ * STABLE-ID: Scan DOM for elements with data-ast-id and populate surface map atoms.
+ * 
+ * IMPORTANT: Scans only .katex-html (not .katex-mathml) to avoid duplicates.
+ * Deduplicates by StableTokenKey = `${astId}|${role}|${operator}`.
+ * 
+ * @param {object} map - Surface map
+ * @param {HTMLElement} container - Formula container
+ */
+function scanDOMForStableIds(map, container) {
+  if (!map || !Array.isArray(map.atoms) || !container) return;
+
+  // CRITICAL: Only scan .katex-html, exclude .katex-mathml (screen reader copy causes duplicates)
+  const katexHtml = container.querySelector('.katex-html');
+  if (!katexHtml) {
+    console.warn("[STABLE-ID] No .katex-html found in container");
+    return;
+  }
+
+  // Find all elements with data-ast-id within .katex-html only
+  const stableElements = katexHtml.querySelectorAll('[data-ast-id]');
+  console.log(`[STABLE-ID] Found ${stableElements.length} DOM elements with data-ast-id in .katex-html`);
+
+  // Build StableTokenKey -> info map, dedupe by key (keep first occurrence)
+  const stableTokenMap = new Map(); // StableTokenKey -> { astId, role, operator, dom }
+
+  for (const el of stableElements) {
+    const astId = el.getAttribute('data-ast-id') || "";
+    const role = el.getAttribute('data-role') || "";
+    const operator = el.getAttribute('data-operator') || "";
+    const stableKey = `${astId}|${role}|${operator}`;
+
+    if (!stableTokenMap.has(stableKey)) {
+      stableTokenMap.set(stableKey, { astId, role, operator, dom: el, stableKey });
+    }
+    // else: skip duplicate (same stableKey already registered)
+  }
+
+  console.log(`[STABLE-ID] Deduplicated to ${stableTokenMap.size} unique StableTokenKeys`);
+
+  // Create DOM element -> stable info map for fast lookup
+  const astIdByDom = new Map();
+  for (const [key, info] of stableTokenMap) {
+    astIdByDom.set(info.dom, info);
+  }
+
+  // Update surface atoms with ast info from DOM
+  for (const atom of map.atoms) {
+    if (!atom.dom) continue;
+
+    // Check if atom's DOM is within .katex-html (exclude mathml copies)
+    if (!katexHtml.contains(atom.dom)) continue;
+
+    // Check if this atom's DOM element or any ancestor has data-ast-id
+    let current = atom.dom;
+    while (current && current !== container) {
+      if (astIdByDom.has(current)) {
+        const info = astIdByDom.get(current);
+        atom.astNodeId = info.astId;
+        atom.dataRole = info.role;
+        atom.dataOperator = info.operator;
+        atom.stableKey = info.stableKey; // Store StableTokenKey for hint-cycle
+        console.log(`[STABLE-ID] Atom ${atom.id} (${atom.kind}) -> stableKey="${info.stableKey}"`);
+        break;
+      }
+      current = current.parentElement;
+    }
+  }
+
+  // Store stableTokenMap on window for click/hover handlers
+  window.__stableTokenMap = stableTokenMap;
+}
+
+/**
+ * STABLE-ID: Dev assertion - verify DOM contains expected data-ast-id elements.
+ * @param {HTMLElement} container - Formula container  
+ */
+function assertDOMStableIds(container) {
+  if (!container) return;
+
+  const stableElements = container.querySelectorAll('[data-ast-id]');
+  const count = stableElements.length;
+
+  if (count > 0) {
+    console.log(`[STABLE-ID ASSERTION] DOM scan found ${count} tokens with data-ast-id; none missing for interactive roles.`);
+  } else {
+    console.warn(`[STABLE-ID ASSERTION] No data-ast-id elements found in DOM! Instrumentation may have failed.`);
   }
 }
 
@@ -437,7 +934,7 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
     selectionPath: astNodeId, // may be null
     userRole: "student",
     userId: "student",
-    courseId: "default-course",
+    courseId: "default",
     surfaceNodeKind: "Num"
     // IMPORTANT: no preferredPrimitiveId here; we want status="choice"
   };
@@ -468,6 +965,25 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
       color: idx === 0 ? "#4CAF50" : "#FF9800",
       targetNodeId: c.targetNodeId || targetNodeId
     }));
+
+    // STEP 2: Add third hint for "1" multiplier in diff denom flow
+    const step2Context = detectStep2MultiplierContext(surfaceNodeId, astNodeId, window.__currentSurfaceMap);
+    if (step2Context.isStep2Context) {
+      // Add the P.ONE_TO_TARGET_DENOM hint as third option (blue color)
+      integerCycleState.primitives.push({
+        id: "P.ONE_TO_TARGET_DENOM",
+        label: `Convert 1 → ${step2Context.oppositeDenom}/${step2Context.oppositeDenom}`,
+        color: "#2196F3", // Blue for Step 2
+        targetNodeId: step2Context.path,
+        isStep2: true,
+        oppositeDenom: step2Context.oppositeDenom,
+        side: step2Context.side
+      });
+
+      // INT-CYCLE logging
+      const hints = integerCycleState.primitives.map(p => p.id);
+      console.log(`[INT-CYCLE] surfaceId=${surfaceNodeId} isMultiplier1=true selectionPath=${step2Context.path} side=${step2Context.side} cycleIndex(before)=${integerCycleState.cycleIndex} cycleIndex(after)=${integerCycleState.cycleIndex} hints=[${hints.join(",")}]`);
+    }
 
     updateP1Diagnostics({
       resolvedAstNodeId: astNodeId || "MISSING",
@@ -593,8 +1109,29 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
 
   console.log(`[P1-HINT-APPLY] primitiveId: ${primitive.id}`);
   console.log(`[P1-HINT-APPLY] selectionPath: ${targetPath}`);
+
+  // STEP2: Special debug log for one-multiplier clicks
+  if (primitive.id === "P.ONE_TO_TARGET_DENOM") {
+    const side = primitive.side || "unknown";
+    const oppositeDenom = primitive.oppositeDenom || "?";
+    console.log(`[STEP2-APPLY] selectionPath=${targetPath} preferredPrimitiveId=P.ONE_TO_TARGET_DENOM side=${side} oppositeDenom=${oppositeDenom}`);
+  }
   console.log(`[P1-HINT-APPLY] request URL: ${endpointUrl}`);
   console.log(`[P1-HINT-APPLY] payload:`, JSON.stringify(v5Payload));
+
+  // TraceHub: Emit VIEWER_HINT_APPLY_REQUEST
+  if (typeof window !== "undefined" && window.__traceHub) {
+    window.__traceHub.emit({
+      module: "viewer.main",
+      event: "VIEWER_HINT_APPLY_REQUEST",
+      data: {
+        latex: v5Payload.expressionLatex,
+        selectionPath: targetPath,
+        preferredPrimitiveId: primitive.id,
+        surfaceNodeId
+      }
+    });
+  }
 
   try {
     // Use the shared V5 client for proper request handling
@@ -607,6 +1144,18 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
       lastHintApplyError: (result && result.status === "engine-error" && result.rawResponse && result.rawResponse.error) ? String(result.rawResponse.error) : "N/A"
     });
 
+    // TraceHub: Emit VIEWER_HINT_APPLY_RESPONSE
+    if (typeof window !== "undefined" && window.__traceHub) {
+      window.__traceHub.emit({
+        module: "viewer.main",
+        event: "VIEWER_HINT_APPLY_RESPONSE",
+        data: {
+          status: result ? result.status : "engine-error",
+          newLatex: result?.engineResult?.newExpressionLatex || null,
+          error: (result && result.status === "engine-error") ? (result.rawResponse?.error || "unknown") : null
+        }
+      });
+    }
 
     console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
     console.log(`[P1-HINT-APPLY] newExpressionLatex: ${result.engineResult?.newExpressionLatex || "N/A"}`);
@@ -620,8 +1169,8 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
       renderFormula();
       buildAndShowMap();
 
-      // Clear P1 selection state
-      resetIntegerCycleState();
+      // Clear selection comprehensively
+      clearSelection("latex-changed");
     } else if (result.status === "no-candidates") {
       console.warn(`[P1-HINT-APPLY] No candidates found for primitive ${primitive.id}. Backend may not support this primitive.`);
     } else if (result.status === "choice") {
@@ -633,6 +1182,77 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
     }
   } catch (err) {
     console.error(`[P1-HINT-APPLY][ERROR] Exception calling backend:`, err);
+    // TraceHub: Emit VIEWER_HINT_APPLY_RESPONSE with error
+    if (typeof window !== "undefined" && window.__traceHub) {
+      window.__traceHub.emit({
+        module: "viewer.main",
+        event: "VIEWER_HINT_APPLY_RESPONSE",
+        data: {
+          status: "exception",
+          error: err instanceof Error ? err.message : String(err)
+        }
+      });
+    }
+  }
+}
+
+/**
+ * P1: Apply action with explicit primitiveId (mode-based, not array-based)
+ * @param {string} surfaceNodeId
+ * @param {string|null} astNodeId
+ * @param {string} primitiveId - e.g. "P.INT_TO_FRAC" or "P.ONE_TO_TARGET_DENOM"
+ */
+async function applyP1ActionWithPrimitive(surfaceNodeId, astNodeId, primitiveId) {
+  if (!primitiveId) {
+    console.warn("[P1-HINT-APPLY] No primitiveId provided");
+    return;
+  }
+
+  // Get endpoint from global config
+  const endpointUrl = (typeof window !== "undefined" && window.__v5EndpointUrl)
+    ? window.__v5EndpointUrl
+    : "/api/orchestrator/v5/step";
+
+  const v5Payload = {
+    sessionId: "default-session",
+    expressionLatex: typeof currentLatex === "string" ? currentLatex : "",
+    selectionPath: astNodeId || "root",
+    preferredPrimitiveId: primitiveId,
+    courseId: "default",
+    userRole: "student",
+    surfaceNodeKind: "Num",
+  };
+
+  console.log(`[P1-HINT-APPLY] primitiveId: ${primitiveId}`);
+  console.log(`[P1-HINT-APPLY] selectionPath: ${astNodeId || "root"}`);
+  console.log(`[P1-HINT-APPLY] request URL: ${endpointUrl}`);
+
+  try {
+    const result = await runV5Step(endpointUrl, v5Payload, 8000);
+
+    console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
+
+    if (result.status === "step-applied" && result.engineResult?.newExpressionLatex) {
+      const newLatex = result.engineResult.newExpressionLatex;
+      console.log(`[P1-HINT-APPLY] SUCCESS! Updating expression to: ${newLatex}`);
+      currentLatex = newLatex;
+      renderFormula();
+      buildAndShowMap();
+      clearSelection("latex-changed");
+    } else {
+      console.warn(`[P1-HINT-APPLY] Response status: ${result.status}`);
+    }
+
+    updateP1Diagnostics({
+      lastHintApplyStatus: result.status,
+      lastHintApplyNewLatex: result.engineResult?.newExpressionLatex || "N/A"
+    });
+  } catch (err) {
+    console.error(`[P1-HINT-APPLY][ERROR] Exception:`, err);
+    updateP1Diagnostics({
+      lastHintApplyStatus: "exception",
+      lastHintApplyError: err instanceof Error ? err.message : String(err)
+    });
   }
 }
 
@@ -682,6 +1302,50 @@ let isDragging = false;
 let dragStart = null;
 let dragEnd = null;
 
+/**
+ * Canonical function to clear ALL selection states and visuals.
+ * @param {string} reason - Debug reason for clearing
+ */
+function clearSelection(reason) {
+  console.info("[SEL] clearSelection", { reason });
+
+  // 1. Clear internal selection states
+  selectionState.selectedIds.clear();
+  selectionState.mode = "none";
+  selectionState.primaryId = null;
+
+  // Clear P1 state
+  if (typeof resetIntegerCycleState === "function") {
+    resetIntegerCycleState();
+  }
+
+  // 2. Remove integer visual classes from DOM
+  const selectedInts = document.querySelectorAll(".p1-integer-selected");
+  selectedInts.forEach(el => {
+    el.classList.remove("p1-integer-selected");
+    el.style.removeProperty("--p1-highlight-color");
+  });
+
+  // 3. Clear overlay
+  const overlay = document.getElementById("selection-overlay");
+  if (overlay) overlay.innerHTML = "";
+
+  // Force clear via helper if available (handles ensuring overlay exists)
+  if (typeof clearSelectionVisual === "function" && typeof current !== "undefined" && current && current.map) {
+    clearSelectionVisual(current.map);
+  }
+
+  // 4. Clear hover/focus
+  if (typeof clearDomHighlight === "function") {
+    clearDomHighlight();
+  }
+
+  // 5. Hide indicator
+  if (typeof hideModeIndicator === "function") {
+    hideModeIndicator();
+  }
+}
+
 function renderFormula() {
   /** @type {HTMLElement|null} */
   const container = document.getElementById("formula-container");
@@ -689,19 +1353,138 @@ function renderFormula() {
 
   container.innerHTML = "";
 
+  // Remove any existing Stable-ID disabled banner
+  const existingBanner = document.getElementById("stable-id-banner");
+  if (existingBanner) existingBanner.remove();
+
   if (!window.katex || !window.katex.render) {
     container.textContent = "KaTeX is not available (window.katex missing).";
     return container;
   }
 
-  window.katex.render(currentLatex, container, {
+  // STABLE-ID: Try local instrumentation first
+  const localResult = instrumentLatex(currentLatex);
+
+  if (localResult.success) {
+    // Local success
+    stableIdState.lastExpression = currentLatex;
+    stableIdState.enabled = true;
+    stableIdState.reason = null;
+    console.log("[STABLE-ID] Local instrumentation succeeded");
+    doRender(localResult.latex, container);
+  } else {
+    // Local failed - try backend
+    console.log(`[STABLE-ID] Local failed (${localResult.reason}) -> calling backend`);
+    tryBackendInstrumentation(currentLatex, localResult.latex, container, localResult.reason);
+  }
+
+  return container;
+}
+
+/**
+ * Call backend /api/instrument endpoint for instrumentation.
+ * Falls back to original LaTeX if backend fails.
+ */
+async function tryBackendInstrumentation(latex, fallbackLatex, container, localReason) {
+  const backendUrl = (window.__v5EndpointUrl || "http://localhost:4201/api/orchestrator/v5/step")
+    .replace("/api/orchestrator/v5/step", "/api/instrument");
+
+  try {
+    const response = await fetch(backendUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ latex })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success && result.instrumentedLatex) {
+      // Backend success!
+      stableIdState.lastExpression = latex;
+      stableIdState.enabled = true;
+      stableIdState.reason = null;
+      console.log(`[STABLE-ID] Backend instrumentation succeeded (${result.tokenCount || "?"} tokens)`);
+      doRender(result.instrumentedLatex, container);
+      return;
+    } else {
+      // Backend failed
+      const reason = result.reason || "unknown backend error";
+      console.log(`[BUG] Backend instrument failed: ${reason}`);
+      stableIdState.lastExpression = latex;
+      stableIdState.enabled = false;
+      stableIdState.reason = reason;
+      showStableIdDisabledBanner(reason);
+      doRender(fallbackLatex, container);
+    }
+  } catch (err) {
+    // Network or other error
+    const reason = `backend unreachable: ${err.message}`;
+    console.log(`[BUG] Backend instrument failed: ${reason}`);
+    stableIdState.lastExpression = latex;
+    stableIdState.enabled = false;
+    stableIdState.reason = `local: ${localReason}; ${reason}`;
+    showStableIdDisabledBanner(stableIdState.reason);
+    doRender(fallbackLatex, container);
+  }
+}
+
+/**
+ * Render LaTeX with KaTeX using trust for \htmlData.
+ */
+function doRender(latex, container) {
+  window.katex.render(latex, container, {
     throwOnError: false,
     displayMode: true,
     output: "html",
+    // TRUST: Enable htmlData command for Stable-ID rendering
+    trust: (context) => {
+      // Only allow our htmlData commands for data-ast-id
+      return context.command === "\\htmlData";
+    },
+    // STRICT: Silence only htmlExtension warnings, keep others
+    strict: (errorCode, errorMsg, token) => {
+      if (errorCode === "htmlExtension") {
+        return "ignore"; // Silence our intended htmlData usage
+      }
+      return "warn"; // Keep warnings for everything else
+    }
   });
 
   return container;
 }
+
+/**
+ * Show a banner when Stable-ID is disabled for an expression.
+ * @param {string} reason - Reason for failure
+ */
+function showStableIdDisabledBanner(reason) {
+  let banner = document.getElementById("stable-id-banner");
+  if (!banner) {
+    banner = document.createElement("div");
+    banner.id = "stable-id-banner";
+    banner.style.cssText = `
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff9800;
+      color: #000;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 10000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    `;
+    document.body.appendChild(banner);
+  }
+  banner.textContent = `⚠️ Stable-ID disabled: ${reason || "unknown"}. Precise clicks disabled.`;
+  banner.style.display = "block";
+}
+
 
 // === Choice Popup for Integer Context Menu ===
 
@@ -835,6 +1618,7 @@ async function applyChoice(primitiveId, selectionPath, latex) {
 
     if (json.status === "step-applied" && json.expressionLatex) {
       currentLatex = json.expressionLatex;
+      clearSelection("latex-changed");
       renderFormula();
       buildAndShowMap();
     } else {
@@ -1045,10 +1829,31 @@ function clusterDigitRuns(nodes) {
   return items;
 }
 
-function paintSelectionRects(items) {
+function paintSelectionRects(items, colorMode = "default") {
   const overlay = ensureSelectionOverlay();
   if (!overlay) return;
   overlay.innerHTML = "";
+
+  // COLOR SCHEMES for different selection modes
+  const colorSchemes = {
+    default: {
+      border: "2px solid rgba(16, 185, 129, 0.95)",     // Teal/Green
+      boxShadow: "0 0 0 2px rgba(16, 185, 129, 0.3)",
+      background: "rgba(209, 250, 229, 0.4)",
+    },
+    direct: {
+      border: "2px solid rgba(34, 197, 94, 0.95)",       // Bright GREEN
+      boxShadow: "0 0 0 3px rgba(34, 197, 94, 0.3)",
+      background: "rgba(187, 247, 208, 0.5)",
+    },
+    "requires-prep": {
+      border: "2px solid rgba(234, 179, 8, 0.95)",       // YELLOW/Amber
+      boxShadow: "0 0 0 3px rgba(234, 179, 8, 0.3)",
+      background: "rgba(254, 243, 199, 0.5)",
+    },
+  };
+
+  const scheme = colorSchemes[colorMode] || colorSchemes.default;
 
   for (const it of items) {
     const w = Math.max(0, it.bbox.right - it.bbox.left);
@@ -1062,14 +1867,112 @@ function paintSelectionRects(items) {
     r.style.width = w + "px";
     r.style.height = h + "px";
 
-    // Match old mv-selected look but without touching KaTeX DOM
-    r.style.border = "2px solid rgba(16, 185, 129, 0.95)";
-    r.style.boxShadow = "0 0 0 2px rgba(16, 185, 129, 0.3)";
-    r.style.backgroundColor = "rgba(209, 250, 229, 0.4)";
+    // Apply color scheme
+    r.style.border = scheme.border;
+    r.style.boxShadow = scheme.boxShadow;
+    r.style.backgroundColor = scheme.background;
     r.style.borderRadius = "2px";
+
+    // Add data attribute for debugging
+    if (it.role) {
+      r.dataset.role = it.role;
+    }
 
     overlay.appendChild(r);
   }
+}
+
+/**
+ * SMART OPERATOR SELECTION: Apply visual highlighting to operator and operands
+ * Fetches validation type from backend and paints boxes with appropriate color.
+ * 
+ * @param {Object} context - OperatorSelectionContext
+ * @param {Array} boxes - Bounding boxes from getContextBoundingBoxes
+ * @param {string} latex - Current expression LaTeX
+ * @returns {Promise<string|null>} validationType or null
+ */
+async function applyOperatorHighlight(context, boxes, latex) {
+  if (!context || !boxes || boxes.length === 0) {
+    console.log("[applyOperatorHighlight] No context or boxes provided");
+    return null;
+  }
+
+  // Update state
+  operatorSelectionState.active = true;
+  operatorSelectionState.context = context;
+  operatorSelectionState.boxes = boxes;
+
+  // Try to get validationType from backend via existing engine adapter
+  let validationType = "requires-prep"; // Default to yellow if unknown
+
+  try {
+    // Use the validation endpoint or the step endpoint
+    const apiBase = window.__engineApiBase || "http://localhost:4001";
+    const response = await fetch(`${apiBase}/api/v1/validate-operator`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        latex: latex,
+        operatorPath: context.astPath,
+      }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.validationType) {
+        validationType = data.validationType;
+        console.log("[applyOperatorHighlight] Backend returned validationType:", validationType);
+      }
+    } else {
+      console.log("[applyOperatorHighlight] Backend validation failed, using default");
+    }
+  } catch (err) {
+    // Fallback: Infer validation type from operand types if backend unavailable
+    console.log("[applyOperatorHighlight] Backend unavailable, inferring from operands");
+
+    const leftKind = context.leftOperandSurfaceNode?.kind;
+    const rightKind = context.rightOperandSurfaceNode?.kind;
+    const isSimpleIntegers = leftKind === "Num" && rightKind === "Num";
+
+    if (isSimpleIntegers) {
+      validationType = "direct"; // Integer arithmetic is always direct
+    }
+    // For fractions, we'd need deeper analysis - default to yellow
+  }
+
+  // Store in state
+  operatorSelectionState.validationType = validationType;
+
+  // Paint the boxes with appropriate color
+  const items = boxes.map(b => ({
+    bbox: b.bbox,
+    role: b.role,
+  }));
+
+  paintSelectionRects(items, validationType);
+
+  console.log(`[applyOperatorHighlight] Painted ${boxes.length} boxes with color=${validationType}`);
+
+  return validationType;
+}
+
+/**
+ * SMART OPERATOR SELECTION: Clear operator highlighting
+ */
+function clearOperatorHighlight() {
+  operatorSelectionState.active = false;
+  operatorSelectionState.validationType = null;
+  operatorSelectionState.context = null;
+  operatorSelectionState.boxes = [];
+  window.__currentOperatorContext = null;
+
+  // Clear visual overlay
+  const overlay = document.getElementById("selection-overlay");
+  if (overlay) {
+    overlay.innerHTML = "";
+  }
+
+  console.log("[clearOperatorHighlight] Operator highlight cleared");
 }
 
 function applySelectionVisual(map) {
@@ -1114,8 +2017,12 @@ function buildAndShowMap() {
 
   let map = buildSurfaceNodeMap(container);
   map = enhanceSurfaceMap(map, container);
-  map = correlateOperatorsWithAST(map, currentLatex); // Correlate operators with AST
-  map = correlateIntegersWithAST(map, currentLatex);  // P1: Correlate integers with AST
+  map = correlateOperatorsWithAST(map, currentLatex); // Still needed for operator correlation
+
+  // STABLE-ID: Scan DOM for data-ast-id elements (render-time injection)
+  // This replaces position-based correlateIntegersWithAST
+  scanDOMForStableIds(map, container);
+  assertDOMStableIds(container);
   const serializable = surfaceMapToSerializable(map);
 
   const pre = document.getElementById("surface-json");
@@ -1155,10 +2062,97 @@ document.addEventListener("DOMContentLoaded", () => {
       const value = manualInput.value.trim();
       if (!value) return;
       currentLatex = value;
+      clearSelection("latex-changed");
       renderFormula();
       buildAndShowMap();
     });
   }
+
+  // Explicit Clear Selection Button
+  const btnClearSel = document.getElementById("btn-clear-selection");
+  if (btnClearSel) {
+    btnClearSel.addEventListener("click", () => {
+      console.info("[SEL] clear via button/esc");
+      clearSelection("button");
+    });
+    console.info("[SEL] clear button wired");
+  }
+
+  // Esc Key Handler
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      // Ignore if typing in an input
+      const tag = e.target.tagName.toLowerCase();
+      if (tag === "input" || tag === "textarea") return;
+
+      console.info("[SEL] clear via button/esc");
+      clearSelection("esc");
+    }
+  });
+
+
+  // Click Outside to Clear Selection
+  document.addEventListener("pointerup", (e) => {
+    // Only proceed if we have an active selection
+    const hasSelection = selectionState.selectedIds.size > 0 || integerCycleState.selectedNodeId;
+    if (!hasSelection) return;
+
+    // Don't clear if clicking on the diag panels or context menu
+    if (e.target.closest("#p1-diagnostics-panel")) return;
+    if (e.target.closest("#choice-popup")) return;
+
+    const container = document.getElementById("formula-container");
+    if (!container) return;
+
+    // Check if click is inside the container
+    if (container.contains(e.target)) return;
+
+    // Calculate dynamic threshold (approx 1 character width)
+    let thresholdPx = 12; // Fallback
+    try {
+      // Try to measure a "0" digit in the current font
+      const testSpan = document.createElement("span");
+      testSpan.style.visibility = "hidden";
+      testSpan.style.position = "absolute";
+      testSpan.style.font = window.getComputedStyle(container).font;
+      testSpan.textContent = "0";
+      container.appendChild(testSpan);
+      const w = testSpan.getBoundingClientRect().width;
+      if (w > 0) thresholdPx = w;
+      testSpan.remove();
+    } catch (err) {
+      // Ignore measurement errors
+    }
+
+    const box = container.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    // Check if outside the expanded box
+    const isOutside =
+      x < box.left - thresholdPx ||
+      x > box.right + thresholdPx ||
+      y < box.top - thresholdPx ||
+      y > box.bottom + thresholdPx;
+
+    if (isOutside) {
+      console.log(`[Viewer] Click outside detected (threshold=${thresholdPx.toFixed(1)}px) - clearing selection`);
+
+      // Clear Global Selection
+      selectionState.selectedIds.clear();
+      selectionState.mode = "none";
+      selectionState.primaryId = null;
+
+      // Clear P1 Selection
+      resetIntegerCycleState();
+
+      // Update Visuals
+      if (current && current.map) {
+        applySelectionVisual(current.map);
+      }
+      clearDomHighlight();
+    }
+  });
 
 
   // Engine / FileBus debug panel (last ClientEvent → EngineRequest → EngineResponse)
@@ -1369,40 +2363,134 @@ document.addEventListener("DOMContentLoaded", () => {
             (ev.surfaceNodeKind === "Num" || ev.surfaceNodeKind === "Number" || ev.surfaceNodeKind === "Integer")) {
             const clickCount = ev.click?.clickCount || 1;
             const surfaceId = ev.surfaceNodeId;
-            const astId = ev.astNodeId;
+            const astId = ev.astNodeId; // THIS is the authoritative AST path from surface map correlation
             const now = Date.now();
+            const clickedValue = ev.latexFragment || ev.surfaceNodeText || "?";
 
             // Diagnostic: Log the astNodeId from the click event
-            console.log(`[P1-CLICK] Integer click event: surfaceId=${surfaceId}, astId=${astId || 'MISSING!'}, clickCount=${clickCount}`);
+            console.log(`[P1-CLICK] Integer click event: surfaceId=${surfaceId}, astId=${astId || 'MISSING!'}, value="${clickedValue}", clickCount=${clickCount}`);
+
+            // SAFE INSTRUMENTATION: Block precise clicks when Stable-ID is disabled
+            if (!stableIdState.enabled) {
+              console.warn(`[P1-CLICK] BLOCKED: Stable-ID disabled (${stableIdState.reason}). No precise clicks allowed.`);
+              alert(`Stable-ID is disabled for this expression. Precise clicks are not available.\n\nReason: ${stableIdState.reason}`);
+              return;
+            }
+
+            // STABLE-ID: If astId is missing from event, try to get it from DOM data-ast-id
+            // This is more reliable than surface map correlation for duplicate values
+            let effectiveAstId = astId;
+            if (!effectiveAstId) {
+              const surfaceNode = window.__currentSurfaceMap?.atoms?.find(a => a && a.id === surfaceId);
+              if (surfaceNode && surfaceNode.dom) {
+                effectiveAstId = getAstIdFromDOM(surfaceNode.dom);
+              }
+            }
+
+            // BUG LOG: If still no astId, log as bug - surface-map correlation failed
+            if (!effectiveAstId) {
+              console.log(`[BUG] Missing data-ast-id for clickable element: surfaceId=${surfaceId} value="${clickedValue}" - this should not happen with Stable-ID injection`);
+            }
+
+            // STABLE-ID: Get stableKey for this click to handle duplicates correctly
+            const surfaceNode = window.__currentSurfaceMap?.atoms?.find(a => a && a.id === surfaceId);
+            const clickStableKey = surfaceNode?.stableKey || null;
+            console.log(`[P1-CLICK] StableKey: ${clickStableKey || 'MISSING'}`);
+
+            // CRITICAL FIX: Check if this is a non-targetable path (fraction children)
+            const isNonTargetable = effectiveAstId && effectiveAstId.startsWith && effectiveAstId.startsWith('NON_TARGETABLE:');
+            if (isNonTargetable) {
+              console.warn(`[P1-CLICK] Non-targetable integer (fraction child): ${effectiveAstId}`);
+              // Show user message
+              const msg = "This number is inside a simple fraction and cannot be targeted individually (backend limitation).";
+              alert(msg);
+              // Update diagnostics
+              updateP1Diagnostics({
+                selectedSurfaceNodeId: surfaceId,
+                resolvedAstNodeId: effectiveAstId,
+                lastHintApplyError: "NON_TARGETABLE: fraction child",
+                lastHintApplyStatus: "blocked"
+              });
+              return; // Abort click processing
+            }
+
+            // TraceHub: Emit VIEWER_INTEGER_CLICK_TARGETED
+            if (typeof window !== "undefined" && window.__traceHub) {
+              window.__traceHub.emit({
+                module: "viewer.main",
+                event: "VIEWER_INTEGER_CLICK_TARGETED",
+                data: {
+                  latex: currentLatex,
+                  surfaceNodeId: surfaceId,
+                  value: clickedValue,
+                  selectionPath: effectiveAstId || "MISSING",
+                  clickCount
+                }
+              });
+            }
+
+            // Part A: detail=2 FAST APPLY for BLUE mode
+            // If second click of dblclick AND same token is selected AND mode is BLUE -> apply immediately
+            if (clickCount === 2 && integerCycleState.stableKey === clickStableKey && integerCycleState.mode === MODE_BLUE) {
+              integerCycleState.dblclickLockUntil = Date.now() + 300;
+              const targetDenom = integerCycleState.step2Info?.oppositeDenom || "?";
+              console.log(`[DOUBLE-CLICK APPLY via detail=2] stableKey=${clickStableKey} mode=${integerCycleState.mode} primitive=P.ONE_TO_TARGET_DENOM targetDenom=${targetDenom}`);
+
+              // Cancel pending timeout
+              if (integerCycleState.pendingClickTimeout) {
+                clearTimeout(integerCycleState.pendingClickTimeout);
+                integerCycleState.pendingClickTimeout = null;
+              }
+
+              // Apply via gateway
+              applyCurrentHintForStableKey("[DOUBLE-CLICK APPLY]");
+              integerCycleState.lastClickTime = 0;
+              integerCycleState.lastClickNodeId = null;
+              return;
+            }
 
             // Check if this is a browser-reported double-click (e.detail >= 2)
             if (clickCount === 2) {
-              // Double-click detected by browser - apply action immediately
+              // Double-click detected by browser - set lock to prevent cycling
+              integerCycleState.dblclickLockUntil = Date.now() + 300;
+
               // Cancel any pending single-click timeout
               if (integerCycleState.pendingClickTimeout) {
                 clearTimeout(integerCycleState.pendingClickTimeout);
                 integerCycleState.pendingClickTimeout = null;
               }
 
-              // Use GREEN mode (0) if no selection, or current mode if same node selected
-              const modeToApply = (integerCycleState.selectedNodeId === surfaceId)
-                ? integerCycleState.cycleIndex
-                : 0;
+              // Update state to match the clicked node
+              integerCycleState.selectedNodeId = surfaceId;
+              integerCycleState.astNodeId = effectiveAstId;
+              integerCycleState.stableKey = clickStableKey;
 
-              console.log(`[P1] Double-click detected (browser): nodeId=${surfaceId}, applying mode=${modeToApply}`);
+              // Check for Step2 context
+              const step2Ctx = detectStep2MultiplierContext(surfaceId, effectiveAstId, window.__currentSurfaceMap);
+              integerCycleState.isStep2Context = step2Ctx.isStep2Context;
+              integerCycleState.step2Info = step2Ctx.isStep2Context ? step2Ctx : null;
 
-              // Apply action immediately - don't let engine-adapter handle it
-              // We'll create a synthetic event with the correct mode
-              applyP1Action(surfaceId, astId || integerCycleState.astNodeId, modeToApply);
+              // BLOCK double-click in GREEN mode - user must cycle first
+              if (integerCycleState.mode === MODE_GREEN) {
+                console.log(`[APPLY BLOCKED] stableKey=${clickStableKey} mode=0 (GREEN) - double-click blocked`);
+                // Just show selection, don't apply
+                applyIntegerHighlight(surfaceId, MODE_GREEN);
+                integerCycleState.lastClickTime = 0;
+                integerCycleState.lastClickNodeId = null;
+                return;
+              }
 
-              // Reset state after action
+              // Apply via single gateway (respects current mode)
+              applyCurrentHintForStableKey("[DOUBLE-CLICK APPLY]");
+
+              // Reset timing state
               integerCycleState.lastClickTime = 0;
               integerCycleState.lastClickNodeId = null;
 
             } else if (clickCount === 1) {
               // Single-click: check if this is actually a double-click based on timing
               const timeSinceLastClick = now - integerCycleState.lastClickTime;
-              const sameNode = integerCycleState.lastClickNodeId === surfaceId;
+              const sameNode = integerCycleState.lastClickNodeId === clickStableKey; // Use stableKey!
 
               if (sameNode && timeSinceLastClick < P1_DOUBLE_CLICK_THRESHOLD) {
                 // This second single-click came too fast - it's a double-click!
@@ -1412,21 +2500,20 @@ document.addEventListener("DOMContentLoaded", () => {
                   integerCycleState.pendingClickTimeout = null;
                 }
 
-                console.log(`[P1] Double-click detected (timing): nodeId=${surfaceId}, deltaMs=${timeSinceLastClick}`);
+                console.log(`[P1] Double-click detected (timing): stableKey=${clickStableKey}, deltaMs=${timeSinceLastClick}`);
+                // Set lock to prevent any pending cycling
+                integerCycleState.dblclickLockUntil = Date.now() + 300;
 
-                // Apply current mode action (should still be GREEN since we didn't cycle yet)
-                (async () => {
-                  try {
-                    const ctx = await ensureP1IntegerContext(surfaceId, astId || integerCycleState.astNodeId);
-                    await applyP1Action(surfaceId, ctx.astNodeId, integerCycleState.cycleIndex);
-                  } catch (err) {
-                    console.error("[P1] Double-click apply failed:", err);
-                    updateP1Diagnostics({
-                      lastHintApplyStatus: "engine-error",
-                      lastHintApplyError: err instanceof Error ? err.message : String(err)
-                    });
-                  }
-                })();
+                // BLOCK double-click in GREEN mode - user must cycle first
+                if (integerCycleState.mode === MODE_GREEN) {
+                  console.log(`[APPLY BLOCKED] stableKey=${clickStableKey} mode=0 (GREEN) - timing double-click blocked`);
+                  integerCycleState.lastClickTime = 0;
+                  integerCycleState.lastClickNodeId = null;
+                  return;
+                }
+
+                // Apply via single gateway (respects current mode)
+                applyCurrentHintForStableKey("[DOUBLE-CLICK APPLY]");
 
                 // Reset timing state
                 integerCycleState.lastClickTime = 0;
@@ -1439,29 +2526,104 @@ document.addEventListener("DOMContentLoaded", () => {
                   clearTimeout(integerCycleState.pendingClickTimeout);
                 }
 
-                // Record this click
+                // CRITICAL FIX: Store astNodeId IMMEDIATELY on this click
+                // This ensures if a double-click follows, we have the correct path
                 integerCycleState.lastClickTime = now;
-                integerCycleState.lastClickNodeId = surfaceId;
+                integerCycleState.lastClickNodeId = clickStableKey; // Use stableKey!
 
                 // Delay the cycle/selection logic
                 integerCycleState.pendingClickTimeout = setTimeout(() => {
                   integerCycleState.pendingClickTimeout = null;
 
-                  // Process as true single-click
-                  if (integerCycleState.selectedNodeId === surfaceId) {
-                    // Same node clicked again - cycle to next mode
-                    integerCycleState.cycleIndex = (integerCycleState.cycleIndex + 1) % integerCycleState.primitives.length;
-                    const modeName = integerCycleState.primitives[integerCycleState.cycleIndex].label;
-                    console.log(`[P1] Single-click: cycling to mode ${integerCycleState.cycleIndex} (${modeName}) for ${surfaceId}`);
-                  } else {
-                    // Different node - select it with mode 0 (GREEN)
-                    integerCycleState.selectedNodeId = surfaceId;
-                    integerCycleState.astNodeId = astId;
-                    integerCycleState.cycleIndex = 0;
-                    console.log(`[P1] Single-click: selected integer ${surfaceId}, astNodeId=${astId}, mode=0 (GREEN)`);
+                  // Check dblclick lock - suppress cycling if within lock period
+                  if (Date.now() < integerCycleState.dblclickLockUntil) {
+                    console.log(`[CYCLE SUPPRESSED] stableKey=${clickStableKey} reason=dblclick`);
+                    return;
                   }
-                  applyIntegerHighlight(surfaceId, integerCycleState.cycleIndex);
 
+                  // Process as true single-click
+                  if (integerCycleState.stableKey === clickStableKey) {
+                    // Same stableKey clicked again - check for timing-based double-click BEFORE cycling
+                    const dt = Date.now() - integerCycleState.lastClickTime;
+                    const isDblClick = dt > 0 && dt <= 350;
+
+                    // For Step2 context in BLUE mode: timing-based dblclick -> APPLY
+                    if (isDblClick && integerCycleState.isStep2Context && integerCycleState.mode === MODE_BLUE) {
+                      console.log(`[DBL-DET] stableKey=${clickStableKey} dt=${dt} mode=2 isStep2=true action=APPLY`);
+                      applyCurrentHintForStableKey("[DOUBLE-CLICK APPLY]");
+                      integerCycleState.lastClickTime = 0;
+                      return;
+                    }
+
+                    // Otherwise cycle mode
+                    const oldMode = integerCycleState.mode;
+                    let newMode;
+
+                    if (integerCycleState.isStep2Context) {
+                      // Step2 tokens: GREEN <-> BLUE (skip ORANGE entirely)
+                      newMode = oldMode === MODE_GREEN ? MODE_BLUE : MODE_GREEN;
+                    } else {
+                      // Normal tokens: GREEN <-> ORANGE
+                      newMode = oldMode === MODE_GREEN ? MODE_ORANGE : MODE_GREEN;
+                    }
+
+                    integerCycleState.mode = newMode;
+                    integerCycleState.cycleIndex = newMode; // Sync for compat
+                    saveTokenModeState(); // FIX: Save mode after cycling
+                    const modeConfig = MODE_CONFIG[newMode];
+                    console.log(`[DBL-DET] stableKey=${clickStableKey} dt=${dt} mode=${oldMode} action=CYCLE`);
+                    console.log(`[CYCLE] stableKey=${clickStableKey} mode ${oldMode}->${newMode} (${modeConfig.label}) isStep2=${integerCycleState.isStep2Context}`);
+                  } else {
+                    // Different token - save current token's state first, then switch
+                    saveTokenModeState(); // FIX: Save outgoing token's state
+
+                    // Restore new token's state (or init to GREEN)
+                    const restored = restoreTokenModeState(clickStableKey);
+                    integerCycleState.selectedNodeId = surfaceId;
+                    integerCycleState.astNodeId = effectiveAstId;
+                    integerCycleState.stableKey = clickStableKey;
+
+                    // FIX: ALWAYS revalidate Step2 context (expression may have changed after Step2 apply)
+                    const step2Ctx = detectStep2MultiplierContext(surfaceId, effectiveAstId, window.__currentSurfaceMap);
+                    integerCycleState.isStep2Context = step2Ctx.isStep2Context;
+                    integerCycleState.step2Info = step2Ctx.isStep2Context ? step2Ctx : null;
+
+                    // Validate restored mode: if BLUE but Step2 no longer available, fallback to GREEN
+                    let validatedMode = restored.mode;
+                    if (restored.mode === MODE_BLUE && !step2Ctx.isStep2Context) {
+                      if (window.__debugStep2Cycle) {
+                        console.log(`[STEP2-CYCLE] Mode validation: BLUE no longer valid (Step2 context gone), falling back to GREEN`);
+                      }
+                      validatedMode = MODE_GREEN;
+                    }
+                    // If non-Step2 token had ORANGE saved but now is Step2, keep ORANGE (it's valid)
+                    // If Step2 token had ORANGE saved (shouldn't happen), fallback to GREEN
+                    if (validatedMode === MODE_ORANGE && step2Ctx.isStep2Context) {
+                      if (window.__debugStep2Cycle) {
+                        console.log(`[STEP2-CYCLE] Mode validation: ORANGE not valid for Step2 token, falling back to GREEN`);
+                      }
+                      validatedMode = MODE_GREEN;
+                    }
+
+                    integerCycleState.mode = validatedMode;
+                    integerCycleState.cycleIndex = validatedMode;
+
+                    // Update saved state with current validated values
+                    saveTokenModeState();
+
+                    if (window.__debugStep2Cycle) {
+                      console.log(`[STEP2-CYCLE] stableKey=${clickStableKey} hasStep2=${step2Ctx.isStep2Context} allowedModes=[GREEN,${step2Ctx.isStep2Context ? 'BLUE' : 'ORANGE'}] restoredMode=${restored.mode} validatedMode=${validatedMode}`);
+                    }
+                    console.log(`[CYCLE] stableKey=${clickStableKey} mode=${integerCycleState.mode} isStep2=${integerCycleState.isStep2Context}${integerCycleState.step2Info?.oppositeDenom ? ` oppositeDenom=${integerCycleState.step2Info.oppositeDenom}` : ''}`);
+                  }
+                  applyIntegerHighlight(surfaceId, integerCycleState.mode);
+
+                  // Update diagnostics
+                  updateP1Diagnostics({
+                    selectedSurfaceNodeId: surfaceId,
+                    resolvedAstNodeId: integerCycleState.astNodeId || "MISSING",
+                    primitiveId: integerCycleState.primitives[integerCycleState.cycleIndex]?.id || "N/A"
+                  });
 
                   // P1: Ensure astNodeId + backend choice list (non-blocking)
                   ensureP1IntegerContext(surfaceId, astId || integerCycleState.astNodeId).catch(err => {
@@ -1519,7 +2681,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (shouldApply) {
               const newLatex = res.result.latex;
               if (newLatex && typeof newLatex === "string") {
+                const oldLatex = currentLatex;
                 currentLatex = newLatex;
+                if (oldLatex !== newLatex) {
+                  clearSelection("latex-changed");
+                }
                 renderFormula();
                 buildAndShowMap();
               }
@@ -1568,6 +2734,7 @@ document.addEventListener("DOMContentLoaded", () => {
     select.addEventListener("change", () => {
       const idx = parseInt(select.value, 10) || 0;
       currentLatex = TESTS[Math.max(0, Math.min(TESTS.length - 1, idx))];
+      clearSelection("latex-changed");
       renderFormula();
       buildAndShowMap();
     });
@@ -1594,6 +2761,7 @@ document.addEventListener("DOMContentLoaded", () => {
         select.addEventListener("change", () => {
           const idx = parseInt(select.value, 10) || 0;
           currentLatex = TESTS[Math.max(0, Math.min(TESTS.length - 1, idx))];
+          clearSelection("latex-changed");
           renderFormula();
           buildAndShowMap();
         });
@@ -1733,7 +2901,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (hitTestPoint) {
           const node = hitTestPoint(current.map, e.clientX, e.clientY, container);
           if (node) {
-            console.log("[HIT-TEST] Coordinate-based hit:", node.id, node.kind, node.latexFragment);
             return node;
           }
         }
@@ -1745,11 +2912,7 @@ document.addEventListener("DOMContentLoaded", () => {
       while (el && el !== container && !current.map.byElement.has(el)) {
         el = el.parentElement;
       }
-      const domNode = el ? current.map.byElement.get(el) : null;
-      if (domNode) {
-        console.log("[HIT-TEST] DOM-based fallback:", domNode.id, domNode.kind, domNode.latexFragment);
-      }
-      return domNode;
+      return el ? current.map.byElement.get(el) : null;
     }
 
     // PointerDown: start drag-selection (rubber band)
@@ -1911,6 +3074,39 @@ document.addEventListener("DOMContentLoaded", () => {
         selectionMode: selectionState.mode,
         selectionCount: selectionState.selectedIds.size,
       });
+
+      // SMART OPERATOR SELECTION: Create context when clicking on operator
+      if (node.role === "operator" || node.kind === "BinaryOp" || node.kind === "MinusBinary") {
+        console.log("[SmartOperatorSelection] Operator click detected:", node.kind, node.latexFragment);
+
+        const operatorContext = createOperatorContext(node, current.map, getOperandNodes);
+
+        if (operatorContext && isCompleteContext(operatorContext)) {
+          const boxes = getContextBoundingBoxes(operatorContext);
+          console.log("[SmartOperatorSelection] Context created successfully:", {
+            operator: operatorContext.operatorSymbol,
+            astPath: operatorContext.astPath,
+            leftOperand: operatorContext.leftOperandSurfaceNode?.latexFragment,
+            rightOperand: operatorContext.rightOperandSurfaceNode?.latexFragment,
+            boundingBoxCount: boxes.length,
+          });
+
+          // Store context globally
+          window.__currentOperatorContext = operatorContext;
+
+          // PHASE 3: Request validation from backend and apply visual highlighting
+          applyOperatorHighlight(operatorContext, boxes, currentLatex).then(validationType => {
+            console.log("[SmartOperatorSelection] Applied highlight with validationType:", validationType);
+          }).catch(err => {
+            console.error("[SmartOperatorSelection] Highlight error:", err);
+          });
+        } else {
+          console.log("[SmartOperatorSelection] Context incomplete - operands not found");
+          window.__currentOperatorContext = null;
+          clearOperatorHighlight();
+        }
+      }
+
       // Normalized click event for the rest of the pipeline
       displayAdapter.emitClick(node, e);
     });
@@ -1927,4 +3123,63 @@ document.addEventListener("DOMContentLoaded", () => {
       isDragging = false; dragStart = null; dragEnd = null;
     });
   }
+
+  // Click Outside to Clear Selection (Robust Capture Phase) - Added for V5 Fix
+  window.addEventListener("pointerdown", (e) => {
+    // Only proceed if we have an active selection
+    const p1Active = typeof integerCycleState !== "undefined" && integerCycleState.selectedNodeId !== null;
+    const selActive = typeof selectionState !== "undefined" && selectionState.selectedIds.size > 0;
+    const overlayHasChildren = !!document.querySelector("#selection-overlay > div");
+    const domHasClasses = !!document.querySelector(".p1-integer-selected");
+
+    // Check if anything needs clearing
+    if (!p1Active && !selActive && !overlayHasChildren && !domHasClasses) {
+      return;
+    }
+
+    // Don't clear if clicking on the diag panels or context menu
+    if (e.target.closest("#p1-diagnostics-panel")) return;
+    if (e.target.closest("#choice-popup")) return;
+
+    const container = document.getElementById("formula-container");
+    if (!container) return;
+
+    // Check if click is inside the container
+    if (container.contains(e.target)) return;
+
+    // Calculate dynamic threshold (approx 1 character width)
+    let thresholdPx = 12; // Fallback
+    try {
+      // Try to measure a "0" digit in the current font
+      const testSpan = document.createElement("span");
+      testSpan.style.visibility = "hidden";
+      testSpan.style.position = "absolute";
+      testSpan.style.font = window.getComputedStyle(container).font;
+      testSpan.textContent = "0";
+      container.appendChild(testSpan);
+      const w = testSpan.getBoundingClientRect().width;
+      if (w > 0) thresholdPx = w;
+      testSpan.remove();
+    } catch (err) {
+      // Ignore measurement errors
+    }
+
+    const box = container.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+
+    // Check if outside the expanded box
+    const isOutside =
+      x < box.left - thresholdPx ||
+      x > box.right + thresholdPx ||
+      y < box.top - thresholdPx ||
+      y > box.bottom + thresholdPx;
+
+    if (isOutside) {
+      console.info(`[SEL] outside-click`, { cleared: true, threshold: thresholdPx });
+      if (typeof clearSelection === "function") clearSelection("outside-click");
+    }
+  }, { capture: true });
+
+  console.info("[SEL] init", { entry: "app/main.js" });
 });

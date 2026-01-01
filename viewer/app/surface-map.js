@@ -458,7 +458,20 @@ export function hitTestPoint(map, clientX, clientY, containerElement) {
   const y = clientY - cbox.top;
 
   const candidates = map.atoms.filter((node) => {
-    const b = node.bbox;
+    let b = node.bbox;
+
+    // FIX: Expand hit-test area for operators vertically
+    // Operators between fractions have small vertical bbox that doesn't match visual position
+    if (node.role === "operator") {
+      const expandY = 10; // px expansion up and down
+      b = {
+        left: b.left,
+        right: b.right,
+        top: b.top - expandY,
+        bottom: b.bottom + expandY
+      };
+    }
+
     return x >= b.left && x <= b.right && y >= b.top && y <= b.bottom;
   });
 
@@ -471,11 +484,7 @@ export function hitTestPoint(map, clientX, clientY, containerElement) {
     return areaA - areaB;
   });
 
-  const hit = candidates[0];
-  if (hit && hit.kind === "Num") {
-    console.log(`[HIT-TEST-NUM] Hit Num node: id="${hit.id}" text="${hit.text || hit.latexFragment}" astNodeId="${hit.astNodeId || 'MISSING!'}" value=${hit.astIntegerValue || '?'}`);
-  }
-  return hit;
+  return candidates[0];
 }
 
 // --- Enhancements: classification refinement & UX helpers ---
@@ -608,7 +617,7 @@ export function correlateIntegersWithAST(map, latex) {
 
   const surfaceNumbers = leafNums
     .sort((a, b) => (a.bbox.left - b.bbox.left) || (a.bbox.top - b.bbox.top));
-console.log("=== [SURFACE-NUMS] Integer correlation ===");
+  console.log("=== [SURFACE-NUMS] Integer correlation ===");
   console.log(`[SURFACE-NUMS] Expression: "${latex}"`);
   console.log(`[SURFACE-NUMS] AST integers: ${astIntegers.length}, Surface nums: ${surfaceNumbers.length}`);
 
@@ -624,7 +633,7 @@ console.log("=== [SURFACE-NUMS] Integer correlation ===");
     console.log(`  [SURFACE-NUMS] [${idx}] surfaceId="${sn.id}" text="${sn.text || sn.latexFragment}" kind=${sn.kind} bbox=(${Math.round(sn.bbox.left)},${Math.round(sn.bbox.top)})`);
   });
 
-  // 4. Match by position (1-to-1)
+  // 4. Match by position (1-to-1) and inject data-ast-id into DOM
   const count = Math.min(astIntegers.length, surfaceNumbers.length);
   for (let i = 0; i < count; i++) {
     const astInt = astIntegers[i];
@@ -632,16 +641,28 @@ console.log("=== [SURFACE-NUMS] Integer correlation ===");
 
     surfNum.astNodeId = astInt.nodeId;
     surfNum.astIntegerValue = astInt.value;
+
+    // STABLE-ID: Inject data-ast-id and data-role into DOM element
+    if (surfNum.dom) {
+      surfNum.dom.setAttribute('data-ast-id', astInt.nodeId);
+      surfNum.dom.setAttribute('data-role', 'number');
+    }
+
     // Propagate astNodeId upward through nested Num nodes (Num -> Num)
     let p = parentByChild.get(surfNum);
     while (p && p.kind === "Num") {
       if (!p.astNodeId) p.astNodeId = astInt.nodeId;
       if (p.astIntegerValue == null) p.astIntegerValue = astInt.value;
+      // Also set on parent DOM
+      if (p.dom && !p.dom.hasAttribute('data-ast-id')) {
+        p.dom.setAttribute('data-ast-id', astInt.nodeId);
+        p.dom.setAttribute('data-role', 'number');
+      }
       p = parentByChild.get(p);
     }
 
 
-    console.log(`[SURFACE-NUMS] MATCHED: surface[${i}] "${surfNum.text || surfNum.latexFragment}" (id=${surfNum.id}) -> AST nodeId="${astInt.nodeId}" value=${astInt.value}`);
+    console.log(`[SURFACE-NUMS] MATCHED: surface[${i}] "${surfNum.text || surfNum.latexFragment}" (id=${surfNum.id}) -> AST nodeId="${astInt.nodeId}" value=${astInt.value} [DOM injected]`);
   }
 
   return map;
@@ -735,13 +756,20 @@ export function correlateOperatorsWithAST(map, latex) {
       surfOp.astNodeId = astOp.nodeId;
       surfOp.astOperator = astOp.operator;
 
+      // STABLE-ID: Inject data-ast-id and data-role into DOM element
+      if (surfOp.dom) {
+        surfOp.dom.setAttribute('data-ast-id', astOp.nodeId);
+        surfOp.dom.setAttribute('data-role', 'operator');
+        surfOp.dom.setAttribute('data-operator', astOp.operator);
+      }
+
       // CRITICAL FIX: Compute LOCAL operator index within the AST node
       // For binary operators, the local index is typically 0 or 1
       // We need to count how many operators with the same nodeId we've seen before this one
       const sameNodeOps = astOps.filter((op, idx) => idx < i && op.nodeId === astOp.nodeId);
       surfOp.astOperatorIndex = sameNodeOps.length;
 
-      console.log(`[SURFACE-OPS]   Matched: surface[${i}] "${surfOp.latexFragment}" (${surfOp.id}) -> AST nodeId="${astOp.nodeId}" localIndex=${surfOp.astOperatorIndex}`);
+      console.log(`[SURFACE-OPS]   Matched: surface[${i}] "${surfOp.latexFragment}" (${surfOp.id}) -> AST nodeId="${astOp.nodeId}" localIndex=${surfOp.astOperatorIndex} [DOM injected]`);
     }
   }
 
@@ -753,5 +781,150 @@ export function correlateOperatorsWithAST(map, latex) {
   });
 
   return map;
+}
+
+/**
+ * DEV ASSERTION: Scan atoms and verify that all interactive elements have data-ast-id.
+ * Logs a summary error if any are missing.
+ * @param {{root:any, atoms:any[], byElement:Map}} map - Surface map
+ */
+export function assertStableIdInjection(map) {
+  if (!map || !Array.isArray(map.atoms)) return;
+
+  const missing = [];
+
+  for (const atom of map.atoms) {
+    if (!atom.dom) continue;
+
+    // Check if this atom should have data-ast-id
+    const kind = atom.kind || "";
+    const isInteractive = kind === "Num" || kind === "BinaryOp" || kind === "MinusBinary" || kind === "Relation";
+
+    if (isInteractive && !atom.dom.hasAttribute('data-ast-id')) {
+      missing.push({
+        id: atom.id,
+        kind: atom.kind,
+        text: atom.latexFragment || atom.dom.textContent
+      });
+    }
+  }
+
+  if (missing.length > 0) {
+    const first3 = missing.slice(0, 3).map(m => `${m.kind}:"${m.text}" (${m.id})`).join(", ");
+    console.error(`[STABLE-ID ASSERTION] ${missing.length} interactive element(s) missing data-ast-id: ${first3}${missing.length > 3 ? "..." : ""}`);
+  } else {
+    console.log(`[STABLE-ID ASSERTION] All ${map.atoms.filter(a => a.dom && (a.kind === "Num" || a.kind === "BinaryOp" || a.kind === "Relation")).length} interactive elements have data-ast-id`);
+  }
+}
+
+/**
+ * Find operand surface nodes for a given operator AST path.
+ * Used by Smart Operator Selection to find visual elements for highlighting.
+ * 
+ * Given an operator at path "root" with children at "term[0]" and "term[1]",
+ * or an operator at "term[1]" with children at "term[1].term[0]" and "term[1].term[1]",
+ * this function finds the corresponding surface nodes.
+ * 
+ * @param {{root:any, atoms:any[], byElement:Map}} surfaceMap - Surface map
+ * @param {string} operatorAstPath - AST path of the operator (e.g., "root", "term[1]")
+ * @returns {{left: Object|null, right: Object|null}|null} Operand surface nodes or null
+ */
+export function getOperandNodes(surfaceMap, operatorAstPath) {
+  if (!surfaceMap || !Array.isArray(surfaceMap.atoms) || !operatorAstPath) {
+    return null;
+  }
+
+  // Compute child paths based on operator path
+  let leftPath, rightPath;
+
+  if (operatorAstPath === "root") {
+    // Root operator: children are "term[0]" and "term[1]"
+    leftPath = "term[0]";
+    rightPath = "term[1]";
+  } else {
+    // Nested operator: children are "operatorPath.term[0]" and "operatorPath.term[1]"
+    leftPath = `${operatorAstPath}.term[0]`;
+    rightPath = `${operatorAstPath}.term[1]`;
+  }
+
+  console.log(`[getOperandNodes] Looking for operands: left="${leftPath}", right="${rightPath}"`);
+
+  // Find surface nodes with matching astNodeId
+  // Note: astNodeId might be on the operator itself, or on a child that represents the operand
+  // We need to find atoms whose astNodeId starts with the expected path
+
+  let leftNode = null;
+  let rightNode = null;
+
+  // Strategy 1: Exact match on astNodeId
+  for (const atom of surfaceMap.atoms) {
+    if (!atom.astNodeId) continue;
+
+    // Check for exact match or prefix match (for nested structures)
+    if (atom.astNodeId === leftPath || atom.astNodeId.startsWith(leftPath + ".")) {
+      // Prefer exact match, but track any match
+      if (atom.astNodeId === leftPath || !leftNode) {
+        leftNode = atom;
+      }
+    }
+    if (atom.astNodeId === rightPath || atom.astNodeId.startsWith(rightPath + ".")) {
+      if (atom.astNodeId === rightPath || !rightNode) {
+        rightNode = atom;
+      }
+    }
+  }
+
+  // Strategy 2: If no exact match, find by position relative to operator
+  // This is a fallback for cases where AST paths don't align perfectly
+  if (!leftNode || !rightNode) {
+    // Find the operator node by its path
+    const operatorNode = surfaceMap.atoms.find(a => a.astNodeId === operatorAstPath);
+
+    if (operatorNode && operatorNode.bbox) {
+      const opCenter = (operatorNode.bbox.left + operatorNode.bbox.right) / 2;
+      const opMidY = (operatorNode.bbox.top + operatorNode.bbox.bottom) / 2;
+
+      // Find operand-like nodes on the same baseline
+      const operandCandidates = surfaceMap.atoms.filter(a => {
+        if (a === operatorNode) return false;
+        if (!a.bbox) return false;
+
+        // Must be operand-like
+        const isOperand = a.kind === "Num" || a.kind === "Var" ||
+          a.kind === "Fraction" || a.kind === "Decimal" ||
+          a.kind === "MixedNumber";
+        if (!isOperand) return false;
+
+        // Must be on similar baseline (vertical overlap)
+        const aMidY = (a.bbox.top + a.bbox.bottom) / 2;
+        const vertOverlap = Math.abs(aMidY - opMidY) < 20; // Allow some variance
+
+        return vertOverlap;
+      });
+
+      if (!leftNode) {
+        // Find closest operand to the LEFT of operator
+        const leftCandidates = operandCandidates.filter(a => a.bbox.right <= opCenter);
+        if (leftCandidates.length > 0) {
+          leftNode = leftCandidates.sort((a, b) => b.bbox.right - a.bbox.right)[0];
+        }
+      }
+
+      if (!rightNode) {
+        // Find closest operand to the RIGHT of operator
+        const rightCandidates = operandCandidates.filter(a => a.bbox.left >= opCenter);
+        if (rightCandidates.length > 0) {
+          rightNode = rightCandidates.sort((a, b) => a.bbox.left - b.bbox.left)[0];
+        }
+      }
+    }
+  }
+
+  console.log(`[getOperandNodes] Found: left=${leftNode?.id || "null"} (${leftNode?.kind}), right=${rightNode?.id || "null"} (${rightNode?.kind})`);
+
+  return {
+    left: leftNode,
+    right: rightNode,
+  };
 }
 

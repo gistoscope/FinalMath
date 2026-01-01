@@ -98,6 +98,7 @@ export class DisplayAdapter {
       surfaceNodeId: node && node.id ? String(node.id) : undefined,
       surfaceNodeKind: node && node.kind ? String(node.kind) : undefined,
       surfaceNodeRole: node && node.role ? String(node.role) : undefined,
+      surfaceNodeText: node && node.latexFragment ? String(node.latexFragment) : undefined, // NEW: operator symbol ("+", "-", etc.)
       surfaceOperatorIndex: operatorIndex,
       astNodeId: astNodeId, // AST node ID for backend
       astOperatorIndex: astOperatorIndex, // NEW: Local operator index within AST node

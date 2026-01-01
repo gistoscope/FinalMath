@@ -77,6 +77,10 @@ export async function handlePostOrchestratorStepV5(
             preferredPrimitiveId: typeof obj["preferredPrimitiveId"] === "string" ? obj["preferredPrimitiveId"] : undefined,
             // NEW: Surface node kind for integer click detection
             surfaceNodeKind: typeof obj["surfaceNodeKind"] === "string" ? obj["surfaceNodeKind"] : undefined,
+            // NEW: Click context fields for operator matching
+            clickTargetKind: typeof obj["clickTargetKind"] === "string" ? obj["clickTargetKind"] : undefined,
+            operator: typeof obj["operator"] === "string" ? obj["operator"] : undefined,
+            surfaceNodeId: typeof obj["surfaceNodeId"] === "string" ? obj["surfaceNodeId"] : undefined,
         };
 
         // Auth & Role Extraction (Optional but good to have)

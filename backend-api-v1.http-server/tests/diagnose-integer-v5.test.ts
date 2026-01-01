@@ -27,7 +27,13 @@ const mockDeps = {
 };
 
 describe('V5 Integer Diagnosis', () => {
-    it('diagnose 2 + 3 click 2', async () => {
+    // V5 Status Contract for Integer Clicks:
+    // - Without preferredPrimitiveId: returns 'choice' (user sees context menu with INT_TO_FRAC option)
+    // - With preferredPrimitiveId: returns 'step-applied' (direct execution, e.g., P1 double-click)
+    //
+    // This aligns with the P1 behavior: single-click shows choices, double-click applies directly.
+
+    it('diagnose 2 + 3 click 2 - returns choice without preferredPrimitiveId', async () => {
         const registry = new InMemoryInvariantRegistry({
             model: {
                 primitives: [],
@@ -50,10 +56,16 @@ describe('V5 Integer Diagnosis', () => {
             selectionPath: 'term[0]' // "2"
         } as any);
         console.log("DIAG RESULT 2+3:", JSON.stringify(result, null, 2));
-        expect(result.status).toBe('step-applied');
+
+        // V5 Contract: integer click without preferredPrimitiveId returns 'choice'
+        expect(result.status).toBe('choice');
+        expect(result.choices).toBeDefined();
+        // Should include INT_TO_FRAC as an option
+        const hasIntToFrac = result.choices?.some((c: any) => c.primitiveId === 'P.INT_TO_FRAC');
+        expect(hasIntToFrac).toBe(true);
     });
 
-    it('diagnose 1 click 1', async () => {
+    it('diagnose 1 click 1 - returns choice without preferredPrimitiveId', async () => {
         const registry = new InMemoryInvariantRegistry({
             model: {
                 primitives: [],
@@ -76,5 +88,9 @@ describe('V5 Integer Diagnosis', () => {
             selectionPath: 'root'
         } as any);
         console.log("DIAG RESULT 1:", JSON.stringify(result, null, 2));
+
+        // V5 Contract: integer click without preferredPrimitiveId returns 'choice'
+        expect(result.status).toBe('choice');
+        expect(result.choices).toBeDefined();
     });
 });

@@ -8,7 +8,7 @@
 import { AstNode, NodeType, getNodeAt } from "./ast";
 import type { PrimitiveId } from "../engine/primitives.registry";
 
-export type OpKind = "+" | "-" | "*" | "/" | "neg" | "root" | "unknown";
+export type OpKind = "+" | "-" | "*" | "/" | "neg" | "root" | "unknown" | "literal";
 export type OperandKind = "int" | "frac" | "decimal" | "mixed" | "zero" | "one" | "other" | "none";
 
 export interface ClickContext {
@@ -133,6 +133,28 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
         stage: "stage1"
     },
     {
+        op: "+",
+        lhsKind: "frac",
+        rhsKind: "frac",
+        sameDenominator: false,
+        primitiveId: "P.FRAC_ADD_DIFF_DEN_MUL1",
+        description: "Fraction Add (Diff Denom Step 1)",
+        operationType: "add",
+        domainClass: "frac-diff-den",
+        stage: "stage1"
+    },
+    {
+        op: "-",
+        lhsKind: "frac",
+        rhsKind: "frac",
+        sameDenominator: false,
+        primitiveId: "P.FRAC_SUB_DIFF_DEN_MUL1",
+        description: "Fraction Sub (Diff Denom Step 1)",
+        operationType: "sub",
+        domainClass: "frac-diff-den",
+        stage: "stage1"
+    },
+    {
         op: "*",
         lhsKind: "frac",
         rhsKind: "frac",
@@ -148,6 +170,16 @@ export const primitiveCatalog: PrimitiveCatalogEntry[] = [
         rhsKind: "frac",
         primitiveId: "P.FRAC_DIV_AS_MUL", // Was P.FRAC_DIV
         description: "Fraction Division",
+        operationType: "div",
+        domainClass: "frac-diff-den",
+        stage: "stage1"
+    },
+    {
+        op: "literal",
+        lhsKind: "one",
+        rhsKind: "none", // unary on the number itself
+        primitiveId: "P.ONE_TO_TARGET_DENOM",
+        description: "Convert 1 to d/d",
         operationType: "div",
         domainClass: "frac-diff-den",
         stage: "stage1"

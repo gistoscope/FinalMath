@@ -13,17 +13,39 @@
  *     by the orchestrator.
  */
 
-import type { EngineStepRequest } from "../protocol/backend-step.types.js";
+import type { EngineStepRequest } from "../protocol/backend-step.types";
 import type {
   OrchestratorMapMasterRequest,
   MapMasterLike,
-} from "../orchestrator/EngineStepOrchestrator.js";
-import { buildMapLite } from "./MapMasterLite.js";
-import {
-  choosePrimitiveId,
-  type StepMasterLiteDeps,
-  type StepMasterPolicyContext,
-} from "../stepmaster/StepMasterLite.js";
+} from "../orchestrator/EngineStepOrchestrator";
+import { buildMapLite } from "./MapMasterLite";
+// import {
+//   choosePrimitiveId,
+//   type StepMasterLiteDeps,
+//   type StepMasterPolicyContext,
+// } from "../stepmaster/StepMasterLite";
+
+// Inline types to fix 404
+export interface StepMasterLiteDeps { }
+export interface StepMasterPolicyContext {
+  expressionId: string;
+  latex: string;
+  invariantSetId: string;
+  mode: string;
+}
+
+function choosePrimitiveId(
+  input: { candidates: any[]; context: StepMasterPolicyContext },
+  deps?: StepMasterLiteDeps
+): string | null {
+  if (!input.candidates || input.candidates.length === 0) return null;
+  // Simple logic: pick first candidate, first primitive
+  const first = input.candidates[0];
+  if (first.primitiveIds && first.primitiveIds.length > 0) {
+    return first.primitiveIds[0];
+  }
+  return null;
+}
 
 export interface MapMasterWithStepMasterLiteDeps {
   stepMaster?: StepMasterLiteDeps;

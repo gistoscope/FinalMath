@@ -5,7 +5,7 @@
  * This serves as the internal "Engine Stub" for V1.1.
  */
 
-import { AstNode, getNodeAt, parseExpression, replaceNodeAt, toLatex, NodeType } from "../mapmaster/ast";
+import { AstNode, getNodeAt, parseExpression, replaceNodeAt, toLatex, NodeType, FractionNode } from "../mapmaster/ast";
 import { EngineStepExecutionRequest, EngineStepExecutionResult } from "./engine.bridge";
 import type { PrimitiveId } from "./primitives.registry";
 import { NodeContextBuilder } from "./v5/NodeContextBuilder";
@@ -207,7 +207,12 @@ export class PrimitiveRunner {
             case "P.FRAC_DIV":
             case "P.FRAC_DIV_AS_MUL":
             case "P.FRAC_EQ_SCALE":
+            case "P.FRAC_ADD_DIFF_DEN_MUL1":
+            case "P.FRAC_SUB_DIFF_DEN_MUL1":
                 return this.runFractionOp(root, target, id, path);
+
+            case "P.ONE_TO_TARGET_DENOM":
+                return this.runOneToTargetDenom(root, target, path);
 
             // --- D. Common Denominator ---
             case "P.FRAC_MUL_BY_ONE":
@@ -591,12 +596,24 @@ export class PrimitiveRunner {
             return root; // No-op
         }
 
-        if (target?.type !== "binaryOp") return undefined;
+        if (target?.type !== "binaryOp") {
+            console.log(`[V5-RUNNER-FRAC] target is not binaryOp: path=${path}, targetType=${target?.type || 'undefined'}`);
+            return undefined;
+        }
 
         const leftParts = this.getFractionParts(target.left);
         const rightParts = this.getFractionParts(target.right);
 
-        if (!leftParts || !rightParts) return undefined;
+        // Debug logging for fraction parts extraction
+        console.log(`[V5-RUNNER-FRAC] path=${path} id=${id}`);
+        console.log(`[V5-RUNNER-FRAC] target.op=${target.op}`);
+        console.log(`[V5-RUNNER-FRAC] target.left.type=${target.left?.type} leftParts=${JSON.stringify(leftParts)}`);
+        console.log(`[V5-RUNNER-FRAC] target.right.type=${target.right?.type} rightParts=${JSON.stringify(rightParts)}`);
+
+        if (!leftParts || !rightParts) {
+            console.log(`[V5-RUNNER-FRAC] FAIL: getFractionParts returned null for left or right`);
+            return undefined;
+        }
 
         const { n: n1, d: d1 } = leftParts;
         const { n: n2, d: d2 } = rightParts;
@@ -643,6 +660,37 @@ export class PrimitiveRunner {
                 break;
             case "P.FRAC_SUB_SAME_DEN":
                 if (d1 === d2) newFrac = { n: n1 - n2, d: d1 };
+                break;
+
+            case "P.FRAC_ADD_DIFF_DEN_MUL1":
+            case "P.FRAC_SUB_DIFF_DEN_MUL1":
+                // a/b +/- c/d -> (a/b)*1 +/- (c/d)*1
+                // 1. Verify denominators are different
+                if (d1 === d2) return undefined; // Should be handled by guard logic ideally but check here too
+
+                if (target.left.type !== "fraction" || target.right.type !== "fraction") return undefined;
+
+                // 2. Construct the new tree
+                // Root: BinaryOp (+|-)
+                // Left: BinaryOp (*) -> Left: left_frac, Right: integer(1)
+                // Right: BinaryOp (*) -> Left: right_frac, Right: integer(1)
+
+                newOp = {
+                    type: "binaryOp",
+                    op: id === "P.FRAC_ADD_DIFF_DEN_MUL1" ? "+" : "-",
+                    left: {
+                        type: "binaryOp",
+                        op: "*",
+                        left: target.left,
+                        right: { type: "integer", value: "1" }
+                    },
+                    right: {
+                        type: "binaryOp",
+                        op: "*",
+                        left: target.right,
+                        right: { type: "integer", value: "1" }
+                    }
+                };
                 break;
             case "P.FRAC_MUL":
                 newFrac = { n: n1 * n2, d: d1 * d2 };
@@ -885,5 +933,58 @@ export class PrimitiveRunner {
         };
         traverse(root, "root");
         return root;
+    }
+    private static runOneToTargetDenom(root: AstNode, target: AstNode, path: string): AstNode | undefined {
+        if (target.type === 'integer') {
+            if (target.value !== '1') return undefined;
+        } else if (target.type !== 'variable') {
+            return undefined;
+        }
+
+        const parentPathParts = path.split('.');
+        if (parentPathParts.length < 2) return undefined;
+
+        parentPathParts.pop();
+        const parentPathStr = parentPathParts.join('.');
+        const parent = getNodeAt(root, parentPathStr);
+
+        if (!parent || parent.type !== 'binaryOp' || (parent.op !== '*')) {
+            return undefined;
+        }
+
+        const grandParentPathParts = [...parentPathParts];
+        grandParentPathParts.pop();
+        const grandParentPathStr = grandParentPathParts.join('.');
+
+        const grandParent = getNodeAt(root, grandParentPathStr);
+        if (!grandParent || grandParent.type !== 'binaryOp' || (grandParent.op !== '+' && grandParent.op !== '-')) {
+            return undefined;
+        }
+
+        const parentIsLeft = parent === grandParent.left;
+        const otherBranch = parentIsLeft ? grandParent.right : grandParent.left;
+
+        let otherDenom = "1";
+        const extractDenom = (node: AstNode): string | undefined => {
+            if (node.type === "binaryOp" && (node.op === '*')) {
+                if (node.left.type === 'fraction') return node.left.denominator;
+                if (node.right.type === 'fraction') return node.right.denominator;
+            }
+            if (node.type === "fraction") return node.denominator;
+            return undefined;
+        }
+
+        const d = extractDenom(otherBranch);
+        if (!d) return undefined;
+        otherDenom = d;
+
+        const newFraction: FractionNode = {
+            type: "fraction",
+            numerator: otherDenom,
+            denominator: otherDenom
+        };
+        const newRoot = replaceNodeAt(root, path, newFraction);
+
+        return newRoot;
     }
 }

@@ -80,7 +80,8 @@ export function createEngineHttpServer(
         url === "/api/step-debug" ||
         url === "/api/step-debug" ||
         url === "/api/primitive-map-debug" ||
-        url === "/api/orchestrator/v5/step"
+        url === "/api/orchestrator/v5/step" ||
+        url === "/api/instrument"
       )) {
         let body = "";
 
@@ -173,6 +174,13 @@ export function createEngineHttpServer(
               const { handlePostOrchestratorStepV5 } = await import("./HandlerPostOrchestratorStepV5.js");
               const result = await handlePostOrchestratorStepV5(parsedBody, handlerDeps);
               response = result;
+            }
+            else if (url === "/api/instrument") {
+              // STABLE-ID INSTRUMENTATION ENDPOINT
+              // Returns instrumented LaTeX with data-ast-id wrappers
+              const { handlePostInstrument } = await import("./HandlerPostInstrument.js");
+              await handlePostInstrument(req, res, parsedBody);
+              return; // Handler sends response
             }
             // POST /api/register
             // else if (url === "/api/register") {
@@ -289,6 +297,172 @@ export function createEngineHttpServer(
         TraceHub.reset();
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ status: "ok", message: "TraceHub buffer reset" }));
+        return;
+      }
+
+      // ============================================================
+      // AST PATH RESOLVER DEBUG ENDPOINT
+      // ============================================================
+
+      if (req.method === "POST" && req.url === "/debug/ast/resolve-path") {
+        let body = "";
+        req.on("data", (chunk: Buffer | string) => {
+          body += chunk.toString();
+        });
+
+        req.on("end", async () => {
+          try {
+            const parsedBody = JSON.parse(body);
+            const { latex, selectionPath } = parsedBody as { latex?: string; selectionPath?: string };
+
+            if (!latex || typeof latex !== "string") {
+              sendJson(res, 400, {
+                ok: false,
+                error: "invalid-request",
+                message: "Missing or invalid 'latex' field"
+              });
+              return;
+            }
+
+            if (!selectionPath || typeof selectionPath !== "string") {
+              sendJson(res, 400, {
+                ok: false,
+                error: "invalid-request",
+                message: "Missing or invalid 'selectionPath' field"
+              });
+              return;
+            }
+
+            // Import AST utilities
+            const { parseExpression, getNodeAt } = await import("../mapmaster/ast.js");
+
+            // Parse the latex to AST
+            let ast;
+            try {
+              ast = parseExpression(latex);
+            } catch (parseError) {
+              sendJson(res, 200, {
+                ok: false,
+                error: "parse-failed",
+                message: `Failed to parse LaTeX: ${parseError instanceof Error ? parseError.message : String(parseError)}`,
+                latex
+              });
+              return;
+            }
+
+            if (!ast) {
+              sendJson(res, 200, {
+                ok: false,
+                error: "parse-failed",
+                message: "AST parsing returned null",
+                latex
+              });
+              return;
+            }
+
+            // Resolve the path
+            const resolvedNode = getNodeAt(ast, selectionPath);
+
+            if (!resolvedNode) {
+              sendJson(res, 200, {
+                ok: false,
+                error: "path-not-found",
+                message: `Path '${selectionPath}' not found in AST`,
+                latex,
+                selectionPath,
+                astRootType: ast.type
+              });
+              return;
+            }
+
+            // Return successful resolution
+            const nodeValue = (resolvedNode as { value?: string | number }).value ?? null;
+            const latexFragment = (resolvedNode as { latex?: string }).latex ?? null;
+
+            sendJson(res, 200, {
+              ok: true,
+              selectionPath,
+              resolvedType: resolvedNode.type,
+              resolvedKind: resolvedNode.type, // Using type as kind for now
+              value: nodeValue,
+              latexFragment: latexFragment || (nodeValue !== null ? String(nodeValue) : null),
+              nodeKeys: Object.keys(resolvedNode)
+            });
+
+          } catch (error) {
+            sendJson(res, 500, {
+              ok: false,
+              error: "resolver-error",
+              message: error instanceof Error ? error.message : String(error)
+            });
+          }
+        });
+        return;
+      }
+
+      // ============================================================
+      // SMART OPERATOR SELECTION: VALIDATION ENDPOINT
+      // ============================================================
+
+      if (req.method === "POST" && req.url === "/api/v1/validate-operator") {
+        let body = "";
+        req.on("data", (chunk: Buffer | string) => {
+          body += chunk.toString();
+        });
+
+        req.on("end", async () => {
+          try {
+            const parsedBody = JSON.parse(body);
+            const { latex, operatorPath } = parsedBody as { latex?: string; operatorPath?: string };
+
+            if (!latex || typeof latex !== "string") {
+              sendJson(res, 400, {
+                ok: false,
+                error: "invalid-request",
+                message: "Missing or invalid 'latex' field"
+              });
+              return;
+            }
+
+            // Import validation utility from Phase 1
+            const { validateOperatorContext } = await import("../mapmaster/validation.utils.js");
+
+            // Validate the operator context
+            const path = operatorPath || "root";
+            const result = validateOperatorContext(latex, path);
+
+            if (!result) {
+              sendJson(res, 200, {
+                ok: false,
+                validationType: null,
+                reason: "validation-failed",
+                message: "Could not validate operator at path",
+                latex,
+                operatorPath: path
+              });
+              return;
+            }
+
+            // Return validation result
+            sendJson(res, 200, {
+              ok: true,
+              validationType: result.validationType,
+              reason: result.reason,
+              operatorType: result.operatorType,
+              leftOperandType: result.leftOperandType,
+              rightOperandType: result.rightOperandType,
+              latex,
+              operatorPath: path
+            });
+
+          } catch (error) {
+            sendJson(res, 500, {
+              ok: false,
+              error: "validation-error",
+              message: error instanceof Error ? error.message : String(error)
+            });
+          }
+        });
         return;
       }
 

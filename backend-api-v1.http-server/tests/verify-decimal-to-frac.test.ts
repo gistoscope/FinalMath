@@ -103,7 +103,7 @@ test('Decimal to Fraction: 2.75 -> 11/4 (simplified)', async () => {
 test('Decimal to Fraction in expression: 5 + 0.3, click on 0.3', async () => {
     const res = await simulateLiveStep("5 + 0.3", "term[1]");
     expect(res.primitiveId).toBe("P.DECIMAL_TO_FRAC");
-    expect(res.resultLatex).toBe("5+\\frac{3}{10}");
+    expect(res.resultLatex).toBe("5 + \\frac{3}{10}");
 });
 
 test('Decimal to Fraction: negative -0.5 -> -1/2', async () => {

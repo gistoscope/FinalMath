@@ -155,13 +155,14 @@ export class EngineAdapter {
       // Must be a real surface node inside the formula.
       if (!nodeId) return false;
 
-      // P1: Integer single-click is handled locally (mode cycling)
-      // Only integer DOUBLE-CLICK goes to engine for applyStep
-      if (isIntegerNode) {
-        const isDblClick = clickCount === 2 || t === "dblclick";
-        console.log(`[P1] Integer click: nodeId=${nodeId}, clickCount=${clickCount}, isDblClick=${isDblClick}`);
-        return isDblClick; // Only double-click on integers goes to engine
-      }
+      // IMPORTANT:
+// Integer/Number nodes are handled locally in main.js (mode cycling + the single apply gateway).
+// EngineAdapter must NOT send applyStep for numbers, otherwise we get competing apply sources
+// and Step2 multiplier "1" (BLUE apply) becomes nondeterministic.
+if (isIntegerNode) {
+  console.log(`[P1] Integer click ignored by EngineAdapter (handled locally): nodeId=${nodeId}, clickCount=${clickCount}, type=${t}`);
+  return false;
+}
 
       return isOperatorRole || isOperatorKind;
     }
@@ -267,14 +268,20 @@ export class EngineAdapter {
     const v5Endpoint = endpoint.replace("/api/entry-step", "/api/orchestrator/v5/step");
 
     const v5Payload = {
-      sessionId: "default-session",
+      sessionId: `session-${Date.now()}`, // Fresh session per request to prevent history bloat
       expressionLatex: request.clientEvent.latex,
       selectionPath: request.clientEvent.astNodeId || null, // Use AST node ID
       operatorIndex: request.clientEvent.astNodeId ? undefined : request.clientEvent.surfaceOperatorIndex, // FIXED: Only use as fallback
       courseId: "default",
       userRole: "student",
-      // NEW: Send surface node kind so backend can infer click target type
+      // NEW: Surface node kind so backend can infer click target type
       surfaceNodeKind: request.clientEvent.surfaceNodeKind || null,
+      // NEW: Explicit click context fields for operator matching
+      clickTargetKind: request.clientEvent.surfaceNodeRole === "operator" ? "operator" :
+        (request.clientEvent.surfaceNodeKind === "Num" || request.clientEvent.surfaceNodeKind === "Number" || request.clientEvent.surfaceNodeKind === "Integer") ? "number" :
+          request.clientEvent.surfaceNodeKind === "Fraction" ? "fractionBar" : null,
+      operator: request.clientEvent.surfaceNodeText || null, // "+" / "-" / "*" / "/" etc.
+      surfaceNodeId: request.clientEvent.surfaceNodeId || null, // For debugging
     };
 
     // P1: Inject preferredPrimitiveId for integer double-clicks from cycle state
