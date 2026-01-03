@@ -1,16 +1,23 @@
 // main.js
 // Demo: canonical KaTeX formula + SurfaceNodeMap + interactive hover/click.
 
-import { buildSurfaceNodeMap, surfaceMapToSerializable, enhanceSurfaceMap, correlateOperatorsWithAST, correlateIntegersWithAST, hitTestPoint } from "./surface-map.js";
+import { runV5Step } from "./client/orchestratorV5Client.js";
+import { ClientEventRecorder, DisplayAdapter } from "./display-adapter.js";
+import { EngineAdapter } from "./engine-adapter.js";
+import { FileBus } from "./filebus.js";
+import {
+  buildSurfaceNodeMap,
+  correlateIntegersWithAST,
+  correlateOperatorsWithAST,
+  enhanceSurfaceMap,
+  hitTestPoint,
+  surfaceMapToSerializable,
+} from "./surface-map.js";
 
 // Expose hitTestPoint globally for coordinate-based hit-testing
 if (typeof window !== "undefined") {
   window.__surfaceMapUtils = { hitTestPoint };
 }
-import { DisplayAdapter, ClientEventRecorder } from "./display-adapter.js";
-import { FileBus } from "./filebus.js";
-import { EngineAdapter } from "./engine-adapter.js";
-import { runV5Step } from "./client/orchestratorV5Client.js";
 
 // ============================================================
 // UNIFIED ENGINE BASE URL UTILITY
@@ -30,7 +37,6 @@ function getEngineBaseUrl() {
 if (typeof window !== "undefined") {
   window.getEngineBaseUrl = getEngineBaseUrl;
 }
-
 
 // Test suite (6 distinct LaTeX expressions)
 const TESTS = [
@@ -75,7 +81,7 @@ let lastHoverNode = null;
 
 // Selection engine state
 const selectionState = {
-  mode: "none",           // "none" | "single" | "multi" | "rect"
+  mode: "none", // "none" | "single" | "multi" | "rect"
   primaryId: null,
   selectedIds: new Set(),
 };
@@ -83,17 +89,17 @@ const selectionState = {
 // P1: Integer click-cycle state
 // Single click cycles mode, double click applies action
 const integerCycleState = {
-  selectedNodeId: null,      // surfaceNodeId of currently selected integer
-  astNodeId: null,           // AST path of selected integer
-  cycleIndex: 0,             // Current mode: 0 = Green (Convert to Frac), 1 = Orange (Factor Primes)
+  selectedNodeId: null, // surfaceNodeId of currently selected integer
+  astNodeId: null, // AST path of selected integer
+  cycleIndex: 0, // Current mode: 0 = Green (Convert to Frac), 1 = Orange (Factor Primes)
   primitives: [
-    { id: "P.INT_TO_FRAC", label: "Convert to fraction", color: "#4CAF50" },     // Green
-    { id: "P.INT_FACTOR_PRIMES", label: "Factor to primes", color: "#FF9800" },  // Orange
+    { id: "P.INT_TO_FRAC", label: "Convert to fraction", color: "#4CAF50" }, // Green
+    { id: "P.INT_FACTOR_PRIMES", label: "Factor to primes", color: "#FF9800" }, // Orange
   ],
   // Double-click detection state
   pendingClickTimeout: null, // Timeout ID for delayed single-click processing
-  lastClickTime: 0,          // Timestamp of last click
-  lastClickNodeId: null,     // Node ID of last click
+  lastClickTime: 0, // Timestamp of last click
+  lastClickNodeId: null, // Node ID of last click
 };
 
 // P1: Prevent re-entry while hint apply is in progress
@@ -122,7 +128,7 @@ const p1DiagnosticsState = {
   lastHintApplyPreferredPrimitiveId: "N/A",
   lastHintApplyEndpoint: "N/A",
   lastHintApplyNewLatex: "N/A",
-  lastHintApplyError: "N/A"
+  lastHintApplyError: "N/A",
 };
 
 // P1: Create and update diagnostics panel (bottom-left)
@@ -158,35 +164,81 @@ function updateP1Diagnostics(updates = {}) {
   }
 
   const panel = createP1DiagnosticsPanel();
-  const astColorClass = p1DiagnosticsState.resolvedAstNodeId === "MISSING" ? "color: red;" : "color: lime;";
+  const astColorClass =
+    p1DiagnosticsState.resolvedAstNodeId === "MISSING"
+      ? "color: red;"
+      : "color: lime;";
 
   panel.innerHTML = `
 <b>P1 HINT DIAGNOSTICS</b>
 ─────────────────────
-currentLatex: <span style="color: cyan;">${escapeHtml(p1DiagnosticsState.currentLatex || "N/A")}</span>
-surfaceNodeId: <span style="color: yellow;">${p1DiagnosticsState.selectedSurfaceNodeId}</span>
-astNodeId: <span style="${astColorClass}">${p1DiagnosticsState.resolvedAstNodeId}</span>
-primitiveId: <span style="color: orange;">${p1DiagnosticsState.primitiveId}</span>
-hintClickBlocked: <span style="color: magenta;">${p1DiagnosticsState.hintClickBlocked}</span>
-lastTestResult: <span style="color: ${p1DiagnosticsState.lastTestResult === "PASS" ? "lime" : (p1DiagnosticsState.lastTestResult === "N/A" ? "white" : "red")};">${p1DiagnosticsState.lastTestResult}</span>
+currentLatex: <span style="color: cyan;">${escapeHtml(
+    p1DiagnosticsState.currentLatex || "N/A"
+  )}</span>
+surfaceNodeId: <span style="color: yellow;">${
+    p1DiagnosticsState.selectedSurfaceNodeId
+  }</span>
+astNodeId: <span style="${astColorClass}">${
+    p1DiagnosticsState.resolvedAstNodeId
+  }</span>
+primitiveId: <span style="color: orange;">${
+    p1DiagnosticsState.primitiveId
+  }</span>
+hintClickBlocked: <span style="color: magenta;">${
+    p1DiagnosticsState.hintClickBlocked
+  }</span>
+lastTestResult: <span style="color: ${
+    p1DiagnosticsState.lastTestResult === "PASS"
+      ? "lime"
+      : p1DiagnosticsState.lastTestResult === "N/A"
+      ? "white"
+      : "red"
+  };">${p1DiagnosticsState.lastTestResult}</span>
 
 <b>CHOICE FETCH</b>
-choiceStatus: <span style="color: ${p1DiagnosticsState.lastChoiceStatus === "choice" ? "lime" : "white"};">${p1DiagnosticsState.lastChoiceStatus}</span>
-choiceTargetPath: <span style="color: cyan;">${p1DiagnosticsState.lastChoiceTargetPath}</span>
-choiceCount: <span style="color: cyan;">${p1DiagnosticsState.lastChoiceCount}</span>
+choiceStatus: <span style="color: ${
+    p1DiagnosticsState.lastChoiceStatus === "choice" ? "lime" : "white"
+  };">${p1DiagnosticsState.lastChoiceStatus}</span>
+choiceTargetPath: <span style="color: cyan;">${
+    p1DiagnosticsState.lastChoiceTargetPath
+  }</span>
+choiceCount: <span style="color: cyan;">${
+    p1DiagnosticsState.lastChoiceCount
+  }</span>
 
 <b>HINT APPLY</b>
-applyStatus: <span style="color: ${p1DiagnosticsState.lastHintApplyStatus === "step-applied" ? "lime" : (p1DiagnosticsState.lastHintApplyStatus === "RUNNING" ? "yellow" : (p1DiagnosticsState.lastHintApplyStatus === "N/A" ? "white" : "red"))};">${p1DiagnosticsState.lastHintApplyStatus}</span>
-applySelectionPath: <span style="color: cyan;">${p1DiagnosticsState.lastHintApplySelectionPath}</span>
-applyPreferredPrimitiveId: <span style="color: cyan;">${p1DiagnosticsState.lastHintApplyPreferredPrimitiveId}</span>
-applyEndpoint: <span style="color: cyan;">${escapeHtml(p1DiagnosticsState.lastHintApplyEndpoint || "N/A")}</span>
-applyNewLatex: <span style="color: cyan;">${escapeHtml(p1DiagnosticsState.lastHintApplyNewLatex || "N/A")}</span>
-applyError: <span style="color: red;">${escapeHtml(p1DiagnosticsState.lastHintApplyError || "N/A")}</span>
+applyStatus: <span style="color: ${
+    p1DiagnosticsState.lastHintApplyStatus === "step-applied"
+      ? "lime"
+      : p1DiagnosticsState.lastHintApplyStatus === "RUNNING"
+      ? "yellow"
+      : p1DiagnosticsState.lastHintApplyStatus === "N/A"
+      ? "white"
+      : "red"
+  };">${p1DiagnosticsState.lastHintApplyStatus}</span>
+applySelectionPath: <span style="color: cyan;">${
+    p1DiagnosticsState.lastHintApplySelectionPath
+  }</span>
+applyPreferredPrimitiveId: <span style="color: cyan;">${
+    p1DiagnosticsState.lastHintApplyPreferredPrimitiveId
+  }</span>
+applyEndpoint: <span style="color: cyan;">${escapeHtml(
+    p1DiagnosticsState.lastHintApplyEndpoint || "N/A"
+  )}</span>
+applyNewLatex: <span style="color: cyan;">${escapeHtml(
+    p1DiagnosticsState.lastHintApplyNewLatex || "N/A"
+  )}</span>
+applyError: <span style="color: red;">${escapeHtml(
+    p1DiagnosticsState.lastHintApplyError || "N/A"
+  )}</span>
 `.trim();
 }
 
 function escapeHtml(str) {
-  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 // P1: Self-test function (can be triggered from console: window.runP1SelfTest())
@@ -201,7 +253,7 @@ async function runP1SelfTest() {
   currentLatex = "2+3";
   renderFormula();
   buildAndShowMap();
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise((r) => setTimeout(r, 300));
 
   // Simulate clicking "2" (first integer)
   const map = window.__currentSurfaceMap;
@@ -211,7 +263,7 @@ async function runP1SelfTest() {
     return;
   }
 
-  const firstNum = map.atoms.find(n => n.kind === "Num");
+  const firstNum = map.atoms.find((n) => n.kind === "Num");
   if (!firstNum) {
     console.error("[P1-SELF-TEST] FAIL: No Num node found");
     updateP1Diagnostics({ lastTestResult: "FAIL: No Num node" });
@@ -223,21 +275,29 @@ async function runP1SelfTest() {
   integerCycleState.astNodeId = firstNum.astNodeId;
   integerCycleState.cycleIndex = 0; // GREEN mode
   applyIntegerHighlight(firstNum.id, 0);
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise((r) => setTimeout(r, 300));
 
   // Apply P1 action (simulating hint click)
   await applyP1Action(firstNum.id, firstNum.astNodeId, 0);
-  await new Promise(r => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 500));
 
   // Check result
   const expected = "\\frac{2}{1}+3";
   const passed = currentLatex === expected;
 
   if (passed) {
-    console.log("[P1-SELF-TEST] PASS: Expression correctly converted to", currentLatex);
+    console.log(
+      "[P1-SELF-TEST] PASS: Expression correctly converted to",
+      currentLatex
+    );
     updateP1Diagnostics({ lastTestResult: "PASS" });
   } else {
-    console.error("[P1-SELF-TEST] FAIL: Expected", expected, "but got", currentLatex);
+    console.error(
+      "[P1-SELF-TEST] FAIL: Expected",
+      expected,
+      "but got",
+      currentLatex
+    );
     updateP1Diagnostics({ lastTestResult: `FAIL: got "${currentLatex}"` });
   }
 
@@ -279,14 +339,16 @@ function applyIntegerHighlight(surfaceNodeId, cycleIndex) {
   if (el) {
     el.classList.add("p1-integer-selected");
     el.style.setProperty("--p1-highlight-color", primitive.color);
-    console.log(`[P1] Applied highlight to ${surfaceNodeId} with color ${primitive.color} (mode=${cycleIndex})`);
+    console.log(
+      `[P1] Applied highlight to ${surfaceNodeId} with color ${primitive.color} (mode=${cycleIndex})`
+    );
   }
   // Also show mode indicator (now clickable)
   showModeIndicator(primitive, surfaceNodeId, cycleIndex);
 }
 
 function clearIntegerHighlight() {
-  document.querySelectorAll(".p1-integer-selected").forEach(el => {
+  document.querySelectorAll(".p1-integer-selected").forEach((el) => {
     el.classList.remove("p1-integer-selected");
     el.style.removeProperty("--p1-highlight-color");
   });
@@ -326,7 +388,9 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
     };
 
     // Add capture-phase blockers
-    indicator.addEventListener("pointerdown", captureBlocker, { capture: true });
+    indicator.addEventListener("pointerdown", captureBlocker, {
+      capture: true,
+    });
     indicator.addEventListener("mousedown", captureBlocker, { capture: true });
 
     // Add hover effect
@@ -351,7 +415,7 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
     selectedSurfaceNodeId: surfaceNodeId,
     resolvedAstNodeId: integerCycleState.astNodeId || "MISSING",
     primitiveId: primitive.id,
-    hintClickBlocked: "N/A"
+    hintClickBlocked: "N/A",
   });
 
   // Make indicator clickable - applies the current mode's action
@@ -367,7 +431,9 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       return;
     }
 
-    console.log(`[P1-HINT] Hint clicked: requesting apply for ${primitive.id} on node ${surfaceNodeId}`);
+    console.log(
+      `[P1-HINT] Hint clicked: requesting apply for ${primitive.id} on node ${surfaceNodeId}`
+    );
 
     if (hintApplyState) hintApplyState.applying = true;
 
@@ -376,20 +442,26 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       lastHintApplyStatus: "RUNNING",
       lastHintApplySelectionPath: integerCycleState.astNodeId || "MISSING",
       lastHintApplyPreferredPrimitiveId: primitive.id,
-      lastHintApplyEndpoint: (typeof window !== "undefined" && window.__v5EndpointUrl) ? window.__v5EndpointUrl : V5_ENDPOINT_URL,
+      lastHintApplyEndpoint:
+        typeof window !== "undefined" && window.__v5EndpointUrl
+          ? window.__v5EndpointUrl
+          : V5_ENDPOINT_URL,
       lastHintApplyNewLatex: "N/A",
-      lastHintApplyError: "N/A"
+      lastHintApplyError: "N/A",
     });
 
     try {
       // Ensure AST nodeId + backend choices are available (even if click event had astNodeId missing)
-      const ctx = await ensureP1IntegerContext(surfaceNodeId, integerCycleState.astNodeId);
+      const ctx = await ensureP1IntegerContext(
+        surfaceNodeId,
+        integerCycleState.astNodeId
+      );
 
       // Keep diagnostics in sync with resolved target
       updateP1Diagnostics({
         resolvedAstNodeId: ctx.astNodeId || "MISSING",
         lastHintApplySelectionPath: ctx.astNodeId || "MISSING",
-        primitiveId: primitive.id
+        primitiveId: primitive.id,
       });
 
       // Apply the currently selected primitive (cycleIndex)
@@ -398,7 +470,7 @@ function showModeIndicator(primitive, surfaceNodeId, cycleIndex) {
       console.error("[P1-HINT][ERROR] Apply failed:", err);
       updateP1Diagnostics({
         lastHintApplyStatus: "engine-error",
-        lastHintApplyError: err instanceof Error ? err.message : String(err)
+        lastHintApplyError: err instanceof Error ? err.message : String(err),
       });
     } finally {
       if (hintApplyState) hintApplyState.applying = false;
@@ -414,7 +486,6 @@ function hideModeIndicator() {
   }
 }
 
-
 // P1: Ensure we have a valid AST nodeId + up-to-date choice list for the currently selected integer.
 // This makes hint-apply robust even when surface map correlation fails (astNodeId missing).
 async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
@@ -422,14 +493,24 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
   let astNodeId = fallbackAstNodeId || integerCycleState.astNodeId || null;
 
   // 2) Try to find it on the current surface map (if available)
-  if (!astNodeId && typeof window !== "undefined" && window.__currentSurfaceMap && Array.isArray(window.__currentSurfaceMap.atoms)) {
-    const node = window.__currentSurfaceMap.atoms.find(a => a && a.id === surfaceNodeId);
+  if (
+    !astNodeId &&
+    typeof window !== "undefined" &&
+    window.__currentSurfaceMap &&
+    Array.isArray(window.__currentSurfaceMap.atoms)
+  ) {
+    const node = window.__currentSurfaceMap.atoms.find(
+      (a) => a && a.id === surfaceNodeId
+    );
     if (node && node.astNodeId) astNodeId = node.astNodeId;
   }
 
   // 3) If we still don't have it OR we want authoritative choices, ask backend for a "choice" response.
   // The orchestrator can resolve the correct integer target even when selectionPath is null/root.
-  const endpointUrl = (typeof window !== "undefined" && window.__v5EndpointUrl) ? window.__v5EndpointUrl : V5_ENDPOINT_URL;
+  const endpointUrl =
+    typeof window !== "undefined" && window.__v5EndpointUrl
+      ? window.__v5EndpointUrl
+      : V5_ENDPOINT_URL;
 
   const choicePayload = {
     sessionId: "default-session",
@@ -438,7 +519,7 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
     userRole: "student",
     userId: "student",
     courseId: "default-course",
-    surfaceNodeKind: "Num"
+    surfaceNodeKind: "Num",
     // IMPORTANT: no preferredPrimitiveId here; we want status="choice"
   };
 
@@ -447,13 +528,19 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
     resolvedAstNodeId: astNodeId || "MISSING",
     lastChoiceStatus: "RUNNING",
     lastChoiceTargetPath: astNodeId || "N/A",
-    lastChoiceCount: String(integerCycleState.primitives?.length || 0)
+    lastChoiceCount: String(integerCycleState.primitives?.length || 0),
   });
 
   const result = await runV5Step(endpointUrl, choicePayload, 8000);
 
   // Backend standardized response: { status, choices, rawResponse.json.debugInfo ... }
-  if (result && (String(result.status || "") === "choice" || String(result.status || "").includes("choice")) && Array.isArray(result.choices) && result.choices.length > 0) {
+  if (
+    result &&
+    (String(result.status || "") === "choice" ||
+      String(result.status || "").includes("choice")) &&
+    Array.isArray(result.choices) &&
+    result.choices.length > 0
+  ) {
     const choices = result.choices;
 
     // If backend provides a targetNodeId, use it as authoritative astNodeId
@@ -466,16 +553,17 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
       label: c.label,
       // Color convention: first choice = green; others = orange (until we add richer palette)
       color: idx === 0 ? "#4CAF50" : "#FF9800",
-      targetNodeId: c.targetNodeId || targetNodeId
+      targetNodeId: c.targetNodeId || targetNodeId,
     }));
 
     updateP1Diagnostics({
       resolvedAstNodeId: astNodeId || "MISSING",
-      primitiveId: integerCycleState.primitives[integerCycleState.cycleIndex]?.id || "N/A",
+      primitiveId:
+        integerCycleState.primitives[integerCycleState.cycleIndex]?.id || "N/A",
       lastChoiceStatus: "choice",
       lastChoiceTargetPath: astNodeId || "N/A",
       lastChoiceCount: String(integerCycleState.primitives.length),
-      lastHintApplyError: "N/A"
+      lastHintApplyError: "N/A",
     });
 
     // Keep integerCycleState.astNodeId in sync
@@ -484,20 +572,22 @@ async function ensureP1IntegerContext(surfaceNodeId, fallbackAstNodeId = null) {
   }
 
   // Not a choice response or error
-  const errMsg = (result && result.rawResponse && result.rawResponse.error) ? String(result.rawResponse.error) : "No choice response";
+  const errMsg =
+    result && result.rawResponse && result.rawResponse.error
+      ? String(result.rawResponse.error)
+      : "No choice response";
   updateP1Diagnostics({
     resolvedAstNodeId: astNodeId || "MISSING",
     lastChoiceStatus: result ? result.status : "engine-error",
     lastChoiceTargetPath: astNodeId || "N/A",
     lastChoiceCount: String(integerCycleState.primitives?.length || 0),
-    lastHintApplyError: errMsg
+    lastHintApplyError: errMsg,
   });
 
   // Still return what we have (may be null)
   integerCycleState.astNodeId = astNodeId;
   return { astNodeId, primitives: integerCycleState.primitives };
 }
-
 
 // P1: Apply action for the current mode (GREEN or ORANGE)
 // This sends an applyStep request to the backend
@@ -508,7 +598,10 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
       const ctx = await ensureP1IntegerContext(surfaceNodeId, null);
       astNodeId = ctx.astNodeId;
     } catch (err) {
-      console.warn("[P1-HINT-APPLY] Failed to resolve astNodeId via ensureP1IntegerContext:", err);
+      console.warn(
+        "[P1-HINT-APPLY] Failed to resolve astNodeId via ensureP1IntegerContext:",
+        err
+      );
     }
   }
 
@@ -521,7 +614,9 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
   console.log(`[P1-APPLY] === Hint/DblClick Apply Action ===`);
   console.log(`[P1-APPLY] surfaceNodeId: ${surfaceNodeId}`);
   console.log(`[P1-APPLY] astNodeId (param): ${astNodeId}`);
-  console.log(`[P1-APPLY] integerCycleState.astNodeId: ${integerCycleState.astNodeId}`);
+  console.log(
+    `[P1-APPLY] integerCycleState.astNodeId: ${integerCycleState.astNodeId}`
+  );
   console.log(`[P1-APPLY] primitive: ${primitive.id}`);
   console.log(`[P1-APPLY] currentLatex: "${currentLatex}"`);
 
@@ -533,12 +628,19 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
   let targetPath = astNodeId || integerCycleState.astNodeId;
 
   // If still no targetPath, try to look it up from the current surface map
-  if (!targetPath && surfaceNodeId && typeof window !== "undefined" && window.__currentSurfaceMap) {
+  if (
+    !targetPath &&
+    surfaceNodeId &&
+    typeof window !== "undefined" &&
+    window.__currentSurfaceMap
+  ) {
     const map = window.__currentSurfaceMap;
-    const surfaceNode = map.atoms?.find(n => n.id === surfaceNodeId);
+    const surfaceNode = map.atoms?.find((n) => n.id === surfaceNodeId);
     if (surfaceNode && surfaceNode.astNodeId) {
       targetPath = surfaceNode.astNodeId;
-      console.log(`[P1-APPLY] Found astNodeId from surface map: "${targetPath}"`);
+      console.log(
+        `[P1-APPLY] Found astNodeId from surface map: "${targetPath}"`
+      );
     }
   }
 
@@ -550,12 +652,22 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
 
     if (isIsolatedInteger) {
       targetPath = "root";
-      console.log(`[P1-APPLY] Using "root" - expression "${latex}" is an isolated integer`);
+      console.log(
+        `[P1-APPLY] Using "root" - expression "${latex}" is an isolated integer`
+      );
     } else {
-      console.error(`[P1-APPLY] ERROR: No valid astNodeId for non-isolated integer expression!`);
-      console.error(`[P1-APPLY] This likely means correlateIntegersWithAST did not assign an astNodeId to the clicked integer.`);
-      console.error(`[P1-APPLY] Expression: "${latex}", surfaceNodeId: ${surfaceNodeId}`);
-      console.error(`[P1-APPLY] ABORTING - would incorrectly target root node.`);
+      console.error(
+        `[P1-APPLY] ERROR: No valid astNodeId for non-isolated integer expression!`
+      );
+      console.error(
+        `[P1-APPLY] This likely means correlateIntegersWithAST did not assign an astNodeId to the clicked integer.`
+      );
+      console.error(
+        `[P1-APPLY] Expression: "${latex}", surfaceNodeId: ${surfaceNodeId}`
+      );
+      console.error(
+        `[P1-APPLY] ABORTING - would incorrectly target root node.`
+      );
       return;
     }
   }
@@ -574,9 +686,10 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
   };
 
   // Get endpoint from global config (exposed by EngineAdapter init)
-  const endpointUrl = (typeof window !== "undefined" && window.__v5EndpointUrl)
-    ? window.__v5EndpointUrl
-    : "/api/orchestrator/v5/step"; // Fallback to relative URL for dev proxy
+  const endpointUrl =
+    typeof window !== "undefined" && window.__v5EndpointUrl
+      ? window.__v5EndpointUrl
+      : "/api/orchestrator/v5/step"; // Fallback to relative URL for dev proxy
 
   // Update diagnostics before calling backend
   updateP1Diagnostics({
@@ -588,7 +701,7 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
     lastHintApplyPreferredPrimitiveId: primitive.id,
     lastHintApplyEndpoint: endpointUrl || "N/A",
     lastHintApplyNewLatex: "N/A",
-    lastHintApplyError: "N/A"
+    lastHintApplyError: "N/A",
   });
 
   console.log(`[P1-HINT-APPLY] primitiveId: ${primitive.id}`);
@@ -600,20 +713,39 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
     // Use the shared V5 client for proper request handling
     const result = await runV5Step(endpointUrl, v5Payload, 8000);
     // Record backend result to diagnostics
-    const _newLatex = (result && result.engineResult && typeof result.engineResult.latex === "string") ? result.engineResult.latex : "N/A";
+    const _newLatex =
+      result &&
+      result.engineResult &&
+      typeof result.engineResult.latex === "string"
+        ? result.engineResult.latex
+        : "N/A";
     updateP1Diagnostics({
       lastHintApplyStatus: result ? result.status : "engine-error",
       lastHintApplyNewLatex: _newLatex,
-      lastHintApplyError: (result && result.status === "engine-error" && result.rawResponse && result.rawResponse.error) ? String(result.rawResponse.error) : "N/A"
+      lastHintApplyError:
+        result &&
+        result.status === "engine-error" &&
+        result.rawResponse &&
+        result.rawResponse.error
+          ? String(result.rawResponse.error)
+          : "N/A",
     });
 
-
     console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
-    console.log(`[P1-HINT-APPLY] newExpressionLatex: ${result.engineResult?.newExpressionLatex || "N/A"}`);
+    console.log(
+      `[P1-HINT-APPLY] newExpressionLatex: ${
+        result.engineResult?.newExpressionLatex || "N/A"
+      }`
+    );
 
-    if (result.status === "step-applied" && result.engineResult?.newExpressionLatex) {
+    if (
+      result.status === "step-applied" &&
+      result.engineResult?.newExpressionLatex
+    ) {
       const newLatex = result.engineResult.newExpressionLatex;
-      console.log(`[P1-HINT-APPLY] SUCCESS! Updating expression to: ${newLatex}`);
+      console.log(
+        `[P1-HINT-APPLY] SUCCESS! Updating expression to: ${newLatex}`
+      );
 
       // Update the expression in the viewer
       currentLatex = newLatex;
@@ -623,13 +755,19 @@ async function applyP1Action(surfaceNodeId, astNodeId, cycleIndex) {
       // Clear P1 selection state
       resetIntegerCycleState();
     } else if (result.status === "no-candidates") {
-      console.warn(`[P1-HINT-APPLY] No candidates found for primitive ${primitive.id}. Backend may not support this primitive.`);
+      console.warn(
+        `[P1-HINT-APPLY] No candidates found for primitive ${primitive.id}. Backend may not support this primitive.`
+      );
     } else if (result.status === "choice") {
-      console.warn(`[P1-HINT-APPLY] Got 'choice' response but expected 'step-applied'. preferredPrimitiveId may not have been honored by backend.`);
+      console.warn(
+        `[P1-HINT-APPLY] Got 'choice' response but expected 'step-applied'. preferredPrimitiveId may not have been honored by backend.`
+      );
     } else if (result.status === "engine-error") {
       console.error(`[P1-HINT-APPLY][ERROR] Engine error:`, result.rawResponse);
     } else {
-      console.warn(`[P1-HINT-APPLY] Unexpected response status: ${result.status}`);
+      console.warn(
+        `[P1-HINT-APPLY] Unexpected response status: ${result.status}`
+      );
     }
   } catch (err) {
     console.error(`[P1-HINT-APPLY][ERROR] Exception calling backend:`, err);
@@ -672,7 +810,10 @@ const engineAdapter = new EngineAdapter(fileBus, {
 engineAdapter.start();
 
 // Expose V5 endpoint globally for P1 hint-apply to use
-const V5_ENDPOINT_URL = "http://localhost:4201/api/entry-step".replace("/api/entry-step", "/api/orchestrator/v5/step");
+const V5_ENDPOINT_URL = "http://localhost:4201/api/entry-step".replace(
+  "/api/entry-step",
+  "/api/orchestrator/v5/step"
+);
 if (typeof window !== "undefined") {
   window.__motorEngineAdapter = engineAdapter;
   window.__v5EndpointUrl = V5_ENDPOINT_URL;
@@ -763,8 +904,11 @@ function showChoicePopup(choices, clickContext, latex) {
     btn.addEventListener("click", (e) => {
       e.stopPropagation(); // Prevent close handler from firing
       // CRITICAL FIX: Use choice.targetNodeId (from backend) instead of clickContext.selectionPath
-      const targetPath = choice.targetNodeId || clickContext.selectionPath || "root";
-      console.log(`[ChoicePopup] Click: primitiveId=${choice.primitiveId}, targetPath=${targetPath}`);
+      const targetPath =
+        choice.targetNodeId || clickContext.selectionPath || "root";
+      console.log(
+        `[ChoicePopup] Click: primitiveId=${choice.primitiveId}, targetPath=${targetPath}`
+      );
       applyChoice(choice.primitiveId, targetPath, latex);
       hideChoicePopup();
     });
@@ -787,7 +931,10 @@ function showChoicePopup(choices, clickContext, latex) {
 
   // Close popup when clicking outside
   setTimeout(() => {
-    document.addEventListener("click", closePopupOnClickOutside, { once: true, capture: true });
+    document.addEventListener("click", closePopupOnClickOutside, {
+      once: true,
+      capture: true,
+    });
   }, 0);
 }
 
@@ -930,7 +1077,9 @@ function clearSelectionVisual(map) {
 }
 
 function nodeTextForVisual(node) {
-  const t = (node && node.latexFragment ? String(node.latexFragment) : "").trim();
+  const t = (
+    node && node.latexFragment ? String(node.latexFragment) : ""
+  ).trim();
   return t;
 }
 
@@ -953,7 +1102,7 @@ function shouldSkipNodeForVisual(node) {
 function buildSelectedLeafNodes(map) {
   const selectedSet = selectionState.selectedIds;
   const selectedById = new Map();
-  for (const n of (map?.atoms || [])) {
+  for (const n of map?.atoms || []) {
     if (selectedSet.has(n.id)) selectedById.set(n.id, n);
   }
 
@@ -1010,12 +1159,13 @@ function clusterDigitRuns(nodes) {
       cur = {
         kind: "Num",
         text: nodeTextForVisual(n),
-        bbox: { ...n.bbox }
+        bbox: { ...n.bbox },
       };
       continue;
     }
 
-    const sameLine = Math.abs(midY(n) - ((cur.bbox.top + cur.bbox.bottom) / 2)) <= 3;
+    const sameLine =
+      Math.abs(midY(n) - (cur.bbox.top + cur.bbox.bottom) / 2) <= 3;
     const gap = n.bbox.left - cur.bbox.right;
 
     if (sameLine && gap <= 2) {
@@ -1028,7 +1178,7 @@ function clusterDigitRuns(nodes) {
       cur = {
         kind: "Num",
         text: nodeTextForVisual(n),
-        bbox: { ...n.bbox }
+        bbox: { ...n.bbox },
       };
     }
   }
@@ -1036,8 +1186,10 @@ function clusterDigitRuns(nodes) {
 
   // Return visual items: merged digit-runs + the rest as-is
   const items = [];
-  for (const m of merged) items.push({ kind: m.kind, text: m.text, bbox: m.bbox });
-  for (const r of rest) items.push({ kind: r.kind, text: nodeTextForVisual(r), bbox: r.bbox });
+  for (const m of merged)
+    items.push({ kind: m.kind, text: m.text, bbox: m.bbox });
+  for (const r of rest)
+    items.push({ kind: r.kind, text: nodeTextForVisual(r), bbox: r.bbox });
 
   // Sort for stable painting left-to-right
   items.sort((a, b) => a.bbox.left - b.bbox.left);
@@ -1097,10 +1249,12 @@ function hitTestRect(map, rect) {
   for (const node of map.atoms) {
     const b = node.bbox;
     if (
-      !(rect.right < b.left ||
+      !(
+        rect.right < b.left ||
         rect.left > b.right ||
         rect.bottom < b.top ||
-        rect.top > b.bottom)
+        rect.top > b.bottom
+      )
     ) {
       results.push(node);
     }
@@ -1115,7 +1269,7 @@ function buildAndShowMap() {
   let map = buildSurfaceNodeMap(container);
   map = enhanceSurfaceMap(map, container);
   map = correlateOperatorsWithAST(map, currentLatex); // Correlate operators with AST
-  map = correlateIntegersWithAST(map, currentLatex);  // P1: Correlate integers with AST
+  map = correlateIntegersWithAST(map, currentLatex); // P1: Correlate integers with AST
   const serializable = surfaceMapToSerializable(map);
 
   const pre = document.getElementById("surface-json");
@@ -1146,7 +1300,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const container = renderFormula();
   buildAndShowMap();
 
-
   // Manual LaTeX input: load arbitrary expression into the viewer
   const manualInput = document.getElementById("manual-latex-input");
   const btnLoadLatex = document.getElementById("btn-load-latex");
@@ -1160,7 +1313,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-
   // Engine / FileBus debug panel (last ClientEvent → EngineRequest → EngineResponse)
   const elDbgClient = document.getElementById("engine-debug-client");
   const elDbgReq = document.getElementById("engine-debug-request");
@@ -1168,7 +1320,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const elDbgTsaOp = document.getElementById("tsa-debug-operator");
   const elDbgTsaStrategy = document.getElementById("tsa-debug-strategy");
   const elDbgTsaInvariant = document.getElementById("tsa-debug-invariant");
-  const elDbgTsaInvariantText = document.getElementById("tsa-debug-invariant-text");
+  const elDbgTsaInvariantText = document.getElementById(
+    "tsa-debug-invariant-text"
+  );
   const elDbgTsaBefore = document.getElementById("tsa-debug-before");
   const elDbgTsaAfter = document.getElementById("tsa-debug-after");
   const elDbgTsaError = document.getElementById("tsa-debug-error");
@@ -1224,7 +1378,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const formatTsaOperator = (tsa) => {
       if (!tsa || !tsa.meta) return "—";
       const idx =
-        typeof tsa.meta.operatorIndex === "number" && Number.isFinite(tsa.meta.operatorIndex)
+        typeof tsa.meta.operatorIndex === "number" &&
+        Number.isFinite(tsa.meta.operatorIndex)
           ? tsa.meta.operatorIndex
           : -1;
       const kind =
@@ -1257,7 +1412,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return truncate(kind + ": " + msg, 60);
     };
 
-
     const formatTsaStrategy = (tsa) => {
       if (!tsa || !tsa.meta) return "—";
       const s = typeof tsa.meta.strategy === "string" ? tsa.meta.strategy : "";
@@ -1266,13 +1420,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formatTsaInvariant = (tsa) => {
       if (!tsa || !tsa.meta) return "—";
-      const id = typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
+      const id =
+        typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
       return id || "—";
     };
 
     const formatTsaInvariantText = (tsa) => {
       if (!tsa || !tsa.meta) return "—";
-      const id = typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
+      const id =
+        typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
       if (!id) return "—";
       switch (id) {
         case "MI1.add-rat-rat":
@@ -1290,7 +1446,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formatStudentHint = (tsa) => {
       if (!tsa || !tsa.meta) return "—";
-      const id = typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
+      const id =
+        typeof tsa.meta.invariantId === "string" ? tsa.meta.invariantId : "";
       if (!id) return "—";
       switch (id) {
         case "MI1.add-rat-rat":
@@ -1341,7 +1498,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return String(before) + " → " + String(after);
     };
 
-
     const formatTsaLog = (log) => {
       if (!log || !log.length) return "—";
       const lines = log.map((entry, i) => {
@@ -1351,7 +1507,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const strat = entry.strategy || "";
         const inv = entry.invariant || "";
         const win = entry.before || "";
-        return n + ". " + ts + " · op=" + op + " · strat=" + strat + " · inv=" + inv + " · " + win;
+        return (
+          n +
+          ". " +
+          ts +
+          " · op=" +
+          op +
+          " · strat=" +
+          strat +
+          " · inv=" +
+          inv +
+          " · " +
+          win
+        );
       });
       return lines.join("\n");
     };
@@ -1365,15 +1533,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // P1: Handle integer clicks with proper double-click detection
           const ev = msg.payload;
-          if (ev && ev.type === "click" && ev.surfaceNodeKind &&
-            (ev.surfaceNodeKind === "Num" || ev.surfaceNodeKind === "Number" || ev.surfaceNodeKind === "Integer")) {
+          if (
+            ev &&
+            ev.type === "click" &&
+            ev.surfaceNodeKind &&
+            (ev.surfaceNodeKind === "Num" ||
+              ev.surfaceNodeKind === "Number" ||
+              ev.surfaceNodeKind === "Integer")
+          ) {
             const clickCount = ev.click?.clickCount || 1;
             const surfaceId = ev.surfaceNodeId;
             const astId = ev.astNodeId;
             const now = Date.now();
 
             // Diagnostic: Log the astNodeId from the click event
-            console.log(`[P1-CLICK] Integer click event: surfaceId=${surfaceId}, astId=${astId || 'MISSING!'}, clickCount=${clickCount}`);
+            console.log(
+              `[P1-CLICK] Integer click event: surfaceId=${surfaceId}, astId=${
+                astId || "MISSING!"
+              }, clickCount=${clickCount}`
+            );
 
             // Check if this is a browser-reported double-click (e.detail >= 2)
             if (clickCount === 2) {
@@ -1385,20 +1563,26 @@ document.addEventListener("DOMContentLoaded", () => {
               }
 
               // Use GREEN mode (0) if no selection, or current mode if same node selected
-              const modeToApply = (integerCycleState.selectedNodeId === surfaceId)
-                ? integerCycleState.cycleIndex
-                : 0;
+              const modeToApply =
+                integerCycleState.selectedNodeId === surfaceId
+                  ? integerCycleState.cycleIndex
+                  : 0;
 
-              console.log(`[P1] Double-click detected (browser): nodeId=${surfaceId}, applying mode=${modeToApply}`);
+              console.log(
+                `[P1] Double-click detected (browser): nodeId=${surfaceId}, applying mode=${modeToApply}`
+              );
 
               // Apply action immediately - don't let engine-adapter handle it
               // We'll create a synthetic event with the correct mode
-              applyP1Action(surfaceId, astId || integerCycleState.astNodeId, modeToApply);
+              applyP1Action(
+                surfaceId,
+                astId || integerCycleState.astNodeId,
+                modeToApply
+              );
 
               // Reset state after action
               integerCycleState.lastClickTime = 0;
               integerCycleState.lastClickNodeId = null;
-
             } else if (clickCount === 1) {
               // Single-click: check if this is actually a double-click based on timing
               const timeSinceLastClick = now - integerCycleState.lastClickTime;
@@ -1412,18 +1596,28 @@ document.addEventListener("DOMContentLoaded", () => {
                   integerCycleState.pendingClickTimeout = null;
                 }
 
-                console.log(`[P1] Double-click detected (timing): nodeId=${surfaceId}, deltaMs=${timeSinceLastClick}`);
+                console.log(
+                  `[P1] Double-click detected (timing): nodeId=${surfaceId}, deltaMs=${timeSinceLastClick}`
+                );
 
                 // Apply current mode action (should still be GREEN since we didn't cycle yet)
                 (async () => {
                   try {
-                    const ctx = await ensureP1IntegerContext(surfaceId, astId || integerCycleState.astNodeId);
-                    await applyP1Action(surfaceId, ctx.astNodeId, integerCycleState.cycleIndex);
+                    const ctx = await ensureP1IntegerContext(
+                      surfaceId,
+                      astId || integerCycleState.astNodeId
+                    );
+                    await applyP1Action(
+                      surfaceId,
+                      ctx.astNodeId,
+                      integerCycleState.cycleIndex
+                    );
                   } catch (err) {
                     console.error("[P1] Double-click apply failed:", err);
                     updateP1Diagnostics({
                       lastHintApplyStatus: "engine-error",
-                      lastHintApplyError: err instanceof Error ? err.message : String(err)
+                      lastHintApplyError:
+                        err instanceof Error ? err.message : String(err),
                     });
                   }
                 })();
@@ -1431,7 +1625,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 // Reset timing state
                 integerCycleState.lastClickTime = 0;
                 integerCycleState.lastClickNodeId = null;
-
               } else {
                 // This is a true single-click, but delay processing in case double-click follows
                 // Cancel any previous pending click
@@ -1450,22 +1643,38 @@ document.addEventListener("DOMContentLoaded", () => {
                   // Process as true single-click
                   if (integerCycleState.selectedNodeId === surfaceId) {
                     // Same node clicked again - cycle to next mode
-                    integerCycleState.cycleIndex = (integerCycleState.cycleIndex + 1) % integerCycleState.primitives.length;
-                    const modeName = integerCycleState.primitives[integerCycleState.cycleIndex].label;
-                    console.log(`[P1] Single-click: cycling to mode ${integerCycleState.cycleIndex} (${modeName}) for ${surfaceId}`);
+                    integerCycleState.cycleIndex =
+                      (integerCycleState.cycleIndex + 1) %
+                      integerCycleState.primitives.length;
+                    const modeName =
+                      integerCycleState.primitives[integerCycleState.cycleIndex]
+                        .label;
+                    console.log(
+                      `[P1] Single-click: cycling to mode ${integerCycleState.cycleIndex} (${modeName}) for ${surfaceId}`
+                    );
                   } else {
                     // Different node - select it with mode 0 (GREEN)
                     integerCycleState.selectedNodeId = surfaceId;
                     integerCycleState.astNodeId = astId;
                     integerCycleState.cycleIndex = 0;
-                    console.log(`[P1] Single-click: selected integer ${surfaceId}, astNodeId=${astId}, mode=0 (GREEN)`);
+                    console.log(
+                      `[P1] Single-click: selected integer ${surfaceId}, astNodeId=${astId}, mode=0 (GREEN)`
+                    );
                   }
-                  applyIntegerHighlight(surfaceId, integerCycleState.cycleIndex);
-
+                  applyIntegerHighlight(
+                    surfaceId,
+                    integerCycleState.cycleIndex
+                  );
 
                   // P1: Ensure astNodeId + backend choice list (non-blocking)
-                  ensureP1IntegerContext(surfaceId, astId || integerCycleState.astNodeId).catch(err => {
-                    console.warn("[P1] ensureP1IntegerContext failed (single-click):", err);
+                  ensureP1IntegerContext(
+                    surfaceId,
+                    astId || integerCycleState.astNodeId
+                  ).catch((err) => {
+                    console.warn(
+                      "[P1] ensureP1IntegerContext failed (single-click):",
+                      err
+                    );
                   });
                 }, P1_DOUBLE_CLICK_THRESHOLD);
               }
@@ -1480,10 +1689,7 @@ document.addEventListener("DOMContentLoaded", () => {
           debugState.lastEngineResponse = res;
 
           const tsa =
-            res &&
-              res.result &&
-              res.result.meta &&
-              res.result.meta.tsa
+            res && res.result && res.result.meta && res.result.meta.tsa
               ? res.result.meta.tsa
               : null;
           debugState.lastTsa = tsa;
@@ -1511,10 +1717,11 @@ document.addEventListener("DOMContentLoaded", () => {
             res.result &&
             typeof res.result.latex === "string"
           ) {
-            const status = res.result.meta ? res.result.meta.backendStatus : null;
+            const status = res.result.meta
+              ? res.result.meta.backendStatus
+              : null;
             const shouldApply =
-              res.requestType === "applyStep" &&
-              status === "step-applied";
+              res.requestType === "applyStep" && status === "step-applied";
 
             if (shouldApply) {
               const newLatex = res.result.latex;
@@ -1526,10 +1733,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             // NEW: Handle choice response - show popup with available actions
-            if (status === "choice" && res.result.meta && res.result.meta.choices) {
+            if (
+              status === "choice" &&
+              res.result.meta &&
+              res.result.meta.choices
+            ) {
               const choices = res.result.meta.choices;
               const clickContext = res.result.meta.clickContext || {};
-              console.log("[MainJS] Choice response - showing popup", choices, clickContext);
+              console.log(
+                "[MainJS] Choice response - showing popup",
+                choices,
+                clickContext
+              );
               showChoicePopup(choices, clickContext, res.result.latex);
             }
           }
@@ -1541,13 +1756,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
       elDbgClient.textContent = formatClientEvent(debugState.lastClientEvent);
       elDbgReq.textContent = formatEngineRequest(debugState.lastEngineRequest);
-      elDbgRes.textContent = formatEngineResponse(debugState.lastEngineResponse);
+      elDbgRes.textContent = formatEngineResponse(
+        debugState.lastEngineResponse
+      );
 
-      if (elDbgTsaOp && elDbgTsaStrategy && elDbgTsaInvariant && elDbgTsaInvariantText && elDbgTsaBefore && elDbgTsaAfter && elDbgTsaError && elDbgTsaAstSize) {
+      if (
+        elDbgTsaOp &&
+        elDbgTsaStrategy &&
+        elDbgTsaInvariant &&
+        elDbgTsaInvariantText &&
+        elDbgTsaBefore &&
+        elDbgTsaAfter &&
+        elDbgTsaError &&
+        elDbgTsaAstSize
+      ) {
         elDbgTsaOp.textContent = formatTsaOperator(debugState.lastTsa);
         elDbgTsaStrategy.textContent = formatTsaStrategy(debugState.lastTsa);
         elDbgTsaInvariant.textContent = formatTsaInvariant(debugState.lastTsa);
-        elDbgTsaInvariantText.textContent = formatTsaInvariantText(debugState.lastTsa);
+        elDbgTsaInvariantText.textContent = formatTsaInvariantText(
+          debugState.lastTsa
+        );
         elDbgTsaBefore.textContent = formatTsaWindowBefore(debugState.lastTsa);
         elDbgTsaAfter.textContent = formatTsaWindowAfter(debugState.lastTsa);
         elDbgTsaError.textContent = formatTsaError(debugState.lastTsa);
@@ -1655,7 +1883,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnDownloadSnapshot) {
     btnDownloadSnapshot.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/latest`);
+        const res = await fetch(
+          `${getEngineBaseUrl()}/debug/step-snapshot/latest`
+        );
         if (res.status === 404) {
           alert("No step snapshot available (perform a step first).");
           return;
@@ -1664,7 +1894,9 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(`Error ${res.status}`);
         }
         const json = await res.json();
-        const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(json, null, 2)], {
+          type: "application/json",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -1682,12 +1914,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnDownloadSession) {
     btnDownloadSession.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/session`);
+        const res = await fetch(
+          `${getEngineBaseUrl()}/debug/step-snapshot/session`
+        );
         if (!res.ok) {
           throw new Error(`Error ${res.status}`);
         }
         const json = await res.json();
-        const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
+        const blob = new Blob([JSON.stringify(json, null, 2)], {
+          type: "application/json",
+        });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
@@ -1706,7 +1942,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btnResetSession) {
     btnResetSession.addEventListener("click", async () => {
       try {
-        const res = await fetch(`${getEngineBaseUrl()}/debug/step-snapshot/reset`, { method: "POST" });
+        const res = await fetch(
+          `${getEngineBaseUrl()}/debug/step-snapshot/reset`,
+          { method: "POST" }
+        );
         if (res.ok) {
           alert("Session log reset.");
         } else {
@@ -1728,12 +1967,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!current || !current.map) return null;
 
       // Primary: Use coordinate-based hit-testing (works for synthetic nodes)
-      if (e && typeof e.clientX === 'number' && typeof e.clientY === 'number') {
+      if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
         const { hitTestPoint } = window.__surfaceMapUtils || {};
         if (hitTestPoint) {
-          const node = hitTestPoint(current.map, e.clientX, e.clientY, container);
+          const node = hitTestPoint(
+            current.map,
+            e.clientX,
+            e.clientY,
+            container
+          );
           if (node) {
-            console.log("[HIT-TEST] Coordinate-based hit:", node.id, node.kind, node.latexFragment);
+            console.log(
+              "[HIT-TEST] Coordinate-based hit:",
+              node.id,
+              node.kind,
+              node.latexFragment
+            );
             return node;
           }
         }
@@ -1747,7 +1996,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const domNode = el ? current.map.byElement.get(el) : null;
       if (domNode) {
-        console.log("[HIT-TEST] DOM-based fallback:", domNode.id, domNode.kind, domNode.latexFragment);
+        console.log(
+          "[HIT-TEST] DOM-based fallback:",
+          domNode.id,
+          domNode.kind,
+          domNode.latexFragment
+        );
       }
       return domNode;
     }
@@ -1836,7 +2090,9 @@ document.addEventListener("DOMContentLoaded", () => {
               selectionState.primaryId = nodesInRect[nodesInRect.length - 1].id;
             } else {
               // Regular drag: select only what falls inside
-              selectionState.selectedIds = new Set(nodesInRect.map((n) => n.id));
+              selectionState.selectedIds = new Set(
+                nodesInRect.map((n) => n.id)
+              );
               selectionState.mode = "rect";
               selectionState.primaryId = nodesInRect[nodesInRect.length - 1].id;
             }
@@ -1873,7 +2129,9 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("[DEBUG] pointerup target:", e.target, "found node:", node);
       const elDbgClient = document.getElementById("engine-debug-client");
       if (elDbgClient) {
-        elDbgClient.textContent = `Click attempt: ${node ? node.id : "null"} on ${e.target.tagName}`;
+        elDbgClient.textContent = `Click attempt: ${
+          node ? node.id : "null"
+        } on ${e.target.tagName}`;
       }
 
       if (!node) return;
@@ -1888,7 +2146,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newSet.add(node.id);
         }
         selectionState.selectedIds = newSet;
-        selectionState.mode = newSet.size === 0 ? "none" : (newSet.size === 1 ? "single" : "multi");
+        selectionState.mode =
+          newSet.size === 0 ? "none" : newSet.size === 1 ? "single" : "multi";
         selectionState.primaryId = newSet.size ? node.id : null;
       } else {
         // Regular click: single selection
@@ -1919,12 +2178,16 @@ document.addEventListener("DOMContentLoaded", () => {
     container.addEventListener("pointercancel", () => {
       const dragRectEl = document.getElementById("drag-rect");
       if (dragRectEl) dragRectEl.style.display = "none";
-      isDragging = false; dragStart = null; dragEnd = null;
+      isDragging = false;
+      dragStart = null;
+      dragEnd = null;
     });
     container.addEventListener("pointerleave", () => {
       const dragRectEl = document.getElementById("drag-rect");
       if (dragRectEl) dragRectEl.style.display = "none";
-      isDragging = false; dragStart = null; dragEnd = null;
+      isDragging = false;
+      dragStart = null;
+      dragEnd = null;
     });
   }
 });

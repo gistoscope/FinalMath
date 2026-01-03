@@ -17240,6 +17240,16 @@
           "timestampIso": "2025-12-13T23:31:55.186Z",
           "expressionBefore": "\\frac{5}{1}",
           "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767460345434-i9uqb",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-03T17:12:25.434Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
         }
       ]
     },

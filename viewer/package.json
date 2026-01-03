@@ -1,0 +1,17 @@
+{
+  "name": "viewer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node tiny-server.js --port 4002",
+    "dev": "nodemon tiny-server.js --port 4002"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.25.0",
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
