@@ -3,8 +3,8 @@
 
 import { runV5Step } from "./client/orchestratorV5Client.js";
 import { ClientEventRecorder, DisplayAdapter } from "./core/display-adapter.js";
+import { FileBus } from "./core/filebus.js";
 import { EngineAdapter } from "./engine-adapter.js";
-import { FileBus } from "./filebus.js";
 import {
   buildSurfaceNodeMap,
   correlateIntegersWithAST,
