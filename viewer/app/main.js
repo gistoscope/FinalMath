@@ -2,7 +2,7 @@
 // Demo: canonical KaTeX formula + SurfaceNodeMap + interactive hover/click.
 
 import { runV5Step } from "./client/orchestratorV5Client.js";
-import { ClientEventRecorder, DisplayAdapter } from "./display-adapter.js";
+import { ClientEventRecorder, DisplayAdapter } from "./core/display-adapter.js";
 import { EngineAdapter } from "./engine-adapter.js";
 import { FileBus } from "./filebus.js";
 import {
