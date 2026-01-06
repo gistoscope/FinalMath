@@ -1,9 +1,12 @@
-import { ExtractJwt, Strategy, StrategyOptions } from "passport-jwt";
-
 import { NextFunction, Request, Response } from "express";
 import passport, { PassportStatic } from "passport";
+import {
+  ExtractJwt,
+  Strategy,
+  StrategyOptionsWithoutRequest,
+} from "passport-jwt";
 import { injectable } from "tsyringe";
-import { UnauthorizedException } from "../core/errors";
+import { UnauthorizedException } from "../../core/errors";
 import { UserService } from "../user/user.service";
 
 @injectable()
@@ -11,13 +14,13 @@ export class AuthMiddleware {
   constructor(private readonly userService: UserService) {}
 
   init(passport: PassportStatic) {
-    const opts: StrategyOptions = {
+    const opts: StrategyOptionsWithoutRequest = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_SECRET || "default-secret",
     };
 
     passport.use(
-      new Strategy(opts, async (payload, done) => {
+      new Strategy(opts, async (payload: any, done: any) => {
         try {
           const user: any = await this.userService.findOne({
             id: payload.id,
@@ -26,7 +29,7 @@ export class AuthMiddleware {
           return done(null, user);
         } catch (error) {
           console.log(error, "1rs");
-          return done(error);
+          return done(error as Error, false);
         }
       })
     );

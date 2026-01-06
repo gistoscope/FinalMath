@@ -10,7 +10,10 @@
     "start": "node dist/server/cliEngineHttpServer.js",
     "start:dev": "npx tsx src/server/cliEngineHttpServer.ts",
     "start:new": "nodemon",
-    "test": "vitest"
+    "test": "vitest",
+    "test:new": "vitest --config vitest.config.ts",
+    "test:new:watch": "vitest --config vitest.config.ts --watch",
+    "test:new:coverage": "vitest --config vitest.config.ts --coverage"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
