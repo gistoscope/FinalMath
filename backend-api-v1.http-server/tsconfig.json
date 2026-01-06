@@ -1,16 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "target": "ES2022",
+    "module": "CommonJS", // CHANGED: Was "NodeNext" or "ESNext"
+    "moduleResolution": "Node", // CHANGED: Was "NodeNext"
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "rootDir": "src",
-    "outDir": "dist"
-  },
-  "include": [
-    "src",
-    "tests"
-  ]
+    "rootDir": "./",
+    "outDir": "dist",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  }
 }
