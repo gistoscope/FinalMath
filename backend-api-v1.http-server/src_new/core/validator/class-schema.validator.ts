@@ -5,7 +5,7 @@ import { ValidationException } from "../errors/index";
 export const validate = async (dtoClass: any, data: any) => {
   const output = plainToInstance(dtoClass, data);
   const errors = await classValidate(output, {
-    whitelist: true,
+    whitelist: false,
     forbidNonWhitelisted: true,
   });
 

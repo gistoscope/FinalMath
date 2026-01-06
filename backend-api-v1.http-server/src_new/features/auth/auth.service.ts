@@ -1,55 +1,47 @@
 import { injectable } from "tsyringe";
-
-import {
-  HttpException,
-  NotFoundException,
-  ValidationException,
-} from "../../core/errors";
+import { NotFoundException, ValidationException } from "../../core/errors";
 import { CreateUserDto } from "../user/dtos/create-user.dto";
-import { UserService } from "../user/user.service";
-import { PasswordHash } from "./helpers/password-hash.helper";
+import { User, UserService } from "../user/user.service";
 import { Token } from "./token.helpers";
+export type UserRole = "student" | "teacher";
 
 @injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-
-    private readonly hash: PasswordHash,
     private readonly token: Token
   ) {}
 
   async signIn(username: string, password: string) {
-    const findUser = await this.userService.findOne({
-      OR: [{ username }, { email: username }],
-    });
-
+    const user = await this.userService.getUserByUsername(username);
     const errorMessages = [
       { property: "username", constraints: ["Invalid username!"] },
       { property: "password", constraints: ["Invalid password!"] },
     ];
+    if (!user || user.password !== password) {
+      throw new ValidationException(errorMessages);
+    }
 
-    if (!findUser) throw new ValidationException(errorMessages);
-
-    const isPasswordOk = this.hash.verify(password, findUser.password);
-
-    if (!isPasswordOk) throw new ValidationException(errorMessages);
-    if (!findUser.isVerified)
-      throw new HttpException(
-        "You account is not yet activated! We will let you know when it activated!",
-        406
-      );
-
-    return this.token.generate(findUser);
+    return this.token.generate({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+    });
   }
 
   async signUp(data: CreateUserDto) {
-    return this.userService.createUser(data);
+    const { username, password } = data;
+    const findUser = await this.userService.getUserByUsername(username);
+    if (findUser) {
+      throw new Error("Username already exists");
+    }
+    const user: User = await this.userService.createUser(data);
+    return user;
   }
 
   async me(userId: string) {
-    const userData = await this.userService.findOne({ id: userId });
-    if (!userData) throw new NotFoundException();
+    const userData = await this.userService.getUserById(userId);
+    if (!userData) throw new NotFoundException("User not found");
     return userData;
   }
 }

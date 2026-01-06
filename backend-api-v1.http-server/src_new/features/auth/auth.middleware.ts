@@ -19,7 +19,10 @@ export class AuthMiddleware {
   init(passportInstance: PassportStatic) {
     const opts: StrategyOptionsWithoutRequest = {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET || "default-secret-change-me",
+      secretOrKey:
+        process.env.JWT_SECRET ||
+        process.env.SECRET_KEY ||
+        "default_insecure_secret",
     };
 
     passportInstance.use(
@@ -27,8 +30,9 @@ export class AuthMiddleware {
         opts,
         async (payload: JwtPayload, done: VerifiedCallback) => {
           try {
+            const userId = (payload.id || payload.userId) as string;
             const user = await this.userService.findOne({
-              id: payload.id as string,
+              id: userId,
             });
             if (!user) return done(null, false);
             return done(null, user);

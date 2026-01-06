@@ -23,27 +23,19 @@ import { HealthController } from "./features/health";
 import { OrchestratorController } from "./features/orchestrator";
 import { ReportingController } from "./features/reporting";
 
+import { StepController } from "./features/step/step.controller";
+
 /**
  * All registered controllers
  */
 const controllers = [
-  // Core Engine
   EngineController,
-
-  // Orchestrator V5
+  StepController,
   OrchestratorController,
-
-  // Debug endpoints
   DebugController,
   DebugTraceController,
-
-  // Reporting
   ReportingController,
-
-  // Health
   HealthController,
-
-  // Auth
   AuthController,
 ];
 

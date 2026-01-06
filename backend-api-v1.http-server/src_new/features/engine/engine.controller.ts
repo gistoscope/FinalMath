@@ -20,7 +20,7 @@ import { EntryStepDto, HintRequestDto, UndoStepDto } from "./dtos";
 import { EngineService } from "./engine.service";
 
 @autoInjectable()
-@Controller("/api")
+@Controller("")
 export class EngineController {
   constructor(private readonly engineService: EngineService) {}
 
@@ -30,7 +30,7 @@ export class EngineController {
    * Main endpoint for executing a step on a mathematical expression.
    * This is the primary student-facing endpoint.
    */
-  @POST("/entry-step")
+  @POST("/api/entry-step")
   @UseDTO(EntryStepDto)
   async entryStep(req: Request, res: Response) {
     const dto: EntryStepDto = req.body;
@@ -59,7 +59,7 @@ export class EngineController {
    *
    * Undo the last step in the session history.
    */
-  @POST("/undo-step")
+  @POST("/api/undo-step")
   @UseDTO(UndoStepDto)
   async undoStep(req: Request, res: Response) {
     const dto: UndoStepDto = req.body;
@@ -73,7 +73,7 @@ export class EngineController {
    *
    * Request a hint for the current expression.
    */
-  @POST("/hint-request")
+  @POST("/api/hint-request")
   @UseDTO(HintRequestDto)
   async hintRequest(req: Request, res: Response) {
     const dto: HintRequestDto = req.body;

@@ -4,9 +4,20 @@
 
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ForbiddenException, UnauthorizedException } from "../../core/errors";
+import { authService } from "../../core/stubs";
 import { ReportingService } from "./reporting.service";
+
+// Mock the core stubs
+vi.mock("../../core/stubs", () => ({
+  authService: {
+    validateToken: vi.fn(),
+  },
+  SessionService: {
+    findAllSessionsByUserId: vi.fn(),
+  },
+}));
 
 describe("ReportingService", () => {
   let reportingService: ReportingService;
@@ -14,6 +25,13 @@ describe("ReportingService", () => {
   beforeEach(() => {
     container.clearInstances();
     reportingService = container.resolve(ReportingService);
+    vi.resetAllMocks();
+
+    // Default mock behavior for auth (student role)
+    vi.mocked(authService.validateToken).mockImplementation((token) => {
+      if (!token) return null;
+      return { userId: "stub-user", username: "stub-user", role: "student" };
+    });
   });
 
   describe("getStudentProgress", () => {

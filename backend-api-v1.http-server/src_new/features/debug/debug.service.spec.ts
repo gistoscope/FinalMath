@@ -44,6 +44,7 @@ describe("DebugService", () => {
     it("should return empty candidates (stub)", async () => {
       const result = await debugService.handleMapMasterDebug({
         latex: "1+2",
+        selection: {},
       });
 
       expect(result.ok).toBe(true);
@@ -55,6 +56,7 @@ describe("DebugService", () => {
     it("should return stub result", async () => {
       const result = await debugService.handleStepMasterDebug({
         latex: "1+2",
+        selection: {},
       });
 
       expect(result.ok).toBe(true);
@@ -69,7 +71,7 @@ describe("DebugService", () => {
       });
 
       expect(result.ok).toBe(true);
-      expect(result.instrumentedLatex).toBe("\\frac{1}{2}");
+      expect(result.instrumentedLatex).toContain("htmlData");
     });
   });
 
@@ -77,8 +79,8 @@ describe("DebugService", () => {
     it("should return path debug info", async () => {
       const result = await debugService.handleAstPathDebug({
         latex: "1+2",
-        path: "root",
-      });
+        selectionPath: "root",
+      } as any);
 
       expect(result.ok).toBe(true);
       expect(result.path).toBe("root");

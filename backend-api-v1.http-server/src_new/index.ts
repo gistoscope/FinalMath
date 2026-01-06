@@ -3,7 +3,7 @@ import http from "http";
 import { createApp } from "./app";
 import { resolveDependencies } from "./registry";
 
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 4201;
 
 let server: http.Server;
 

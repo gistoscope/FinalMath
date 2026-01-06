@@ -81,35 +81,43 @@ export class StepService {
         `[StepService] Entry step processed. Status=${result.status}`
       );
 
-      // 6. Map to EngineStepResponse
-      if (result.status === "step-applied" && result.engineResult?.ok) {
-        return {
-          ok: true,
-          newExpressionLatex: result.engineResult.newExpressionLatex,
-        };
+      // 6. Map to EngineStepResponse (Protocol Compliant)
+      let responseLatex = req.expressionLatex;
+      if (
+        result.status === "step-applied" &&
+        result.engineResult?.newExpressionLatex
+      ) {
+        responseLatex = result.engineResult.newExpressionLatex;
       }
 
       return {
-        ok: false,
-        errorCode: result.engineResult?.errorCode || result.status,
+        status: result.status,
+        expressionLatex: responseLatex,
+        debugInfo: result.debugInfo as any,
+        primitiveDebug: result.primitiveDebug,
+        choices: result.choices,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       this.logError(error, `[StepService] handleEntry Error: ${message}`);
-      return { ok: false, errorCode: message };
+      return {
+        status: "engine-error",
+        expressionLatex: dto.expressionLatex || "",
+        debugInfo: null,
+      };
     }
   }
 
   /**
    * Handle undo step request.
    */
-  async handleUndo(dto: StepUndoDto): Promise<EngineStepResponse> {
+  async handleUndo(dto: StepUndoDto): Promise<any> {
     const { sessionId } = dto;
     try {
       const history = await SessionService.getHistory(sessionId);
 
       if (!history.entries || history.entries.length === 0) {
-        return { ok: false, errorCode: "no-history-to-undo" };
+        return { status: "no-history", expressionLatex: "" };
       }
 
       // Remove the last step
@@ -121,11 +129,11 @@ export class StepService {
 
       this.logInfo(`[StepService] Undo applied for session=${sessionId}`);
 
-      return { ok: true, newExpressionLatex: newLatex };
+      return { status: "undo-complete", expressionLatex: newLatex };
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
       this.logError(error, `[StepService] handleUndo Error: ${message}`);
-      return { ok: false, errorCode: message };
+      return { status: "error", expressionLatex: "", error: message };
     }
   }
 

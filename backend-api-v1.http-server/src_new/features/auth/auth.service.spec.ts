@@ -1,7 +1,3 @@
-/**
- * Auth Service Tests
- */
-
 import "reflect-metadata";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotFoundException, ValidationException } from "../../core/errors";
@@ -23,9 +19,7 @@ describe("AuthService", () => {
     };
 
     mockPasswordHash = {
-      hash: vi.fn().mockReturnValue("hashed-password"),
-      verify: vi.fn().mockReturnValue(false),
-      otpHash: vi.fn().mockReturnValue("otp-hash"),
+      verify: vi.fn(),
     };
 
     mockToken = {
@@ -52,7 +46,7 @@ describe("AuthService", () => {
       (mockUserService.findOne as any).mockResolvedValue({
         id: "user-1",
         username: "demo",
-        password: "hashed",
+        password: "p",
       });
       (mockPasswordHash.verify as any).mockReturnValue(false);
 
@@ -62,12 +56,12 @@ describe("AuthService", () => {
     });
 
     it("should return token for valid credentials", async () => {
-      (mockUserService.findOne as any).mockResolvedValue({
+      const user = {
         id: "user-1",
         username: "demo",
-        password: "hashed",
-        isVerified: true,
-      });
+        password: "p",
+      };
+      (mockUserService.findOne as any).mockResolvedValue(user);
       (mockPasswordHash.verify as any).mockReturnValue(true);
 
       const result = await authService.signIn("demo", "password");
@@ -78,41 +72,32 @@ describe("AuthService", () => {
 
   describe("signUp", () => {
     it("should create new user", async () => {
-      (mockUserService.createUser as any).mockResolvedValue({
-        id: "new-user",
-        username: "testuser",
-        email: "test@example.com",
-      });
+      const newUser = { id: "u2", username: "new" };
+      (mockUserService.createUser as any).mockResolvedValue(newUser);
 
       const result = await authService.signUp({
-        username: "testuser",
-        email: "test@example.com",
-        password: "password123",
+        username: "new",
+        email: "e",
+        password: "p",
       });
 
-      expect(result.username).toBe("testuser");
+      expect(result).toBe(newUser);
     });
   });
 
   describe("me", () => {
-    it("should throw NotFoundException for non-existent user", async () => {
+    it("should throw NotFoundException if user missing", async () => {
       (mockUserService.findOne as any).mockResolvedValue(null);
-
-      await expect(authService.me("non-existent")).rejects.toThrow(
+      await expect(authService.me("missing")).rejects.toThrow(
         NotFoundException
       );
     });
 
-    it("should return user for existing user ID", async () => {
-      (mockUserService.findOne as any).mockResolvedValue({
-        id: "demo-user",
-        username: "demo",
-        email: "demo@example.com",
-      });
-
-      const result = await authService.me("demo-user");
-
-      expect(result.username).toBe("demo");
+    it("should return user data", async () => {
+      const user = { id: "u1" };
+      (mockUserService.findOne as any).mockResolvedValue(user);
+      const result = await authService.me("u1");
+      expect(result).toBe(user);
     });
   });
 });

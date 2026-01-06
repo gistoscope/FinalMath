@@ -40,7 +40,7 @@ export function registerController(app: Express, controllers: Constructor[]) {
         ) as RequestHandler[]) || [],
     };
 
-    if (!controllerMetadata.basePath) {
+    if (controllerMetadata.basePath === undefined) {
       throw new Error(
         `[registerController]: basepath is not defined for controller ${Controller.name}`
       );

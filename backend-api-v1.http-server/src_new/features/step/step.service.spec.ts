@@ -55,8 +55,8 @@ describe("StepService", () => {
 
       const result = await service.handleEntry(dto as any);
 
-      expect(result.ok).toBe(true);
-      expect(result.newExpressionLatex).toBe("3");
+      expect(result.status).toBe("step-applied");
+      expect(result.expressionLatex).toBe("3");
       expect(runOrchestratorStep).toHaveBeenCalled();
     });
 
@@ -94,8 +94,8 @@ describe("StepService", () => {
 
       const result = await service.handleUndo(dto);
 
-      expect(result.ok).toBe(true);
-      expect(result.newExpressionLatex).toBe("1");
+      expect(result.status).toBe("undo-complete");
+      expect(result.expressionLatex).toBe("1");
       expect(SessionService.updateHistory).toHaveBeenCalled();
     });
 
@@ -108,8 +108,7 @@ describe("StepService", () => {
 
       const result = await service.handleUndo(dto);
 
-      expect(result.ok).toBe(false);
-      expect(result.errorCode).toBe("no-history-to-undo");
+      expect(result.status).toBe("no-history");
     });
   });
 });

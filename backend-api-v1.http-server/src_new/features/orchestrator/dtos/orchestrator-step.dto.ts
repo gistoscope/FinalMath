@@ -46,4 +46,8 @@ export class OrchestratorStepV5Dto {
   @IsOptional()
   @IsString()
   surfaceNodeId?: string;
+
+  @IsOptional()
+  @IsString()
+  userRole?: string;
 }

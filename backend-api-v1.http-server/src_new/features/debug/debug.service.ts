@@ -19,12 +19,12 @@ import {
 import { HANDLER_DEPS_TOKEN, type HandlerDeps } from "../../core/types";
 import {
   AstDebugDto,
-  AstPathDebugDto,
+  AstResolvePathDto as AstPathDebugDto,
   InstrumentDto,
   MapMasterDebugDto,
-  OperatorValidationDto,
+  ValidateOperatorDto as OperatorValidationDto,
   PrimitiveMapDebugDto,
-  StepMasterDebugDto,
+  StepDebugDto as StepMasterDebugDto,
 } from "./dtos";
 
 // Response types
@@ -118,7 +118,9 @@ export class DebugService {
    */
   async handleInstrument(dto: InstrumentDto): Promise<InstrumentResponse> {
     try {
-      const instrumentedLatex = instrumentLatex(dto.latex);
+      const ast = parseExpression(dto.latex);
+      if (!ast) throw new Error("Parse failed");
+      const instrumentedLatex = instrumentLatex(ast, "root");
       return { ok: true, instrumentedLatex };
     } catch (error) {
       const message =
@@ -136,7 +138,7 @@ export class DebugService {
       return {
         ok: true,
         ast,
-        path: dto.path,
+        path: dto.selectionPath, // Use selectionPath from DTO
         node: null, // Stub
       };
     } catch (error) {
@@ -195,7 +197,7 @@ export class DebugService {
    */
   async handleTraceHub(): Promise<any> {
     return {
-      traces: TraceHub.getAll(),
+      traces: TraceHub.dump(),
     };
   }
 
@@ -203,7 +205,7 @@ export class DebugService {
    * Clear trace hub
    */
   async handleClearTraceHub(): Promise<any> {
-    TraceHub.clear();
+    TraceHub.reset();
     return { ok: true };
   }
 

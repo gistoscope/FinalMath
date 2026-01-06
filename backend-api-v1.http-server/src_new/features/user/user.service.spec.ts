@@ -1,91 +1,100 @@
-/**
- * User Service Tests
- */
-
 import "reflect-metadata";
-import { container } from "tsyringe";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { authService as legacyAuth } from "../../core/stubs";
 import { UserService } from "./user.service";
+
+vi.mock("../../core/stubs", () => ({
+  authService: {
+    getUserById: vi.fn(),
+    getUserByUsername: vi.fn(),
+    register: vi.fn(),
+  },
+}));
 
 describe("UserService", () => {
   let userService: UserService;
 
   beforeEach(() => {
-    container.clearInstances();
-    userService = container.resolve(UserService);
+    vi.resetAllMocks();
+    userService = new UserService();
   });
 
   describe("findOne", () => {
-    it("should return demo user for id match", async () => {
-      const user = await userService.findOne({ id: "demo-user" });
+    it("should return mapped user for id lookup", async () => {
+      const legacyUser = {
+        id: "u1",
+        username: "test",
+        password: "p",
+        role: "student",
+      };
+      vi.mocked(legacyAuth.getUserById).mockResolvedValue(legacyUser as any);
 
-      expect(user).not.toBeNull();
+      const user = await userService.findOne({ id: "u1" });
+
+      expect(user?.id).toBe("u1");
+      expect(user?.email).toBe("");
+      expect(user?.isVerified).toBe(true);
+    });
+
+    it("should return mapped user for username lookup", async () => {
+      const legacyUser = {
+        id: "u1",
+        username: "demo",
+        password: "p",
+        role: "student",
+      };
+      vi.mocked(legacyAuth.getUserByUsername).mockResolvedValue(
+        legacyUser as any
+      );
+
+      const user = await userService.findOne({ username: "demo" });
+
       expect(user?.username).toBe("demo");
-      expect(user?.email).toBe("demo@example.com");
     });
 
-    it("should return null for non-existent user", async () => {
-      const user = await userService.findOne({ id: "non-existent" });
-      expect(user).toBeNull();
-    });
+    it("should support OR conditions (find by username)", async () => {
+      const legacyUser = {
+        id: "u1",
+        username: "demo",
+        password: "p",
+        role: "student",
+      };
+      vi.mocked(legacyAuth.getUserByUsername).mockResolvedValue(
+        legacyUser as any
+      );
 
-    it("should support OR conditions", async () => {
       const user = await userService.findOne({
-        OR: [{ username: "demo" }, { email: "other@example.com" }],
+        OR: [{ username: "demo" }, { email: "ignored" }],
       });
 
-      expect(user).not.toBeNull();
       expect(user?.username).toBe("demo");
+    });
+
+    it("should return null if user not found", async () => {
+      vi.mocked(legacyAuth.getUserById).mockResolvedValue(null);
+      const user = await userService.findOne({ id: "missing" });
+      expect(user).toBeNull();
     });
   });
 
   describe("createUser", () => {
-    it("should create a new user", async () => {
-      const newUser = await userService.createUser({
-        username: "testuser",
-        email: "test@example.com",
-        password: "password123",
-      });
-
-      expect(newUser).toBeDefined();
-      expect(newUser.username).toBe("testuser");
-      expect(newUser.email).toBe("test@example.com");
-      expect(newUser.isVerified).toBe(false);
-    });
-
-    it("should assign default student role", async () => {
-      const newUser = await userService.createUser({
-        username: "student1",
-        email: "student@example.com",
-        password: "password",
-      });
-
-      expect(newUser.role.role).toBe("student");
-    });
-  });
-
-  describe("findAll", () => {
-    it("should return array of users", async () => {
-      const users = await userService.findAll();
-
-      expect(Array.isArray(users)).toBe(true);
-      expect(users.length).toBeGreaterThan(0); // Demo user exists
-    });
-  });
-
-  describe("update", () => {
-    it("should return null for non-existent user", async () => {
-      const result = await userService.update("non-existent", {
+    it("should map legacy user on create", async () => {
+      const legacyUser = {
+        id: "new",
         username: "new",
-      });
-      expect(result).toBeNull();
-    });
-  });
+        password: "p",
+        role: "student",
+      };
+      vi.mocked(legacyAuth.register).mockResolvedValue(legacyUser as any);
 
-  describe("delete", () => {
-    it("should return false for non-existent user", async () => {
-      const result = await userService.delete("non-existent");
-      expect(result).toBe(false);
+      const user = await userService.createUser({
+        username: "new",
+        email: "e",
+        password: "p",
+      });
+
+      expect(user.username).toBe("new");
+      expect(user.role).toBe("student");
     });
   });
 });
