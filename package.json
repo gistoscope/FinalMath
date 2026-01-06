@@ -1,0 +1,20 @@
+{
+  "name": "final-math",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "husky:init": "husky init",
+    "prepare": "husky",
+    "test:backend": "cd backend-api-v1.http-server && pnpm run test:new"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.22.0",
+  "devDependencies": {
+    "@commitlint/cli": "^20.3.0",
+    "@commitlint/config-conventional": "^20.3.0",
+    "husky": "^9.1.7"
+  }
+}
