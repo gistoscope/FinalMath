@@ -1,5 +1,4 @@
 import { injectable } from "tsyringe";
-import { authService as legacyAuth } from "../../core/stubs";
 export type UserRole = "student" | "teacher";
 export interface User {
   id: string;
@@ -59,9 +58,9 @@ export class UserService {
 
     let legacyUser;
     if (username) {
-      legacyUser = await legacyAuth.getUserByUsername(username);
+      legacyUser = await this.getUserByUsername(username);
     } else if (id) {
-      legacyUser = await legacyAuth.getUserById(id);
+      legacyUser = await this.getUserById(id);
     }
 
     if (!legacyUser) return null;
