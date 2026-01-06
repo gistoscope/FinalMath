@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../dist_new",
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "./**/*",
+  ],
+  "exclude": [
+    "../node_modules",
+    "../dist",
+    "../dist_new"
+  ]
+}
