@@ -5,11 +5,8 @@
  * to make src_new functionally identical to src.
  */
 
-export { authService } from "./auth/auth.service";
 export * from "./protocol/backend-step.types";
 export { SessionService } from "./session/session.service";
-
-export type { AuthToken, UserRole } from "./auth/auth.service";
 
 // Policies
 export {

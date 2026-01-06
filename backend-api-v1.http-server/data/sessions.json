@@ -27599,6 +27599,86 @@
           "timestampIso": "2026-01-06T13:34:24.759Z",
           "expressionBefore": "7+8",
           "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707573154-9tap7",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:53.154Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707574093-o6r1n",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:54.093Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707574108-wvpue",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:54.108Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707574120-i2aen",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:54.120Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707574133-mh9om",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:54.133Z",
+          "expressionBefore": "7+8",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707653493-u6lqv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:13.493Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707654431-4mbrw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:14.431Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707654447-oof8i",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:14.447Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707654460-prcoq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:14.460Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1767707654470-qp776",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:14.470Z",
+          "expressionBefore": "7+8",
+          "errorCode": "no-candidates"
         }
       ]
     },
@@ -27666,5 +27746,95 @@
       "entries": []
     },
     "createdAt": 1767706464316
+  },
+  {
+    "id": "session-1767707573167",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1767707573179-izzgv",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:53.179Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1767707573167
+  },
+  {
+    "id": "session-1767707573192",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1767707573204-6vvy1",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:52:53.204Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1767707573192
+  },
+  {
+    "id": "undo-test-1767707573216",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1767707573216
+  },
+  {
+    "id": "session-1767707653507",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1767707653520-4ifx0",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:13.520Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1767707653507
+  },
+  {
+    "id": "session-1767707653532",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1767707653543-acdpg",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-06T13:54:13.543Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1767707653532
+  },
+  {
+    "id": "undo-test-1767707653555",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1767707653555
   }
 ]

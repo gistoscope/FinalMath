@@ -3,23 +3,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { NotFoundException, ValidationException } from "../../core/errors";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
-import { PasswordHash } from "./helpers/password-hash.helper";
 import { Token } from "./token.helpers";
 
 describe("AuthService", () => {
   let authService: AuthService;
   let mockUserService: Partial<UserService>;
-  let mockPasswordHash: Partial<PasswordHash>;
   let mockToken: Partial<Token>;
 
   beforeEach(() => {
     mockUserService = {
-      findOne: vi.fn(),
+      getUserByUsername: vi.fn(),
+      getUserById: vi.fn(),
       createUser: vi.fn(),
-    };
-
-    mockPasswordHash = {
-      verify: vi.fn(),
     };
 
     mockToken = {
@@ -28,14 +23,15 @@ describe("AuthService", () => {
 
     authService = new AuthService(
       mockUserService as UserService,
-      mockPasswordHash as PasswordHash,
       mockToken as Token
     );
   });
 
   describe("signIn", () => {
     it("should throw ValidationException for non-existent user", async () => {
-      (mockUserService.findOne as any).mockResolvedValue(null);
+      // Logic assumes getUserByUsername returns null/undefined if not found
+      // (even if actual implementation might throw, in unit test we define contract for AuthService)
+      (mockUserService.getUserByUsername as any).mockResolvedValue(null);
 
       await expect(
         authService.signIn("nonexistent", "password")
@@ -43,12 +39,12 @@ describe("AuthService", () => {
     });
 
     it("should throw ValidationException for wrong password", async () => {
-      (mockUserService.findOne as any).mockResolvedValue({
+      (mockUserService.getUserByUsername as any).mockResolvedValue({
         id: "user-1",
         username: "demo",
         password: "p",
+        role: "student",
       });
-      (mockPasswordHash.verify as any).mockReturnValue(false);
 
       await expect(authService.signIn("demo", "wrongpassword")).rejects.toThrow(
         ValidationException
@@ -60,19 +56,31 @@ describe("AuthService", () => {
         id: "user-1",
         username: "demo",
         password: "p",
+        role: "student",
       };
-      (mockUserService.findOne as any).mockResolvedValue(user);
-      (mockPasswordHash.verify as any).mockReturnValue(true);
+      (mockUserService.getUserByUsername as any).mockResolvedValue(user);
 
-      const result = await authService.signIn("demo", "password");
+      const result = await authService.signIn("demo", "p");
 
       expect(result).toBe("mock-token");
+      expect(mockToken.generate).toHaveBeenCalledWith({
+        id: "user-1",
+        username: "demo",
+        role: "student",
+      });
     });
   });
 
   describe("signUp", () => {
     it("should create new user", async () => {
-      const newUser = { id: "u2", username: "new" };
+      const newUser = {
+        id: "u2",
+        username: "new",
+        password: "p",
+        role: "student",
+      };
+      // First check finds nothing
+      (mockUserService.getUserByUsername as any).mockResolvedValue(undefined);
       (mockUserService.createUser as any).mockResolvedValue(newUser);
 
       const result = await authService.signUp({
@@ -82,12 +90,31 @@ describe("AuthService", () => {
       });
 
       expect(result).toBe(newUser);
+      expect(mockUserService.createUser).toHaveBeenCalledWith({
+        username: "new",
+        email: "e",
+        password: "p",
+      });
+    });
+
+    it("should throw error if username exists", async () => {
+      (mockUserService.getUserByUsername as any).mockResolvedValue({
+        id: "u1",
+      });
+
+      await expect(
+        authService.signUp({
+          username: "existing",
+          email: "e",
+          password: "p",
+        })
+      ).rejects.toThrow("Username already exists");
     });
   });
 
   describe("me", () => {
     it("should throw NotFoundException if user missing", async () => {
-      (mockUserService.findOne as any).mockResolvedValue(null);
+      (mockUserService.getUserById as any).mockResolvedValue(null);
       await expect(authService.me("missing")).rejects.toThrow(
         NotFoundException
       );
@@ -95,7 +122,7 @@ describe("AuthService", () => {
 
     it("should return user data", async () => {
       const user = { id: "u1" };
-      (mockUserService.findOne as any).mockResolvedValue(user);
+      (mockUserService.getUserById as any).mockResolvedValue(user);
       const result = await authService.me("u1");
       expect(result).toBe(user);
     });
