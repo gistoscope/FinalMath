@@ -1,10 +1,3 @@
-/**
- * Step Entry DTO
- *
- * Request validation for the step endpoints.
- * Note: This is kept for backward compatibility but the EngineController
- * with EntryStepDto should be used for new implementations.
- */
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class StepEntryDto {
@@ -39,10 +32,4 @@ export class StepEntryDto {
   @IsOptional()
   @IsString()
   preferredPrimitiveId?: string;
-}
-
-export class UndoStepDto {
-  @IsNotEmpty({ message: "Field 'sessionId' is required." })
-  @IsString()
-  sessionId!: string;
 }

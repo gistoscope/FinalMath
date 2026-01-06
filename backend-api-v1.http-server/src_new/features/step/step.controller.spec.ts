@@ -10,18 +10,20 @@ import { StepService } from "./step.service";
 
 describe("StepController", () => {
   let controller: StepController;
-  let mockStepService: any; // Use any to mock non-existent methods
+  let mockStepService: Partial<StepService>;
   let mockReq: Partial<Request>;
   let mockRes: Partial<Response>;
 
   beforeEach(() => {
-    // Mock StepService with the methods the controller tries to call
     mockStepService = {
-      signIn: vi.fn().mockResolvedValue("mock-token"),
-      signUp: vi.fn().mockResolvedValue(null),
+      handleEntry: vi
+        .fn()
+        .mockResolvedValue({ ok: true, newExpressionLatex: "3" }),
+      handleUndo: vi
+        .fn()
+        .mockResolvedValue({ ok: true, newExpressionLatex: "1" }),
     };
 
-    // Manually create controller
     controller = new StepController(mockStepService as StepService);
 
     mockReq = { body: {} };
@@ -32,28 +34,24 @@ describe("StepController", () => {
   });
 
   describe("entry", () => {
-    it("should call signIn and return token", async () => {
+    it("should call handleEntry and return result", async () => {
       mockReq.body = { expressionLatex: "1+2" };
 
       await controller.entry(mockReq as Request, mockRes as Response);
 
-      expect(mockStepService.signIn).toHaveBeenCalledWith(mockReq.body);
+      expect(mockStepService.handleEntry).toHaveBeenCalledWith(mockReq.body);
       expect(mockRes.status).toHaveBeenCalledWith(200);
-      expect(mockRes.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: { token: "mock-token" },
-        })
-      );
+      expect(mockRes.json).toHaveBeenCalled();
     });
   });
 
   describe("undo", () => {
-    it("should call signUp and return success", async () => {
+    it("should call handleUndo and return result", async () => {
       mockReq.body = { sessionId: "sess-1" };
 
       await controller.undo(mockReq as Request, mockRes as Response);
 
-      expect(mockStepService.signUp).toHaveBeenCalledWith(mockReq.body);
+      expect(mockStepService.handleUndo).toHaveBeenCalledWith(mockReq.body);
       expect(mockRes.status).toHaveBeenCalledWith(200);
     });
   });

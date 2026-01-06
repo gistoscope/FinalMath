@@ -3,7 +3,7 @@ import { autoInjectable } from "tsyringe";
 import { Controller } from "../../core/decorator/controller.decorator";
 import { UseDTO } from "../../core/decorator/dto.decorator";
 import { POST } from "../../core/decorator/routes.decorator";
-import { StepEntryDto } from "./dtos/sign-in.dto";
+import { StepEntryDto, StepUndoDto } from "./dtos";
 import { StepService } from "./step.service";
 
 @autoInjectable()
@@ -14,26 +14,16 @@ export class StepController {
   @POST("/entry")
   @UseDTO(StepEntryDto)
   async entry(req: Request, res: Response) {
-    // const {  }: StepEntryDto = req.body;
-    const username = "";
-    const password = "";
-
-    const token = await this.stepService.signIn(req.body);
-
-    return res.status(200).json({
-      message: "Login was successful",
-      data: { token },
-    });
+    const dto: StepEntryDto = req.body;
+    const result = await this.stepService.handleEntry(dto);
+    return res.status(200).json(result);
   }
 
   @POST("/undo")
+  @UseDTO(StepUndoDto)
   async undo(req: Request, res: Response) {
-    await this.stepService.signUp(req.body);
-
-    return res.status(200).json({
-      isSuccess: true,
-      message: "Registration Successful",
-      data: null,
-    });
+    const dto: StepUndoDto = req.body;
+    const result = await this.stepService.handleUndo(dto);
+    return res.status(200).json(result);
   }
 }
