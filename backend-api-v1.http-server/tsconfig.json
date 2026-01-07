@@ -1,14 +1,25 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,
     "target": "ES2022",
-    "module": "CommonJS", // CHANGED: Was "NodeNext" or "ESNext"
-    "moduleResolution": "Node", // CHANGED: Was "NodeNext"
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "rootDir": ".",
+    "outDir": "./dist",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "rootDir": "./",
-    "outDir": "dist",
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
-  }
+    "experimentalDecorators": true,
+    "noEmit": false
+  },
+  "include": [
+    "./**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts", // <--- Add this
+    "**/*.test.ts" // Optional: Good practice to add this too
+  ]
 }

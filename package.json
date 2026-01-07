@@ -6,7 +6,7 @@
   "scripts": {
     "husky:init": "husky init",
     "prepare": "husky",
-    "test:backend": "cd backend-api-v1.http-server && pnpm run test:new"
+    "test:backend": "cd backend-api-v1.http-server && pnpm run test"
   },
   "keywords": [],
   "author": "",
