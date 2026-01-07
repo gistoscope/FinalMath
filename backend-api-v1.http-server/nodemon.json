@@ -1,10 +1,7 @@
 {
     "watch": [
-        "src_new"
+        "src"
     ],
     "ext": "ts",
-    "ignore": [
-        "src/**/*"
-    ],
-    "exec": "ts-node --project src_new/tsconfig.json --transpile-only src_new/index.ts"
+    "exec": "ts-node --transpile-only src/index.ts"
 }
