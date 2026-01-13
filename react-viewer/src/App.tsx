@@ -1,7 +1,7 @@
-import { Viewer } from "./components/Viewer";
+import { Visualizer } from "./feature/visualizer";
 
 function App() {
-  return <Viewer />;
+  return <Visualizer />;
 }
 
 export default App;

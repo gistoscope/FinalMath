@@ -444,6 +444,46 @@
           "timestampIso": "2026-01-07T16:14:08.057Z",
           "expressionBefore": "7+8",
           "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1768312869736-5o6wj",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:09.736Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1768312870004-vhhlw",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:10.004Z",
+          "expressionBefore": "1+2",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1768312870010-fa1kc",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:10.010Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1768312870015-koz9m",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:10.015Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        },
+        {
+          "stepId": "step-1768312870019-flkxq",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:10.019Z",
+          "expressionBefore": "7+8",
+          "errorCode": "no-candidates"
         }
       ]
     },
@@ -952,5 +992,50 @@
       "entries": []
     },
     "createdAt": 1768312194569
+  },
+  {
+    "id": "session-1768312869741",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768312869744-54ma6",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:09.744Z",
+          "expressionBefore": "3+4",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1768312869741
+  },
+  {
+    "id": "session-1768312869748",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768312869752-xm4zt",
+          "candidateId": null,
+          "decisionStatus": "no-candidates",
+          "timestampIso": "2026-01-13T14:01:09.752Z",
+          "expressionBefore": "5+6",
+          "errorCode": "no-candidates"
+        }
+      ]
+    },
+    "createdAt": 1768312869749
+  },
+  {
+    "id": "undo-test-1768312869756",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1768312869756
   }
 ]
