@@ -943,5 +943,14 @@
       "entries": []
     },
     "createdAt": 1767802447774
+  },
+  {
+    "id": "react-session",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1768312194569
   }
 ]
