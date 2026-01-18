@@ -1,0 +1,17 @@
+{
+  "name": "viewer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "nodemon server.js --port 4001 --root .",
+    "start": "node server.js --port 4001 --root ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.22.0",
+  "dependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
