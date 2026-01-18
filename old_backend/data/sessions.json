@@ -27132,5 +27132,25 @@
       ]
     },
     "createdAt": 1768760439715
+  },
+  {
+    "id": "session-1768765143246",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768765143273-h9anv",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T19:39:03.273Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1768765143257
   }
 ]
