@@ -7,11 +7,7 @@ import {
   getCurrentLatex,
   selectionState,
 } from "../../core/state.js";
-import {
-  createOperatorContext,
-  getContextBoundingBoxes,
-  isCompleteContext,
-} from "../../operator-selection-context.js";
+import { OperatorSelectionContext } from "../../operator-selection-context.js";
 import { getOperandNodes } from "../../surface-map.js";
 import {
   clearDomHighlight,
@@ -215,14 +211,14 @@ export function setupContainerEvents(container, displayAdapter) {
         node.latexFragment,
       );
 
-      const operatorContext = createOperatorContext(
+      const operatorContext = OperatorSelectionContext.create(
         node,
         appState.current.map,
         getOperandNodes,
       );
 
-      if (operatorContext && isCompleteContext(operatorContext)) {
-        const boxes = getContextBoundingBoxes(operatorContext);
+      if (operatorContext && operatorContext.isComplete()) {
+        const boxes = operatorContext.getBoundingBoxes();
         console.log("[SmartOperatorSelection] Context created successfully:", {
           operator: operatorContext.operatorSymbol,
           astPath: operatorContext.astPath,

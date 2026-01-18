@@ -484,46 +484,6 @@
           "timestampIso": "2026-01-13T14:01:10.019Z",
           "expressionBefore": "7+8",
           "errorCode": "no-candidates"
-        },
-        {
-          "stepId": "step-1768748592967-z5tj3",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:12.967Z",
-          "expressionBefore": "1+2",
-          "errorCode": "no-candidates"
-        },
-        {
-          "stepId": "step-1768748593317-wt5hl",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:13.317Z",
-          "expressionBefore": "1+2",
-          "errorCode": "no-candidates"
-        },
-        {
-          "stepId": "step-1768748593328-6n6o5",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:13.328Z",
-          "expressionBefore": "3+4",
-          "errorCode": "no-candidates"
-        },
-        {
-          "stepId": "step-1768748593336-2w045",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:13.336Z",
-          "expressionBefore": "5+6",
-          "errorCode": "no-candidates"
-        },
-        {
-          "stepId": "step-1768748593345-kc52l",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:13.345Z",
-          "expressionBefore": "7+8",
-          "errorCode": "no-candidates"
         }
       ]
     },
@@ -2908,48 +2868,223 @@
     "createdAt": 1768748538502
   },
   {
-    "id": "session-1768748592975",
+    "id": "session-1768750086578",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1768748592980-xqzep",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:12.980Z",
-          "expressionBefore": "3+4",
-          "errorCode": "no-candidates"
+          "stepId": "step-1768750086584-b34eo",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T15:28:06.584Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
         }
       ]
     },
-    "createdAt": 1768748592975
+    "createdAt": 1768750086581
   },
   {
-    "id": "session-1768748592983",
+    "id": "session-1768750790508",
     "userId": "anonymous",
     "role": "student",
     "history": {
       "entries": [
         {
-          "stepId": "step-1768748592990-2ud9h",
-          "candidateId": null,
-          "decisionStatus": "no-candidates",
-          "timestampIso": "2026-01-18T15:03:12.990Z",
-          "expressionBefore": "5+6",
-          "errorCode": "no-candidates"
+          "stepId": "step-1768750790515-axsju",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T15:39:50.515Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
         }
       ]
     },
-    "createdAt": 1768748592984
+    "createdAt": 1768750790513
   },
   {
-    "id": "undo-test-1768748592995",
+    "id": "session-1768751298327",
     "userId": "anonymous",
     "role": "student",
     "history": {
-      "entries": []
+      "entries": [
+        {
+          "stepId": "step-1768751298334-g820j",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T15:48:18.334Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
     },
-    "createdAt": 1768748592996
+    "createdAt": 1768751298332
+  },
+  {
+    "id": "session-1768751419945",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768751419952-2cgma",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T15:50:19.952Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1768751419950
+  },
+  {
+    "id": "session-1768752329383",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768752329390-ezexw",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:05:29.390Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1768752329388
+  },
+  {
+    "id": "session-1768753041633",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753041639-isqlc",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:21.639Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}"
+        }
+      ]
+    },
+    "createdAt": 1768753041637
+  },
+  {
+    "id": "session-1768753047095",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753047102-kr55i",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:27.102Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "1.2 + \\frac{3}{5} - 0.4",
+          "errorCode": "primitive-failed"
+        }
+      ]
+    },
+    "createdAt": 1768753047100
+  },
+  {
+    "id": "session-1768753047743",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753047748-3ezac",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:27.748Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "1.2 + \\frac{3}{5} - 0.4",
+          "errorCode": "primitive-failed"
+        }
+      ]
+    },
+    "createdAt": 1768753047746
+  },
+  {
+    "id": "session-1768753048438",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753048443-pez7p",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:28.443Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "expressionBefore": "1.2 + \\frac{3}{5} - 0.4",
+          "errorCode": "primitive-failed"
+        }
+      ]
+    },
+    "createdAt": 1768753048441
+  },
+  {
+    "id": "session-1768753050042",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753050047-fbeg7",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:30.047Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "1.2 + \\frac{3}{5} - 0.4",
+          "errorCode": "primitive-failed"
+        }
+      ]
+    },
+    "createdAt": 1768753050045
+  },
+  {
+    "id": "session-1768753050240",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "stepId": "step-1768753050245-nhtm7",
+          "candidateId": "v5-match",
+          "decisionStatus": "chosen",
+          "timestampIso": "2026-01-18T16:17:30.245Z",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "expressionBefore": "1.2 + \\frac{3}{5} - 0.4",
+          "errorCode": "primitive-failed"
+        }
+      ]
+    },
+    "createdAt": 1768753050242
   }
 ]
