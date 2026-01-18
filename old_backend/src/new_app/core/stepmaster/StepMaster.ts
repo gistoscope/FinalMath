@@ -9,6 +9,7 @@
  *  - Select the best candidate based on policy
  */
 
+import { injectable } from "tsyringe";
 import type { MapMasterCandidate } from "../mapmaster/mapmaster.types.js";
 import type {
   StepHistorySnapshot,
@@ -23,12 +24,9 @@ export interface StepMasterConfig {
 /**
  * StepMaster - Pure domain class for step decision making
  */
+@injectable()
 export class StepMaster {
-  private readonly log: (message: string) => void;
-
-  constructor(config?: StepMasterConfig) {
-    this.log = config?.log || (() => {});
-  }
+  private readonly log: (message: string) => void = console.log;
 
   /**
    * Decide which step to take.
@@ -127,6 +125,6 @@ export class StepMaster {
 /**
  * Factory function for StepMaster (backward compatibility)
  */
-export function createStepMaster(config?: StepMasterConfig): StepMaster {
-  return new StepMaster(config);
+export function createStepMaster(): StepMaster {
+  return new StepMaster();
 }

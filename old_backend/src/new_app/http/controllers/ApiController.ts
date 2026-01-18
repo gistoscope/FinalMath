@@ -5,29 +5,37 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { inject, injectable } from "tsyringe";
+import { InvariantLoader, StepPolicy } from "../../core/index.js";
 import type { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
 import type { OrchestratorContext } from "../../core/orchestrator/orchestrator.types.js";
-import {
-  BaseController,
-  type ControllerDependencies,
-} from "./BaseController.js";
-
-export interface ApiControllerDeps extends ControllerDependencies {
-  orchestrator: StepOrchestrator;
-  orchestratorContext: OrchestratorContext;
-}
+import { COURSES_DIR } from "../../registry.js";
+import { BaseController } from "./BaseController.js";
 
 /**
  * ApiController - Main API endpoints
  */
+@injectable()
 export class ApiController extends BaseController {
-  private readonly orchestrator: StepOrchestrator;
   private readonly context: OrchestratorContext;
 
-  constructor(deps: ApiControllerDeps) {
-    super(deps);
-    this.orchestrator = deps.orchestrator;
-    this.context = deps.orchestratorContext;
+  constructor(
+    @inject(COURSES_DIR) coursesDir: string,
+    private readonly orchestrator: StepOrchestrator,
+    readonly invariantLoader: InvariantLoader,
+    private readonly stepPolicy: StepPolicy,
+  ) {
+    super();
+    const loadResult = invariantLoader.loadFromDirectory(coursesDir);
+    if (loadResult.errors.length > 0) {
+      this.log(
+        `[Application] Invariant loading warnings: ${loadResult.errors.join(", ")}`,
+      );
+    }
+    this.context = {
+      invariantRegistry: loadResult.registry,
+      policy: this.stepPolicy.createStudentPolicy(),
+    };
   }
 
   /**

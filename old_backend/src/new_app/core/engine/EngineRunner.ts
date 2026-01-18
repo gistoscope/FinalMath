@@ -8,6 +8,7 @@
  *  - Return transformation results
  */
 
+import { container, injectable } from "tsyringe";
 import type {
   EngineStepExecutionResult,
   EngineStepInput,
@@ -20,12 +21,9 @@ export interface EngineRunnerConfig {
 /**
  * EngineRunner - Executes step transformations
  */
+@injectable()
 export class EngineRunner {
-  private readonly log: (message: string) => void;
-
-  constructor(config?: EngineRunnerConfig) {
-    this.log = config?.log || (() => {});
-  }
+  private readonly log: (message: string) => void = console.log;
 
   /**
    * Execute a step transformation.
@@ -56,8 +54,8 @@ export class EngineRunner {
 /**
  * Factory function for EngineRunner
  */
-export function createEngineRunner(config?: EngineRunnerConfig): EngineRunner {
-  return new EngineRunner(config);
+export function createEngineRunner(): EngineRunner {
+  return container.resolve(EngineRunner);
 }
 
 /**
@@ -66,6 +64,6 @@ export function createEngineRunner(config?: EngineRunnerConfig): EngineRunner {
 export async function executeStepViaEngine(
   input: EngineStepInput,
 ): Promise<EngineStepExecutionResult> {
-  const runner = new EngineRunner();
+  const runner = container.resolve(EngineRunner);
   return runner.executeStep(input);
 }

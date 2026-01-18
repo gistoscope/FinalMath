@@ -10,6 +10,7 @@
  *  - Generate candidate list
  */
 
+import { injectable } from "tsyringe";
 import type {
   MapMasterCandidate,
   MapMasterCandidateId,
@@ -25,14 +26,10 @@ export interface MapMasterConfig {
 /**
  * MapMaster - Generates step candidates
  */
+@injectable()
 export class MapMaster {
-  private readonly log: (message: string) => void;
-  private readonly warn: (message: string) => void;
-
-  constructor(config?: MapMasterConfig) {
-    this.log = config?.log || (() => {});
-    this.warn = config?.warn || (() => {});
-  }
+  private readonly log: (message: string) => void = console.log;
+  private readonly warn: (message: string) => void = console.warn;
 
   /**
    * Generate step candidates based on the input.
@@ -85,8 +82,8 @@ export class MapMaster {
 /**
  * Factory function for MapMaster (backward compatibility)
  */
-export function createMapMaster(config?: MapMasterConfig): MapMaster {
-  return new MapMaster(config);
+export function createMapMaster(): MapMaster {
+  return new MapMaster();
 }
 
 /**

@@ -15,11 +15,7 @@ export interface ControllerDependencies {
  * BaseController - Base class for all controllers
  */
 export abstract class BaseController {
-  protected readonly log: (message: string) => void;
-
-  constructor(deps?: ControllerDependencies) {
-    this.log = deps?.log || (() => {});
-  }
+  protected readonly log: (message: string) => void = console.log;
 
   /**
    * Send a JSON response.

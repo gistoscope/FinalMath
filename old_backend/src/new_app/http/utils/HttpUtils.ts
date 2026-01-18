@@ -5,15 +5,17 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { singleton } from "tsyringe";
 
 /**
  * HttpUtils - HTTP utility functions
  */
+@singleton()
 export class HttpUtils {
   /**
    * Parse JSON body from request.
    */
-  static async parseJsonBody<T>(req: IncomingMessage): Promise<T | null> {
+  async parseJsonBody<T>(req: IncomingMessage): Promise<T | null> {
     return new Promise((resolve) => {
       const chunks: Buffer[] = [];
 
@@ -44,7 +46,7 @@ export class HttpUtils {
   /**
    * Send a JSON response.
    */
-  static sendJson(res: ServerResponse, status: number, data: unknown): void {
+  sendJson(res: ServerResponse, status: number, data: unknown): void {
     res.statusCode = status;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(JSON.stringify(data));
@@ -53,7 +55,7 @@ export class HttpUtils {
   /**
    * Send a 404 Not Found response.
    */
-  static sendNotFound(res: ServerResponse): void {
+  sendNotFound(res: ServerResponse): void {
     res.statusCode = 404;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(JSON.stringify({ error: "Not Found" }));
@@ -62,7 +64,7 @@ export class HttpUtils {
   /**
    * Send an engine error response.
    */
-  static sendEngineError(res: ServerResponse, status: number): void {
+  sendEngineError(res: ServerResponse, status: number): void {
     res.statusCode = status;
     res.setHeader("Content-Type", "application/json; charset=utf-8");
     res.end(
@@ -77,7 +79,7 @@ export class HttpUtils {
   /**
    * Extract URL path from request.
    */
-  static extractUrlPath(req: IncomingMessage): string {
+  extractUrlPath(req: IncomingMessage): string {
     const url = req.url || "/";
     const questionMarkIndex = url.indexOf("?");
     return questionMarkIndex === -1 ? url : url.slice(0, questionMarkIndex);
@@ -86,7 +88,7 @@ export class HttpUtils {
   /**
    * Extract query parameters from request.
    */
-  static extractQueryParams(req: IncomingMessage): Record<string, string> {
+  extractQueryParams(req: IncomingMessage): Record<string, string> {
     const url = req.url || "/";
     const questionMarkIndex = url.indexOf("?");
 

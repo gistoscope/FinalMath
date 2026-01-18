@@ -4,22 +4,14 @@
  * Router for authentication endpoints.
  */
 
+import { injectable } from "tsyringe";
 import type { AuthController } from "../controllers/AuthController.js";
-import { BaseRouter, type RouterDeps } from "./BaseRouter.js";
+import { BaseRouter } from "./BaseRouter.js";
 
-export interface AuthRouterDeps extends RouterDeps {
-  authController: AuthController;
-}
-
-/**
- * AuthRouter - Routes for authentication
- */
+@injectable()
 export class AuthRouter extends BaseRouter {
-  private readonly controller: AuthController;
-
-  constructor(deps: AuthRouterDeps) {
-    super(deps);
-    this.controller = deps.authController;
+  constructor(private readonly controller: AuthController) {
+    super();
     this.registerRoutes();
   }
 

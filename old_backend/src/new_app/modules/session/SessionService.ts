@@ -9,6 +9,7 @@
  *  - Manage step history per session
  */
 
+import { injectable } from "tsyringe";
 import type { StepHistory } from "../../core/stepmaster/stepmaster.types.js";
 import type { UserRole } from "../../types/user.types.js";
 import type { StorageService } from "../storage/StorageService.js";
@@ -31,17 +32,14 @@ export interface SessionServiceConfig {
 /**
  * SessionService - Manages user sessions
  */
+@injectable()
 export class SessionService {
-  private readonly storage: StorageService;
-  private readonly log: (message: string) => void;
+  private readonly log: (message: string) => void = console.log;
 
   private sessions: Map<string, Session> = new Map();
   private initialized = false;
 
-  constructor(config: SessionServiceConfig) {
-    this.storage = config.storage;
-    this.log = config.log || (() => {});
-  }
+  constructor(private readonly storage: StorageService) {}
 
   /**
    * Initialize the session service.

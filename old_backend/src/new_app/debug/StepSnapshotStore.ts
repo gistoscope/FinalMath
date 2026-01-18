@@ -9,6 +9,8 @@
  *  - Support debugging workflows
  */
 
+import { singleton } from "tsyringe";
+
 export interface StepSnapshot {
   id: string;
   sessionId: string;
@@ -24,15 +26,16 @@ export interface StepSnapshot {
 /**
  * StepSnapshotStore - Step snapshot storage
  */
+@singleton()
 export class StepSnapshotStore {
-  private static snapshots: Map<string, StepSnapshot> = new Map();
-  private static sessionIndex: Map<string, string[]> = new Map();
-  private static maxSnapshots = 500;
+  private snapshots: Map<string, StepSnapshot> = new Map();
+  private sessionIndex: Map<string, string[]> = new Map();
+  private maxSnapshots = 500;
 
   /**
    * Store a step snapshot.
    */
-  static store(snapshot: StepSnapshot): void {
+  store(snapshot: StepSnapshot): void {
     this.snapshots.set(snapshot.id, snapshot);
 
     // Update session index
@@ -52,14 +55,14 @@ export class StepSnapshotStore {
   /**
    * Get a snapshot by ID.
    */
-  static get(id: string): StepSnapshot | undefined {
+  get(id: string): StepSnapshot | undefined {
     return this.snapshots.get(id);
   }
 
   /**
    * Get all snapshots for a session.
    */
-  static getBySession(sessionId: string): StepSnapshot[] {
+  getBySession(sessionId: string): StepSnapshot[] {
     const ids = this.sessionIndex.get(sessionId) || [];
     return ids
       .map((id) => this.snapshots.get(id))
@@ -69,7 +72,7 @@ export class StepSnapshotStore {
   /**
    * Update a snapshot.
    */
-  static update(id: string, updates: Partial<StepSnapshot>): boolean {
+  update(id: string, updates: Partial<StepSnapshot>): boolean {
     const existing = this.snapshots.get(id);
     if (!existing) return false;
 
@@ -80,7 +83,7 @@ export class StepSnapshotStore {
   /**
    * Clear all snapshots.
    */
-  static clear(): void {
+  clear(): void {
     this.snapshots.clear();
     this.sessionIndex.clear();
   }
@@ -88,7 +91,7 @@ export class StepSnapshotStore {
   /**
    * Get count of stored snapshots.
    */
-  static count(): number {
+  count(): number {
     return this.snapshots.size;
   }
 }

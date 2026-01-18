@@ -3,28 +3,15 @@
  *
  * CLI entry point for the Backend API server.
  */
-
-import { createApplication } from "./Application.js";
-
-function getPortFromEnv(): number {
-  const raw = process.env.ENGINE_HTTP_PORT ?? process.env.PORT ?? "4201";
-  const parsed = Number.parseInt(raw, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return 4201;
-  }
-  return parsed;
-}
+import "reflect-metadata";
+import { container } from "tsyringe";
+import { Application } from "./Application.js";
+import { resolveDependencies } from "./registry.js";
 
 export async function main(): Promise<void> {
-  const port = getPortFromEnv();
-
   try {
-    const app = await createApplication({
-      port,
-      dataDir: "data",
-      coursesDir: "config/courses",
-      log: console.log,
-    });
+    resolveDependencies();
+    const app = container.resolve(Application);
 
     await app.start();
 

@@ -8,18 +8,19 @@
  *  - Handle various mathematical expressions
  */
 
+import { container, singleton } from "tsyringe";
 import type { AstNode } from "./ast.types.js";
 
 /**
  * AstParser - Parses LaTeX expressions into AST
  */
+@singleton()
 export class AstParser {
   /**
    * Parse a LaTeX expression into an AST.
    */
-  static parse(latex: string): AstNode | undefined {
-    const parser = new AstParser();
-    return parser.parseExpression(latex);
+  parse(latex: string): AstNode | undefined {
+    return this.parseExpression(latex);
   }
 
   /**
@@ -203,5 +204,5 @@ export class AstParser {
  * Standalone function for backward compatibility
  */
 export function parseExpression(latex: string): AstNode | undefined {
-  return AstParser.parse(latex);
+  return container.resolve(AstParser).parse(latex);
 }

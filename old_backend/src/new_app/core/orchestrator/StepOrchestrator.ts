@@ -9,6 +9,8 @@
  *  - Coordinate the full step execution pipeline
  */
 
+import { container, injectable } from "tsyringe";
+import { SessionService } from "../../modules/index.js";
 import { AstParser } from "../ast/AstParser.js";
 import { AstUtils } from "../ast/AstUtils.js";
 import { EngineRunner } from "../engine/EngineRunner.js";
@@ -22,36 +24,30 @@ import type {
   OrchestratorStepResult,
 } from "./orchestrator.types.js";
 
-export interface StepOrchestratorConfig {
-  log?: (message: string) => void;
-  getHistory: (
-    sessionId: string,
-    userId?: string,
-    userRole?: string,
-  ) => Promise<StepHistory>;
-  updateHistory: (sessionId: string, history: StepHistory) => Promise<void>;
-}
-
 /**
  * StepOrchestrator - Coordinates step execution
  */
+@injectable()
 export class StepOrchestrator {
-  private readonly log: (message: string) => void;
-  private readonly getHistory: StepOrchestratorConfig["getHistory"];
-  private readonly updateHistory: StepOrchestratorConfig["updateHistory"];
-  private readonly stepMaster: StepMaster;
-  private readonly mapMaster: MapMaster;
-  private readonly engineRunner: EngineRunner;
+  private readonly log: (message: string) => void = console.log;
 
-  constructor(config: StepOrchestratorConfig) {
-    this.log = config.log || console.log;
-    this.getHistory = config.getHistory;
-    this.updateHistory = config.updateHistory;
-    this.stepMaster = new StepMaster({ log: this.log });
-    this.mapMaster = new MapMaster({ log: this.log });
-    this.engineRunner = new EngineRunner({ log: this.log });
+  constructor(
+    private readonly sessionService: SessionService,
+    private readonly stepMaster: StepMaster,
+    private readonly mapMaster: MapMaster,
+    private readonly engineRunner: EngineRunner,
+    private readonly stepHistoryService: StepHistoryService,
+    private readonly astUtils: AstUtils,
+    private readonly astParser: AstParser,
+  ) {}
+
+  async updateHistory(sessionId: string, history: StepHistory) {
+    return this.sessionService.updateHistory(sessionId, history);
   }
 
+  async getHistory(sessionId: string, userId?: string, userRole?: string) {
+    return this.sessionService.getHistory(sessionId, userId, userRole as any);
+  }
   /**
    * Run a single step orchestration.
    */
@@ -69,7 +65,7 @@ export class StepOrchestrator {
     );
 
     // 2. Parse expression
-    const ast = AstParser.parse(req.expressionLatex);
+    const ast = this.astParser.parse(req.expressionLatex);
     if (!ast) {
       return {
         status: "engine-error",
@@ -92,7 +88,10 @@ export class StepOrchestrator {
     }
 
     // 4. Check for integer click (return choice)
-    const clickedNode = AstUtils.getNodeAt(ast, req.selectionPath || "root");
+    const clickedNode = this.astUtils.getNodeAt(
+      ast,
+      req.selectionPath || "root",
+    );
     if (clickedNode?.type === "integer" && !req.preferredPrimitiveId) {
       return {
         status: "choice",
@@ -121,7 +120,7 @@ export class StepOrchestrator {
         req.expressionLatex,
       );
       if (result.ok) {
-        history = StepHistoryService.updateLastStep(history, {
+        history = this.stepHistoryService.updateLastStep(history, {
           expressionAfter: result.newLatex,
         });
         await this.updateHistory(req.sessionId, history);
@@ -163,7 +162,7 @@ export class StepOrchestrator {
     }
 
     // 7. Let StepMaster decide
-    const snapshot = StepHistoryService.getSnapshot(history);
+    const snapshot = this.stepHistoryService.getSnapshot(history);
     const decision = this.stepMaster.decide({
       candidates: mapResult.candidates,
       history: snapshot,
@@ -204,7 +203,7 @@ export class StepOrchestrator {
 
     // 9. Update history
     if (engineResult.ok && engineResult.newExpressionLatex) {
-      history = StepHistoryService.appendStep(history, {
+      history = this.stepHistoryService.appendStep(history, {
         expressionBefore: req.expressionLatex,
         expressionAfter: engineResult.newExpressionLatex,
         invariantRuleId: chosenCandidate.invariantRuleId,
@@ -233,7 +232,7 @@ export class StepOrchestrator {
     targetPath: string,
     _originalLatex: string,
   ): { ok: boolean; newLatex?: string; error?: string } {
-    const targetNode = AstUtils.getNodeAt(ast, targetPath);
+    const targetNode = this.astUtils.getNodeAt(ast, targetPath);
 
     if (!targetNode || targetNode.type !== "integer") {
       return {
@@ -249,8 +248,8 @@ export class StepOrchestrator {
       denominator: "1",
     };
 
-    const newAst = AstUtils.replaceNodeAt(ast, targetPath, fractionNode);
-    const newLatex = AstUtils.toLatex(newAst);
+    const newAst = this.astUtils.replaceNodeAt(ast, targetPath, fractionNode);
+    const newLatex = this.astUtils.toLatex(newAst);
 
     return { ok: true, newLatex };
   }
@@ -259,8 +258,6 @@ export class StepOrchestrator {
 /**
  * Factory function for StepOrchestrator
  */
-export function createStepOrchestrator(
-  config: StepOrchestratorConfig,
-): StepOrchestrator {
-  return new StepOrchestrator(config);
+export function createStepOrchestrator(): StepOrchestrator {
+  return container.resolve(StepOrchestrator);
 }

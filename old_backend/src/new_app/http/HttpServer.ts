@@ -11,18 +11,12 @@ import http, {
   type ServerResponse,
 } from "node:http";
 
+import { container, inject, injectable } from "tsyringe";
+import { HTTP_SERVER_PORT, HTTP_SERVER_ROUTERS } from "../registry.js";
 import { CorsMiddleware } from "./middleware/CorsMiddleware.js";
 import { LoggerMiddleware } from "./middleware/LoggerMiddleware.js";
 import type { BaseRouter } from "./routes/BaseRouter.js";
 import { HttpUtils } from "./utils/HttpUtils.js";
-
-export interface HttpServerConfig {
-  port: number;
-  routers: BaseRouter[];
-  log?: (message: string) => void;
-  enableCors?: boolean;
-  enableLogging?: boolean;
-}
 
 export interface IHttpServer {
   start(): Promise<number>;
@@ -32,26 +26,19 @@ export interface IHttpServer {
 /**
  * HttpServer - Main HTTP server implementation
  */
+@injectable()
 export class HttpServer implements IHttpServer {
-  private readonly port: number;
-  private readonly routers: BaseRouter[];
-  private readonly log: (message: string) => void;
+  private readonly log: (message: string) => void = console.log;
   private readonly server: Server;
-  private readonly corsMiddleware: CorsMiddleware;
-  private readonly loggerMiddleware: LoggerMiddleware;
 
-  constructor(config: HttpServerConfig) {
-    this.port = config.port;
-    this.routers = config.routers;
-    this.log = config.log || console.log;
-
-    // Initialize middleware
-    this.corsMiddleware = new CorsMiddleware();
-    this.loggerMiddleware = new LoggerMiddleware({
-      log: this.log,
-      enabled: config.enableLogging !== false,
-    });
-
+  constructor(
+    private readonly corsMiddleware: CorsMiddleware,
+    private readonly loggerMiddleware: LoggerMiddleware,
+    @inject(HTTP_SERVER_ROUTERS)
+    private readonly routers: BaseRouter[],
+    @inject(HTTP_SERVER_PORT) private readonly port: number,
+    private readonly httpUtils: HttpUtils,
+  ) {
     // Create HTTP server
     this.server = http.createServer(this.handleRequest.bind(this));
   }
@@ -74,7 +61,7 @@ export class HttpServer implements IHttpServer {
         return;
       }
 
-      const url = HttpUtils.extractUrlPath(req);
+      const url = this.httpUtils.extractUrlPath(req);
 
       // Try each router
       for (const router of this.routers) {
@@ -86,7 +73,7 @@ export class HttpServer implements IHttpServer {
       }
 
       // No router handled the request
-      HttpUtils.sendNotFound(res);
+      this.httpUtils.sendNotFound(res);
       this.loggerMiddleware.logResponse(req, res, startTime);
     } catch (error) {
       this.log(
@@ -94,7 +81,7 @@ export class HttpServer implements IHttpServer {
           error instanceof Error ? error.message : String(error)
         }`,
       );
-      HttpUtils.sendEngineError(res, 500);
+      this.httpUtils.sendEngineError(res, 500);
       this.loggerMiddleware.logResponse(req, res, startTime);
     }
   }
@@ -138,6 +125,6 @@ export class HttpServer implements IHttpServer {
 /**
  * Factory function to create an HTTP server.
  */
-export function createHttpServer(config: HttpServerConfig): IHttpServer {
-  return new HttpServer(config);
+export function createHttpServer(): IHttpServer {
+  return container.resolve(HttpServer);
 }

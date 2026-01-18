@@ -30,13 +30,7 @@ export interface RouterDeps {
  */
 export abstract class BaseRouter {
   protected readonly routes: Route[] = [];
-  protected readonly log: (message: string) => void;
-
-  constructor(deps?: RouterDeps) {
-    this.log = deps?.log || (() => {});
-    // Note: registerRoutes() is NOT called here.
-    // Subclasses must call it after initializing their dependencies.
-  }
+  protected readonly log: (message: string) => void = console.log;
 
   /**
    * Register routes - to be implemented by subclasses.

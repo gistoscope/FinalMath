@@ -5,6 +5,7 @@
  */
 
 import type { ServerResponse } from "node:http";
+import { injectable } from "tsyringe";
 
 export interface CorsConfig {
   allowOrigin?: string;
@@ -16,27 +17,14 @@ export interface CorsConfig {
 /**
  * CorsMiddleware - CORS handling
  */
+@injectable()
 export class CorsMiddleware {
-  private readonly config: Required<CorsConfig>;
-
-  constructor(config?: CorsConfig) {
-    this.config = {
-      allowOrigin: config?.allowOrigin || "*",
-      allowMethods: config?.allowMethods || [
-        "GET",
-        "POST",
-        "PUT",
-        "DELETE",
-        "OPTIONS",
-      ],
-      allowHeaders: config?.allowHeaders || [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-      ],
-      maxAge: config?.maxAge || 86400,
-    };
-  }
+  private readonly config: Required<CorsConfig> = {
+    allowOrigin: "*",
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    maxAge: 86400,
+  };
 
   /**
    * Apply CORS headers to a response.

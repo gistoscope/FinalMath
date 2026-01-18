@@ -9,6 +9,7 @@
  *  - Return the appropriate primitive outcome
  */
 
+import { injectable } from "tsyringe";
 import type {
   ClickTarget,
   PrimitiveMasterRequest,
@@ -27,13 +28,13 @@ export interface PrimitiveMasterDeps {
 /**
  * PrimitiveMaster - V5 Decision Layer Coordinator
  */
+@injectable()
 export class PrimitiveMaster {
   private readonly deps: PrimitiveMasterDeps;
-  private readonly log: (message: string) => void;
+  private readonly log: (message: string) => void = console.log;
 
   constructor(deps: PrimitiveMasterDeps) {
     this.deps = deps;
-    this.log = deps.log || (() => {});
   }
 
   /**

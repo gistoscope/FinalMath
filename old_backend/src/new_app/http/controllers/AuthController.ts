@@ -5,25 +5,14 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { injectable } from "tsyringe";
 import type { AuthService } from "../../modules/auth/AuthService.js";
-import {
-  BaseController,
-  type ControllerDependencies,
-} from "./BaseController.js";
+import { BaseController } from "./BaseController.js";
 
-export interface AuthControllerDeps extends ControllerDependencies {
-  authService: AuthService;
-}
-
-/**
- * AuthController - Authentication endpoints
- */
+@injectable()
 export class AuthController extends BaseController {
-  private readonly authService: AuthService;
-
-  constructor(deps: AuthControllerDeps) {
-    super(deps);
-    this.authService = deps.authService;
+  constructor(private readonly authService: AuthService) {
+    super();
   }
 
   /**

@@ -10,6 +10,8 @@
 
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { inject, injectable } from "tsyringe";
+import { DATA_DIR } from "../../registry.js";
 import type { StorageService } from "./StorageService.js";
 
 export interface JsonFileStorageConfig {
@@ -19,11 +21,12 @@ export interface JsonFileStorageConfig {
 /**
  * JsonFileStorage - File-based storage implementation
  */
+@injectable()
 export class JsonFileStorage implements StorageService {
   private readonly dataDir: string;
 
-  constructor(config?: JsonFileStorageConfig) {
-    this.dataDir = config?.dataDir || path.join(process.cwd(), "data");
+  constructor(@inject(DATA_DIR) dataDir: string) {
+    this.dataDir = dataDir;
   }
 
   /**
@@ -94,4 +97,4 @@ export class JsonFileStorage implements StorageService {
 /**
  * Create a singleton instance (for backward compatibility)
  */
-export const jsonStorage = new JsonFileStorage();
+export const jsonStorage = new JsonFileStorage("");

@@ -1,25 +1,11 @@
-/**
- * DebugRouter Class
- *
- * Router for debug endpoints.
- */
-
+import { injectable } from "tsyringe";
 import type { DebugController } from "../controllers/DebugController.js";
-import { BaseRouter, type RouterDeps } from "./BaseRouter.js";
+import { BaseRouter } from "./BaseRouter.js";
 
-export interface DebugRouterDeps extends RouterDeps {
-  debugController: DebugController;
-}
-
-/**
- * DebugRouter - Routes for debug endpoints
- */
+@injectable()
 export class DebugRouter extends BaseRouter {
-  private readonly controller: DebugController;
-
-  constructor(deps: DebugRouterDeps) {
-    super(deps);
-    this.controller = deps.debugController;
+  constructor(private readonly controller: DebugController) {
+    super();
     this.registerRoutes();
   }
 

@@ -10,42 +10,29 @@
  */
 
 import jwt from "jsonwebtoken";
+import { inject, injectable } from "tsyringe";
+import { JWT_SECRET, JWT_SECRET_EXPIRY } from "../../registry.js";
 import type { AuthToken, User, UserRole } from "../../types/user.types.js";
 import type { StorageService } from "../storage/StorageService.js";
 
-const DEFAULT_SECRET_KEY = "default_insecure_secret";
 const USERS_FILE = "users.json";
-
-export interface AuthServiceConfig {
-  secretKey?: string;
-  tokenExpiry?: string;
-  storage: StorageService;
-  log?: (message: string) => void;
-}
 
 /**
  * AuthService - Manages user authentication
  */
+@injectable()
 export class AuthService {
-  private readonly secretKey: string;
-  private readonly tokenExpiry: string;
-  private readonly storage: StorageService;
-  private readonly log: (message: string) => void;
+  private readonly log: (message: string) => void = console.log;
 
   private users: Map<string, User> = new Map();
   private initialized = false;
   private initPromise: Promise<void> | null = null;
 
-  constructor(config: AuthServiceConfig) {
-    this.secretKey =
-      config.secretKey ||
-      process.env.JWT_SECRET ||
-      process.env.SECRET_KEY ||
-      DEFAULT_SECRET_KEY;
-    this.tokenExpiry = config.tokenExpiry || "1h";
-    this.storage = config.storage;
-    this.log = config.log || (() => {});
-  }
+  constructor(
+    @inject(JWT_SECRET) private readonly secretKey: string,
+    @inject(JWT_SECRET_EXPIRY) private readonly tokenExpiry: string,
+    private readonly storage: StorageService,
+  ) {}
 
   /**
    * Initialize the auth service by loading users from storage.

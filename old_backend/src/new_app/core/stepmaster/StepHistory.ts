@@ -4,6 +4,7 @@
  * Manages step history for sessions.
  */
 
+import { container, singleton } from "tsyringe";
 import type {
   StepHistory,
   StepHistoryEntry,
@@ -21,18 +22,19 @@ export interface StepHistoryUpdateData {
 /**
  * StepHistoryService - Manages step history
  */
+@singleton()
 export class StepHistoryService {
   /**
    * Create an empty history.
    */
-  static createEmpty(): StepHistory {
+  createEmpty(): StepHistory {
     return { entries: [] };
   }
 
   /**
    * Get a snapshot of the history.
    */
-  static getSnapshot(history: StepHistory): StepHistorySnapshot {
+  getSnapshot(history: StepHistory): StepHistorySnapshot {
     const entryCount = history.entries.length;
     const lastEntry = history.entries[entryCount - 1];
 
@@ -55,10 +57,7 @@ export class StepHistoryService {
   /**
    * Append a step to the history.
    */
-  static appendStep(
-    history: StepHistory,
-    data: StepHistoryUpdateData,
-  ): StepHistory {
+  appendStep(history: StepHistory, data: StepHistoryUpdateData): StepHistory {
     const entry: StepHistoryEntry = {
       id: `step-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       timestamp: Date.now(),
@@ -77,7 +76,7 @@ export class StepHistoryService {
   /**
    * Update the last step in the history.
    */
-  static updateLastStep(
+  updateLastStep(
     history: StepHistory,
     data: Partial<StepHistoryUpdateData>,
   ): StepHistory {
@@ -112,7 +111,7 @@ export class StepHistoryService {
   /**
    * Remove the last step from the history.
    */
-  static removeLastStep(history: StepHistory): StepHistory {
+  removeLastStep(history: StepHistory): StepHistory {
     if (history.entries.length === 0) {
       return history;
     }
@@ -123,29 +122,31 @@ export class StepHistoryService {
   }
 }
 
+const stepHistory = container.resolve(StepHistoryService);
+
 // Backward compatibility functions
 export function createEmptyHistory(): StepHistory {
-  return StepHistoryService.createEmpty();
+  return stepHistory.createEmpty();
 }
 
 export function getSnapshot(history: StepHistory): StepHistorySnapshot {
-  return StepHistoryService.getSnapshot(history);
+  return stepHistory.getSnapshot(history);
 }
 
 export function appendStepFromResult(
   history: StepHistory,
   data: StepHistoryUpdateData,
 ): StepHistory {
-  return StepHistoryService.appendStep(history, data);
+  return stepHistory.appendStep(history, data);
 }
 
 export function updateLastStep(
   history: StepHistory,
   data: Partial<StepHistoryUpdateData>,
 ): StepHistory {
-  return StepHistoryService.updateLastStep(history, data);
+  return stepHistory.updateLastStep(history, data);
 }
 
 export function removeLastStep(history: StepHistory): StepHistory {
-  return StepHistoryService.removeLastStep(history);
+  return stepHistory.removeLastStep(history);
 }

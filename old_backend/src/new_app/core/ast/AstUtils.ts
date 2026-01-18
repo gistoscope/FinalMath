@@ -9,17 +9,19 @@
  *  - Convert AST back to LaTeX
  */
 
+import { container, injectable } from "tsyringe";
 import type { AstNode, BinaryOpNode } from "./ast.types.js";
 
 /**
  * AstUtils - AST manipulation utilities
  */
+@injectable()
 export class AstUtils {
   /**
    * Get a node at a specific path.
    * Path format: "root", "term[0]", "term[1].term[0]", etc.
    */
-  static getNodeAt(ast: AstNode, path: string): AstNode | undefined {
+  getNodeAt(ast: AstNode, path: string): AstNode | undefined {
     if (!ast || !path) return undefined;
 
     if (path === "root") return ast;
@@ -50,11 +52,7 @@ export class AstUtils {
    * Replace a node at a specific path.
    * Returns a new AST with the replacement (immutable).
    */
-  static replaceNodeAt(
-    ast: AstNode,
-    path: string,
-    replacement: AstNode,
-  ): AstNode {
+  replaceNodeAt(ast: AstNode, path: string, replacement: AstNode): AstNode {
     if (path === "root") {
       return { ...replacement };
     }
@@ -62,7 +60,7 @@ export class AstUtils {
     return this.replaceRecursive(ast, path.split("."), replacement);
   }
 
-  private static replaceRecursive(
+  private replaceRecursive(
     node: AstNode,
     pathParts: string[],
     replacement: AstNode,
@@ -108,7 +106,7 @@ export class AstUtils {
   /**
    * Convert an AST node back to LaTeX.
    */
-  static toLatex(node: AstNode): string {
+  toLatex(node: AstNode): string {
     switch (node.type) {
       case "integer":
         return node.value;
@@ -143,16 +141,13 @@ export class AstUtils {
   /**
    * Augment AST with ID properties for node tracking.
    */
-  static augmentWithIds(root: AstNode): AstNode {
+  augmentWithIds(root: AstNode): AstNode {
     const clone = JSON.parse(JSON.stringify(root)) as AstNode;
     this.assignIds(clone, "root");
     return clone;
   }
 
-  private static assignIds(
-    node: AstNode & { id?: string },
-    path: string,
-  ): void {
+  private assignIds(node: AstNode & { id?: string }, path: string): void {
     node.id = path;
 
     if (node.type === "binaryOp") {
@@ -168,9 +163,11 @@ export class AstUtils {
   }
 }
 
+const astUtils = container.resolve(AstUtils);
+
 // Backward compatibility functions
 export function getNodeAt(ast: AstNode, path: string): AstNode | undefined {
-  return AstUtils.getNodeAt(ast, path);
+  return astUtils.getNodeAt(ast, path);
 }
 
 export function replaceNodeAt(
@@ -178,9 +175,9 @@ export function replaceNodeAt(
   path: string,
   replacement: AstNode,
 ): AstNode {
-  return AstUtils.replaceNodeAt(ast, path, replacement);
+  return astUtils.replaceNodeAt(ast, path, replacement);
 }
 
 export function toLatex(node: AstNode): string {
-  return AstUtils.toLatex(node);
+  return astUtils.toLatex(node);
 }

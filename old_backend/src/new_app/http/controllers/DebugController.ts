@@ -5,19 +5,11 @@
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-import {
-  BaseController,
-  type ControllerDependencies,
-} from "./BaseController.js";
+import { injectable } from "tsyringe";
+import { BaseController } from "./BaseController.js";
 
-/**
- * DebugController - Debug endpoints
- */
+@injectable()
 export class DebugController extends BaseController {
-  constructor(deps?: ControllerDependencies) {
-    super(deps);
-  }
-
   /**
    * POST /debug/ast - Parse and return AST.
    */

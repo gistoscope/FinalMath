@@ -10,6 +10,7 @@
  *  - Referential integrity (primitive IDs must exist)
  */
 
+import { injectable } from "tsyringe";
 import {
   VALID_LEVELS,
   type InvariantModelDefinition,
@@ -24,9 +25,7 @@ import {
   type PrimitiveId,
 } from "./invariant.types.js";
 
-/**
- * InvariantValidator - Pure domain class for model validation
- */
+@injectable()
 export class InvariantValidator {
   /**
    * Validate the complete invariant model for structural integrity.

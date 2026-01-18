@@ -12,6 +12,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { inject, injectable } from "tsyringe";
+import { INVARIANT_LOADER_BASE_PATH } from "../../registry.js";
 import type {
   InvariantModelDefinition,
   InvariantSetDefinition,
@@ -32,12 +34,12 @@ export interface LoadResult {
 /**
  * InvariantLoader - Loads and manages invariant configurations
  */
+@injectable()
 export class InvariantLoader {
-  private readonly basePath: string;
-
-  constructor(config?: InvariantLoaderConfig) {
-    this.basePath = config?.basePath || process.cwd();
-  }
+  constructor(
+    @inject(INVARIANT_LOADER_BASE_PATH)
+    private readonly basePath: string,
+  ) {}
 
   /**
    * Load all courses from a directory.
