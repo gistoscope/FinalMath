@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon server/tiny-server.js --port 4001 --root .",
-    "start": "node server/tiny-server.js --port 4001 --root ."
+    "start:dev": "nodemon server.js --port 4001 --root .",
+    "start": "node server.js --port 4001 --root ."
   },
   "keywords": [],
   "author": "",
