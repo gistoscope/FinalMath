@@ -1,24 +1,15 @@
-/**
- * ApiRouter Class
- *
- * Router for main API endpoints.
- */
-
 import { injectable } from "tsyringe";
-import type { ApiController } from "../controllers/ApiController.js";
-import { BaseRouter, type RouterDeps } from "./BaseRouter.js";
+import { ApiController } from "../controllers/ApiController.js";
+import { HttpUtils } from "../utils/HttpUtils.js";
+import { BaseRouter } from "./BaseRouter.js";
 
-export interface ApiRouterDeps extends RouterDeps {
-  apiController: ApiController;
-}
-
-/**
- * ApiRouter - Routes for main API
- */
 @injectable()
 export class ApiRouter extends BaseRouter {
-  constructor(private readonly controller: ApiController) {
-    super();
+  constructor(
+    private readonly controller: ApiController,
+    httpUtils: HttpUtils,
+  ) {
+    super(httpUtils);
     this.registerRoutes();
   }
 

@@ -4,12 +4,21 @@
  * Handles debug and diagnostic endpoints.
  */
 
+import { AstParser } from "@/core/index.js";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { injectable } from "tsyringe";
+import { HttpUtils } from "../utils/HttpUtils.js";
 import { BaseController } from "./BaseController.js";
 
 @injectable()
 export class DebugController extends BaseController {
+  constructor(
+    httpUtils: HttpUtils,
+    private readonly astParser: AstParser,
+  ) {
+    super(httpUtils);
+  }
+
   /**
    * POST /debug/ast - Parse and return AST.
    */
@@ -24,9 +33,7 @@ export class DebugController extends BaseController {
       return;
     }
 
-    // Import AST parser
-    const { AstParser } = await import("../../core/ast/AstParser.js");
-    const ast = AstParser.parse(body.latex);
+    const ast = this.astParser.parse(body.latex);
 
     this.sendJson(res, 200, {
       ok: !!ast,

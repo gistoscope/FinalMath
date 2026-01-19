@@ -31,14 +31,8 @@ export class CorsMiddleware {
    */
   applyHeaders(res: ServerResponse): void {
     res.setHeader("Access-Control-Allow-Origin", this.config.allowOrigin);
-    res.setHeader(
-      "Access-Control-Allow-Methods",
-      this.config.allowMethods.join(", "),
-    );
-    res.setHeader(
-      "Access-Control-Allow-Headers",
-      this.config.allowHeaders.join(", "),
-    );
+    res.setHeader("Access-Control-Allow-Methods", this.config.allowMethods.join(", "));
+    res.setHeader("Access-Control-Allow-Headers", this.config.allowHeaders.join(", "));
     res.setHeader("Access-Control-Max-Age", String(this.config.maxAge));
   }
 

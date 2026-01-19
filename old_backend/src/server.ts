@@ -2,13 +2,14 @@
  * Server Entry Point
  *
  * CLI entry point for the Backend API server.
+ * Uses dynamic imports to ensure reflect-metadata is loaded before any decorated classes.
  */
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { Application } from "./Application.js";
-import { resolveDependencies } from "./registry.js";
+import { Application } from "./Application";
+import { resolveDependencies } from "./registry";
 
-export async function main(): Promise<void> {
+async function bootstrap() {
   try {
     resolveDependencies();
     const app = container.resolve(Application);
@@ -33,5 +34,5 @@ export async function main(): Promise<void> {
   }
 }
 
-// Execute when run directly
-main();
+// Execute
+bootstrap();

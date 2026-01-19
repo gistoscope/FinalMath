@@ -5,13 +5,17 @@
  */
 
 import { injectable } from "tsyringe";
-import type { AuthController } from "../controllers/AuthController.js";
+import { AuthController } from "../controllers/AuthController.js";
+import { HttpUtils } from "../utils/HttpUtils.js";
 import { BaseRouter } from "./BaseRouter.js";
 
 @injectable()
 export class AuthRouter extends BaseRouter {
-  constructor(private readonly controller: AuthController) {
-    super();
+  constructor(
+    private readonly controller: AuthController,
+    httpUtils: HttpUtils,
+  ) {
+    super(httpUtils);
     this.registerRoutes();
   }
 

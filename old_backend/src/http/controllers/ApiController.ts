@@ -7,9 +7,10 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { inject, injectable } from "tsyringe";
 import { InvariantLoader, StepPolicy } from "../../core/index.js";
-import type { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
+import { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
 import type { OrchestratorContext } from "../../core/orchestrator/orchestrator.types.js";
 import { COURSES_DIR } from "../../registry.js";
+import { HttpUtils } from "../utils/HttpUtils.js";
 import { BaseController } from "./BaseController.js";
 
 /**
@@ -20,15 +21,16 @@ export class ApiController extends BaseController {
   private readonly context: OrchestratorContext;
 
   constructor(
-    @inject(COURSES_DIR) coursesDir: string,
     private readonly orchestrator: StepOrchestrator,
     readonly invariantLoader: InvariantLoader,
     private readonly stepPolicy: StepPolicy,
+    @inject(COURSES_DIR) private readonly coursesDir: string,
+    httpUtils: HttpUtils,
   ) {
-    super();
+    super(httpUtils);
     const loadResult = invariantLoader.loadFromDirectory(coursesDir);
     if (loadResult.errors.length > 0) {
-      this.log(
+      console.log(
         `[Application] Invariant loading warnings: ${loadResult.errors.join(", ")}`,
       );
     }
@@ -67,7 +69,8 @@ export class ApiController extends BaseController {
       userId?: string;
       preferredPrimitiveId?: string;
     }>(req);
-
+    console.log("[handleEntryStep]: start");
+    console.log("[handleEntryStep]: body", body);
     if (!body) {
       this.sendError(res, 400, "Invalid request body");
       return;
@@ -93,7 +96,7 @@ export class ApiController extends BaseController {
       this.sendJson(res, 200, result);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.log(`[ApiController] Entry step failed: ${message}`);
+      console.log(`[ApiController] Entry step failed: ${message}`);
       this.sendError(res, 500, "Internal server error");
     }
   }

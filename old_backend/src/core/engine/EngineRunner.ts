@@ -9,10 +9,7 @@
  */
 
 import { container, injectable } from "tsyringe";
-import type {
-  EngineStepExecutionResult,
-  EngineStepInput,
-} from "./engine.types.js";
+import type { EngineStepExecutionResult, EngineStepInput } from "./engine.types.js";
 
 export interface EngineRunnerConfig {
   log?: (message: string) => void;
@@ -28,9 +25,7 @@ export class EngineRunner {
   /**
    * Execute a step transformation.
    */
-  async executeStep(
-    input: EngineStepInput,
-  ): Promise<EngineStepExecutionResult> {
+  async executeStep(input: EngineStepInput): Promise<EngineStepExecutionResult> {
     this.log(`[Engine] Executing primitive: ${input.primitiveId}`);
 
     try {
@@ -62,7 +57,7 @@ export function createEngineRunner(): EngineRunner {
  * Standalone function for backward compatibility
  */
 export async function executeStepViaEngine(
-  input: EngineStepInput,
+  input: EngineStepInput
 ): Promise<EngineStepExecutionResult> {
   const runner = container.resolve(EngineRunner);
   return runner.executeStep(input);

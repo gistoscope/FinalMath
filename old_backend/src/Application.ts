@@ -32,7 +32,7 @@ export class Application {
   }
 
   async start(): Promise<number> {
-    this.initialize();
+    await this.initialize();
     const port = await this.httpServer.start();
     console.log(`[Application] Started on port ${port}`);
     return port;

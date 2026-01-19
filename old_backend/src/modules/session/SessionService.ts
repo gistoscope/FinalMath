@@ -9,8 +9,9 @@
  *  - Manage step history per session
  */
 
-import { injectable } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import type { StepHistory } from "../../core/stepmaster/stepmaster.types.js";
+import { STORAGE_SERVICE } from "../../registry.js";
 import type { UserRole } from "../../types/user.types.js";
 import type { StorageService } from "../storage/StorageService.js";
 
@@ -36,16 +37,20 @@ export interface SessionServiceConfig {
 export class SessionService {
   private readonly log: (message: string) => void = console.log;
 
-  private sessions: Map<string, Session> = new Map();
+  private sessions = new Map<string, Session>();
   private initialized = false;
 
-  constructor(private readonly storage: StorageService) {}
+  constructor(
+    @inject(STORAGE_SERVICE) private readonly storage: StorageService,
+  ) {}
 
   /**
    * Initialize the session service.
    */
   async init(): Promise<void> {
-    if (this.initialized) return;
+    if (this.initialized) {
+      return;
+    }
 
     try {
       const sessions = await this.storage.load<Session[]>(SESSIONS_FILE);
@@ -66,7 +71,7 @@ export class SessionService {
    */
   async createSession(
     sessionId: string,
-    userId: string = "anonymous",
+    userId = "anonymous",
     role: UserRole = "student",
   ): Promise<Session> {
     await this.init();
@@ -108,7 +113,9 @@ export class SessionService {
     } else if (userId && session.userId === "anonymous") {
       // Upgrade session if it was anonymous
       session.userId = userId;
-      if (role) session.role = role;
+      if (role) {
+        session.role = role;
+      }
       await this.saveSessions();
     }
 
@@ -119,7 +126,7 @@ export class SessionService {
    * Update session history.
    */
   async updateHistory(sessionId: string, history: StepHistory): Promise<void> {
-    let session = await this.getSession(sessionId);
+    const session = await this.getSession(sessionId);
 
     if (session) {
       session.history = history;

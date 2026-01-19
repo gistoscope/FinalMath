@@ -1,32 +1,53 @@
+/**
+ * Dependency Injection Registry
+ *
+ * Registers all dependencies with tsyringe container.
+ */
+
 import { container } from "tsyringe";
+import { HttpUtils } from "./http/utils/HttpUtils.js";
+import { JsonFileStorage } from "./modules/storage/JsonFileStorage.js";
+import {
+  COURSES_DIR,
+  DATA_DIR,
+  HTTP_SERVER_ENABLE_CORS,
+  HTTP_SERVER_ENABLE_LOGGING,
+  HTTP_SERVER_LOG,
+  HTTP_SERVER_PORT,
+  HTTP_SERVER_ROUTERS,
+  HTTP_UTILS,
+  INVARIANT_LOADER_BASE_PATH,
+  JWT_SECRET,
+  JWT_SECRET_EXPIRY,
+  STORAGE_SERVICE,
+} from "./tokens.js";
 
-export const DATA_DIR = Symbol("DATA_DIR");
-export const COURSES_DIR = Symbol("COURSES_DIR");
-export const JWT_SECRET = Symbol("JWT_SECRET");
-export const JWT_SECRET_EXPIRY = Symbol("JWT_SECRET_EXPIRY");
-// InvariantLoader
-export const INVARIANT_LOADER_BASE_PATH = Symbol("INVARIANT_LOADER_BASE_PATH");
-
-// HttpServer
-export const HTTP_SERVER_PORT = Symbol("HTTP_SERVER_PORT");
-export const HTTP_SERVER_ROUTERS = Symbol("HTTP_SERVER_ROUTERS");
-export const HTTP_SERVER_LOG = Symbol("HTTP_SERVER_LOG");
-export const HTTP_SERVER_ENABLE_CORS = Symbol("HTTP_SERVER_ENABLE_CORS");
-export const HTTP_SERVER_ENABLE_LOGGING = Symbol("HTTP_SERVER_ENABLE_LOGGING");
+// Re-export tokens for backward compatibility
+export * from "./tokens.js";
 
 export const resolveDependencies = () => {
+  // Storage (register first since other services depend on it)
   container.register(DATA_DIR, {
     useValue: "data",
   });
+  container.register(STORAGE_SERVICE, {
+    useClass: JsonFileStorage,
+  });
+
+  // Courses
   container.register(COURSES_DIR, {
     useValue: "config/courses",
   });
+
+  // Auth
   container.register(JWT_SECRET, {
     useValue: process.env.JWT_SECRET || "",
   });
   container.register(JWT_SECRET_EXPIRY, {
     useValue: process.env.JWT_SECRET_EXPIRY || "1h",
   });
+
+  // InvariantLoader
   container.register(INVARIANT_LOADER_BASE_PATH, {
     useValue: process.cwd(),
   });
@@ -47,9 +68,13 @@ export const resolveDependencies = () => {
   container.register(HTTP_SERVER_ENABLE_LOGGING, {
     useValue: true,
   });
+  container.register(HTTP_UTILS, {
+    useClass: HttpUtils,
+  });
 };
 
-export type Constructor = new (...args: any[]) => {};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Constructor = new (...args: any[]) => object;
 
 export const registerRouters = (routers: Constructor[]) => {
   const resolvedRouter = routers.map((router) => container.resolve(router));

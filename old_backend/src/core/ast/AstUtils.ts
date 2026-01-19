@@ -22,15 +22,21 @@ export class AstUtils {
    * Path format: "root", "term[0]", "term[1].term[0]", etc.
    */
   getNodeAt(ast: AstNode, path: string): AstNode | undefined {
-    if (!ast || !path) return undefined;
+    if (!ast || !path) {
+      return undefined;
+    }
 
-    if (path === "root") return ast;
+    if (path === "root") {
+      return ast;
+    }
 
     const parts = path.split(".");
     let current: AstNode | undefined = ast;
 
     for (const part of parts) {
-      if (!current) return undefined;
+      if (!current) {
+        return undefined;
+      }
 
       const match = part.match(/^term\[(\d+)\]$/);
       if (match && current.type === "binaryOp") {
@@ -60,11 +66,7 @@ export class AstUtils {
     return this.replaceRecursive(ast, path.split("."), replacement);
   }
 
-  private replaceRecursive(
-    node: AstNode,
-    pathParts: string[],
-    replacement: AstNode,
-  ): AstNode {
+  private replaceRecursive(node: AstNode, pathParts: string[], replacement: AstNode): AstNode {
     if (pathParts.length === 0) {
       return { ...replacement };
     }
@@ -170,11 +172,7 @@ export function getNodeAt(ast: AstNode, path: string): AstNode | undefined {
   return astUtils.getNodeAt(ast, path);
 }
 
-export function replaceNodeAt(
-  ast: AstNode,
-  path: string,
-  replacement: AstNode,
-): AstNode {
+export function replaceNodeAt(ast: AstNode, path: string, replacement: AstNode): AstNode {
   return astUtils.replaceNodeAt(ast, path, replacement);
 }
 

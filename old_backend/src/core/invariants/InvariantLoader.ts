@@ -38,7 +38,7 @@ export interface LoadResult {
 export class InvariantLoader {
   constructor(
     @inject(INVARIANT_LOADER_BASE_PATH)
-    private readonly basePath: string,
+    private readonly basePath: string
   ) {}
 
   /**
@@ -73,9 +73,7 @@ export class InvariantLoader {
         const validation = InvariantValidator.validate(data);
         if (!validation.ok) {
           errors.push(
-            `Validation failed for ${file}: ${validation.issues
-              .map((i) => i.message)
-              .join(", ")}`,
+            `Validation failed for ${file}: ${validation.issues.map((i) => i.message).join(", ")}`
           );
           continue;
         }
@@ -134,11 +132,7 @@ export class InvariantLoader {
 
       const validation = InvariantValidator.validate(data);
       if (!validation.ok) {
-        errors.push(
-          `Validation failed: ${validation.issues
-            .map((i) => i.message)
-            .join(", ")}`,
-        );
+        errors.push(`Validation failed: ${validation.issues.map((i) => i.message).join(", ")}`);
         return {
           registry: this.createEmptyRegistry(),
           errors,
@@ -172,9 +166,7 @@ export class InvariantLoader {
   /**
    * Merge multiple models into one.
    */
-  static mergeModels(
-    ...models: InvariantModelDefinition[]
-  ): InvariantModelDefinition {
+  static mergeModels(...models: InvariantModelDefinition[]): InvariantModelDefinition {
     const allPrimitives: PrimitiveDefinition[] = [];
     const allSets: InvariantSetDefinition[] = [];
     const seenPrimitiveIds = new Set<string>();

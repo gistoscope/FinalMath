@@ -4,10 +4,7 @@
  * Type definitions for step decision making.
  */
 
-import type {
-  MapMasterCandidate,
-  MapMasterCandidateId,
-} from "../mapmaster/mapmaster.types.js";
+import type { MapMasterCandidate, MapMasterCandidateId } from "../mapmaster/mapmaster.types.js";
 
 export type StepMasterDecisionStatus = "chosen" | "no-candidates";
 

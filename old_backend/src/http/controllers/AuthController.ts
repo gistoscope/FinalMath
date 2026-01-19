@@ -6,13 +6,17 @@
 
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { injectable } from "tsyringe";
-import type { AuthService } from "../../modules/auth/AuthService.js";
+import { AuthService } from "../../modules/auth/AuthService.js";
+import { HttpUtils } from "../utils/HttpUtils.js";
 import { BaseController } from "./BaseController.js";
 
 @injectable()
 export class AuthController extends BaseController {
-  constructor(private readonly authService: AuthService) {
-    super();
+  constructor(
+    private readonly authService: AuthService,
+    httpUtils: HttpUtils,
+  ) {
+    super(httpUtils);
   }
 
   /**
@@ -49,7 +53,7 @@ export class AuthController extends BaseController {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.log(`[AuthController] Login failed: ${message}`);
+      console.log(`[AuthController] Login failed: ${message}`);
       this.sendError(res, 500, "Internal server error");
     }
   }
@@ -94,7 +98,7 @@ export class AuthController extends BaseController {
       if (message.includes("already exists")) {
         this.sendError(res, 409, message);
       } else {
-        this.log(`[AuthController] Register failed: ${message}`);
+        console.log(`[AuthController] Register failed: ${message}`);
         this.sendError(res, 500, "Internal server error");
       }
     }

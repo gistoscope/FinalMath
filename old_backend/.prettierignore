@@ -1,0 +1,17 @@
+# Build outputs
+dist/
+coverage/
+
+# Dependencies
+node_modules/
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Data and config
+*.json
+!.prettierrc
+data/
+config/

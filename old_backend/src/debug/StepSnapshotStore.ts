@@ -28,8 +28,8 @@ export interface StepSnapshot {
  */
 @singleton()
 export class StepSnapshotStore {
-  private snapshots: Map<string, StepSnapshot> = new Map();
-  private sessionIndex: Map<string, string[]> = new Map();
+  private snapshots = new Map<string, StepSnapshot>();
+  private sessionIndex = new Map<string, string[]>();
   private maxSnapshots = 500;
 
   /**
@@ -74,7 +74,9 @@ export class StepSnapshotStore {
    */
   update(id: string, updates: Partial<StepSnapshot>): boolean {
     const existing = this.snapshots.get(id);
-    if (!existing) return false;
+    if (!existing) {
+      return false;
+    }
 
     this.snapshots.set(id, { ...existing, ...updates });
     return true;

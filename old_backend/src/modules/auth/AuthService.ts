@@ -11,7 +11,11 @@
 
 import jwt from "jsonwebtoken";
 import { inject, injectable } from "tsyringe";
-import { JWT_SECRET, JWT_SECRET_EXPIRY } from "../../registry.js";
+import {
+  JWT_SECRET,
+  JWT_SECRET_EXPIRY,
+  STORAGE_SERVICE,
+} from "../../registry.js";
 import type { AuthToken, User, UserRole } from "../../types/user.types.js";
 import type { StorageService } from "../storage/StorageService.js";
 
@@ -24,22 +28,26 @@ const USERS_FILE = "users.json";
 export class AuthService {
   private readonly log: (message: string) => void = console.log;
 
-  private users: Map<string, User> = new Map();
+  private users = new Map<string, User>();
   private initialized = false;
   private initPromise: Promise<void> | null = null;
 
   constructor(
     @inject(JWT_SECRET) private readonly secretKey: string,
     @inject(JWT_SECRET_EXPIRY) private readonly tokenExpiry: string,
-    private readonly storage: StorageService,
+    @inject(STORAGE_SERVICE) private readonly storage: StorageService,
   ) {}
 
   /**
    * Initialize the auth service by loading users from storage.
    */
   async init(): Promise<void> {
-    if (this.initialized) return;
-    if (this.initPromise) return this.initPromise;
+    if (this.initialized) {
+      return;
+    }
+    if (this.initPromise) {
+      return this.initPromise;
+    }
 
     this.initPromise = this.loadUsers();
     return this.initPromise;
@@ -138,7 +146,9 @@ export class AuthService {
    * Generate a JWT token string.
    */
   generateTokenString(token: AuthToken): string {
-    return jwt.sign(token, this.secretKey, { expiresIn: this.tokenExpiry });
+    return jwt.sign(token as object, this.secretKey, {
+      expiresIn: this.tokenExpiry as jwt.SignOptions["expiresIn"],
+    });
   }
 
   /**

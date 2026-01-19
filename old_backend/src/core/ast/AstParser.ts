@@ -49,11 +49,15 @@ export class AstParser {
 
     // Build left-associative tree
     let left = this.parseMultiplicative(parts[0].value);
-    if (!left) return undefined;
+    if (!left) {
+      return undefined;
+    }
 
     for (let i = 1; i < parts.length; i++) {
       const right = this.parseMultiplicative(parts[i].value);
-      if (!right) return undefined;
+      if (!right) {
+        return undefined;
+      }
 
       left = {
         type: "binaryOp",
@@ -74,11 +78,15 @@ export class AstParser {
     }
 
     let left = this.parsePrimary(parts[0].value);
-    if (!left) return undefined;
+    if (!left) {
+      return undefined;
+    }
 
     for (let i = 1; i < parts.length; i++) {
       const right = this.parsePrimary(parts[i].value);
-      if (!right) return undefined;
+      if (!right) {
+        return undefined;
+      }
 
       left = {
         type: "binaryOp",
@@ -134,11 +142,8 @@ export class AstParser {
     return undefined;
   }
 
-  private splitAtTopLevel(
-    expr: string,
-    operators: string[],
-  ): Array<{ value: string; op: string }> {
-    const result: Array<{ value: string; op: string }> = [];
+  private splitAtTopLevel(expr: string, operators: string[]): { value: string; op: string }[] {
+    const result: { value: string; op: string }[] = [];
     let current = "";
     let depth = 0;
     let i = 0;

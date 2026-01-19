@@ -11,7 +11,7 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { inject, injectable } from "tsyringe";
-import { DATA_DIR } from "../../registry.js";
+import { DATA_DIR } from "../../tokens.js";
 import type { StorageService } from "./StorageService.js";
 
 export interface JsonFileStorageConfig {

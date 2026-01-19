@@ -38,7 +38,7 @@ export class StepOrchestrator {
     private readonly engineRunner: EngineRunner,
     private readonly stepHistoryService: StepHistoryService,
     private readonly astUtils: AstUtils,
-    private readonly astParser: AstParser,
+    private readonly astParser: AstParser
   ) {}
 
   async updateHistory(sessionId: string, history: StepHistory) {
@@ -53,16 +53,12 @@ export class StepOrchestrator {
    */
   async runStep(
     ctx: OrchestratorContext,
-    req: OrchestratorStepRequest,
+    req: OrchestratorStepRequest
   ): Promise<OrchestratorStepResult> {
     this.log(`[Orchestrator] Processing step for session: ${req.sessionId}`);
 
     // 1. Load history from Session Service
-    let history = await this.getHistory(
-      req.sessionId,
-      req.userId,
-      req.userRole,
-    );
+    let history = await this.getHistory(req.sessionId, req.userId, req.userRole);
 
     // 2. Parse expression
     const ast = this.astParser.parse(req.expressionLatex);
@@ -88,10 +84,7 @@ export class StepOrchestrator {
     }
 
     // 4. Check for integer click (return choice)
-    const clickedNode = this.astUtils.getNodeAt(
-      ast,
-      req.selectionPath || "root",
-    );
+    const clickedNode = this.astUtils.getNodeAt(ast, req.selectionPath || "root");
     if (clickedNode?.type === "integer" && !req.preferredPrimitiveId) {
       return {
         status: "choice",
@@ -114,11 +107,7 @@ export class StepOrchestrator {
 
     // 5. Handle preferred primitive (direct execution)
     if (req.preferredPrimitiveId === "P.INT_TO_FRAC") {
-      const result = this.executeIntToFrac(
-        ast,
-        req.selectionPath || "root",
-        req.expressionLatex,
-      );
+      const result = this.executeIntToFrac(ast, req.selectionPath || "root", req.expressionLatex);
       if (result.ok) {
         history = this.stepHistoryService.updateLastStep(history, {
           expressionAfter: result.newLatex,
@@ -149,9 +138,7 @@ export class StepOrchestrator {
       registry: ctx.invariantRegistry,
     });
 
-    this.log(
-      `[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates`,
-    );
+    this.log(`[Orchestrator] MapMaster returned ${mapResult.candidates.length} candidates`);
 
     if (mapResult.candidates.length === 0) {
       return {
@@ -183,7 +170,7 @@ export class StepOrchestrator {
 
     // 8. Execute the chosen primitive
     const chosenCandidate = mapResult.candidates.find(
-      (c) => c.id === decision.decision.chosenCandidateId,
+      (c) => c.id === decision.decision.chosenCandidateId
     );
 
     if (!chosenCandidate || decision.primitivesToApply.length === 0) {
@@ -230,7 +217,7 @@ export class StepOrchestrator {
   private executeIntToFrac(
     ast: any,
     targetPath: string,
-    _originalLatex: string,
+    _originalLatex: string
   ): { ok: boolean; newLatex?: string; error?: string } {
     const targetNode = this.astUtils.getNodeAt(ast, targetPath);
 

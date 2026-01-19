@@ -96,7 +96,7 @@ export class InvariantValidator {
   private validatePrimitives(
     primitivesRaw: unknown[],
     primitiveIds: Set<PrimitiveId>,
-    issues: InvariantModelIssue[],
+    issues: InvariantModelIssue[]
   ): void {
     for (let i = 0; i < primitivesRaw.length; i++) {
       const prim = primitivesRaw[i];
@@ -116,23 +116,11 @@ export class InvariantValidator {
       // Required string fields
       this.validateStringField(p.id, `${path}.id`, "id", issues, true);
       this.validateStringField(p.name, `${path}.name`, "name", issues, true);
-      this.validateStringField(
-        p.description,
-        `${path}.description`,
-        "description",
-        issues,
-        true,
-      );
+      this.validateStringField(p.description, `${path}.description`, "description", issues, true);
 
       // Optional fields
       if (p.category !== undefined) {
-        this.validateStringField(
-          p.category,
-          `${path}.category`,
-          "category",
-          issues,
-          false,
-        );
+        this.validateStringField(p.category, `${path}.category`, "category", issues, false);
       }
 
       if (p.tags !== undefined) {
@@ -140,13 +128,7 @@ export class InvariantValidator {
       }
 
       if (p.pattern !== undefined) {
-        this.validateStringField(
-          p.pattern,
-          `${path}.pattern`,
-          "pattern",
-          issues,
-          false,
-        );
+        this.validateStringField(p.pattern, `${path}.pattern`, "pattern", issues, false);
       }
 
       if (p.resultPattern !== undefined) {
@@ -155,7 +137,7 @@ export class InvariantValidator {
           `${path}.resultPattern`,
           "resultPattern",
           issues,
-          false,
+          false
         );
       }
 
@@ -178,7 +160,7 @@ export class InvariantValidator {
   private validateInvariantSets(
     invariantSetsRaw: unknown[],
     primitiveIds: Set<PrimitiveId>,
-    issues: InvariantModelIssue[],
+    issues: InvariantModelIssue[]
   ): void {
     const setIds = new Set<InvariantSetId>();
 
@@ -200,20 +182,8 @@ export class InvariantValidator {
       // Required fields
       this.validateStringField(s.id, `${path}.id`, "id", issues, true);
       this.validateStringField(s.name, `${path}.name`, "name", issues, true);
-      this.validateStringField(
-        s.description,
-        `${path}.description`,
-        "description",
-        issues,
-        true,
-      );
-      this.validateStringField(
-        s.version,
-        `${path}.version`,
-        "version",
-        issues,
-        true,
-      );
+      this.validateStringField(s.description, `${path}.description`, "description", issues, true);
+      this.validateStringField(s.version, `${path}.version`, "version", issues, true);
 
       if (!Array.isArray(s.rules)) {
         issues.push({
@@ -247,7 +217,7 @@ export class InvariantValidator {
     rules: unknown[],
     setPath: string,
     primitiveIds: Set<PrimitiveId>,
-    issues: InvariantModelIssue[],
+    issues: InvariantModelIssue[]
   ): void {
     const ruleIds = new Set<InvariantRuleId>();
 
@@ -268,33 +238,24 @@ export class InvariantValidator {
 
       // Required fields
       this.validateStringField(r.id, `${rulePath}.id`, "id", issues, true);
-      this.validateStringField(
-        r.title,
-        `${rulePath}.title`,
-        "title",
-        issues,
-        true,
-      );
+      this.validateStringField(r.title, `${rulePath}.title`, "title", issues, true);
       this.validateStringField(
         r.shortStudentLabel,
         `${rulePath}.shortStudentLabel`,
         "shortStudentLabel",
         issues,
-        true,
+        true
       );
       this.validateStringField(
         r.description,
         `${rulePath}.description`,
         "description",
         issues,
-        true,
+        true
       );
 
       // Level validation
-      if (
-        typeof r.level !== "string" ||
-        !VALID_LEVELS.includes(r.level as InvariantRuleLevel)
-      ) {
+      if (typeof r.level !== "string" || !VALID_LEVELS.includes(r.level as InvariantRuleLevel)) {
         issues.push({
           code: "INVALID_RULE_LEVEL",
           path: `${rulePath}.level`,
@@ -316,10 +277,7 @@ export class InvariantValidator {
         // Referential integrity
         for (let k = 0; k < r.primitiveIds.length; k++) {
           const primId = r.primitiveIds[k];
-          if (
-            typeof primId === "string" &&
-            !primitiveIds.has(primId as PrimitiveId)
-          ) {
+          if (typeof primId === "string" && !primitiveIds.has(primId as PrimitiveId)) {
             issues.push({
               code: "UNKNOWN_PRIMITIVE_ID",
               path: `${rulePath}.primitiveIds[${k}]`,
@@ -350,7 +308,7 @@ export class InvariantValidator {
     path: string,
     fieldName: string,
     issues: InvariantModelIssue[],
-    required: boolean,
+    required: boolean
   ): void {
     if (required && (typeof value !== "string" || value === "")) {
       issues.push({
@@ -358,11 +316,7 @@ export class InvariantValidator {
         path,
         message: `${fieldName} must be a non-empty string`,
       });
-    } else if (
-      !required &&
-      value !== undefined &&
-      (typeof value !== "string" || value === "")
-    ) {
+    } else if (!required && value !== undefined && (typeof value !== "string" || value === "")) {
       issues.push({
         code: "INVALID_FIELD",
         path,
@@ -375,7 +329,7 @@ export class InvariantValidator {
     value: unknown,
     path: string,
     fieldName: string,
-    issues: InvariantModelIssue[],
+    issues: InvariantModelIssue[]
   ): void {
     if (!Array.isArray(value)) {
       issues.push({
@@ -394,7 +348,7 @@ export class InvariantValidator {
 
   private buildNormalizedModel(
     primitivesRaw: unknown[],
-    invariantSetsRaw: unknown[],
+    invariantSetsRaw: unknown[]
   ): InvariantModelDefinition {
     const primitives: PrimitiveDefinition[] = primitivesRaw.map((prim) => {
       const p = prim as Record<string, unknown>;
@@ -404,56 +358,38 @@ export class InvariantValidator {
         description: p.description as string,
         category: p.category as string | undefined,
         tags: Array.isArray(p.tags) ? (p.tags as string[]).slice() : [],
-        pattern:
-          typeof p.pattern === "string" ? (p.pattern as string) : undefined,
+        pattern: typeof p.pattern === "string" ? (p.pattern as string) : undefined,
         resultPattern:
-          typeof p.resultPattern === "string"
-            ? (p.resultPattern as string)
-            : undefined,
+          typeof p.resultPattern === "string" ? (p.resultPattern as string) : undefined,
       };
     });
 
-    const invariantSets: InvariantSetDefinition[] = invariantSetsRaw.map(
-      (set) => {
-        const s = set as Record<string, unknown>;
-        const rules: InvariantRuleDefinition[] = (s.rules as unknown[]).map(
-          (rule) => {
-            const r = rule as Record<string, unknown>;
-            return {
-              id: r.id as InvariantRuleId,
-              title: r.title as string,
-              shortStudentLabel: r.shortStudentLabel as string,
-              teacherLabel:
-                typeof r.teacherLabel === "string"
-                  ? (r.teacherLabel as string)
-                  : undefined,
-              description: r.description as string,
-              level: r.level as InvariantRuleLevel,
-              tags: (r.tags as string[]).slice(),
-              primitiveIds: (
-                r.primitiveIds as string[]
-              ).slice() as PrimitiveId[],
-              scenarioId:
-                typeof r.scenarioId === "string"
-                  ? (r.scenarioId as string)
-                  : undefined,
-              teachingTag:
-                typeof r.teachingTag === "string"
-                  ? (r.teachingTag as string)
-                  : undefined,
-            };
-          },
-        );
-
+    const invariantSets: InvariantSetDefinition[] = invariantSetsRaw.map((set) => {
+      const s = set as Record<string, unknown>;
+      const rules: InvariantRuleDefinition[] = (s.rules as unknown[]).map((rule) => {
+        const r = rule as Record<string, unknown>;
         return {
-          id: s.id as InvariantSetId,
-          name: s.name as string,
-          description: s.description as string,
-          version: s.version as string,
-          rules,
+          id: r.id as InvariantRuleId,
+          title: r.title as string,
+          shortStudentLabel: r.shortStudentLabel as string,
+          teacherLabel: typeof r.teacherLabel === "string" ? (r.teacherLabel as string) : undefined,
+          description: r.description as string,
+          level: r.level as InvariantRuleLevel,
+          tags: (r.tags as string[]).slice(),
+          primitiveIds: (r.primitiveIds as string[]).slice() as PrimitiveId[],
+          scenarioId: typeof r.scenarioId === "string" ? (r.scenarioId as string) : undefined,
+          teachingTag: typeof r.teachingTag === "string" ? (r.teachingTag as string) : undefined,
         };
-      },
-    );
+      });
+
+      return {
+        id: s.id as InvariantSetId,
+        name: s.name as string,
+        description: s.description as string,
+        version: s.version as string,
+        rules,
+      };
+    });
 
     return { primitives, invariantSets };
   }

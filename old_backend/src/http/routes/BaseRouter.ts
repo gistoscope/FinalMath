@@ -31,6 +31,7 @@ export interface RouterDeps {
 export abstract class BaseRouter {
   protected readonly routes: Route[] = [];
   protected readonly log: (message: string) => void = console.log;
+  constructor(private readonly httpUtils: HttpUtils) {}
 
   /**
    * Register routes - to be implemented by subclasses.
@@ -81,7 +82,7 @@ export abstract class BaseRouter {
         try {
           let body: unknown = undefined;
           if (method === "POST" || method === "PUT" || method === "PATCH") {
-            body = await HttpUtils.parseJsonBody(req);
+            body = await this.httpUtils.parseJsonBody(req);
           }
           await route.handler(req, res, body);
           return true;
@@ -89,7 +90,7 @@ export abstract class BaseRouter {
           const message =
             error instanceof Error ? error.message : String(error);
           this.log(`[Router] Handler error: ${message}`);
-          HttpUtils.sendEngineError(res, 500);
+          this.httpUtils.sendEngineError(res, 500);
           return true;
         }
       }

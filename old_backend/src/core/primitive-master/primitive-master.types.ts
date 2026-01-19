@@ -78,7 +78,7 @@ export interface SelectedOutcome {
     label: string;
     enginePrimitiveId: string;
   };
-  matches?: Array<{
+  matches?: {
     row: {
       id: string;
       label?: string;
@@ -88,5 +88,5 @@ export interface SelectedOutcome {
       actionNodeId?: string;
       clickTarget?: ClickTarget;
     };
-  }>;
+  }[];
 }

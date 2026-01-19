@@ -1,11 +1,15 @@
 import { injectable } from "tsyringe";
-import type { DebugController } from "../controllers/DebugController.js";
+import { DebugController } from "../controllers/DebugController.js";
+import { HttpUtils } from "../utils/HttpUtils.js";
 import { BaseRouter } from "./BaseRouter.js";
 
 @injectable()
 export class DebugRouter extends BaseRouter {
-  constructor(private readonly controller: DebugController) {
-    super();
+  constructor(
+    private readonly controller: DebugController,
+    httpUtils: HttpUtils,
+  ) {
+    super(httpUtils);
     this.registerRoutes();
   }
 

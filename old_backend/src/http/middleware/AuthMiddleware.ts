@@ -1,36 +1,25 @@
-/**
- * AuthMiddleware Class
- *
- * Validates authentication tokens on protected routes.
- */
-
 import type { IncomingMessage, ServerResponse } from "node:http";
+import { injectable } from "tsyringe";
 import type { AuthService } from "../../modules/auth/AuthService.js";
 import type { AuthToken } from "../../types/user.types.js";
 import { HttpUtils } from "../utils/HttpUtils.js";
-
-export interface AuthMiddlewareConfig {
-  authService: AuthService;
-  publicPaths?: string[];
-}
 
 export interface AuthenticatedRequest extends IncomingMessage {
   user?: AuthToken;
 }
 
-/**
- * AuthMiddleware - Authentication validation
- */
+@injectable()
 export class AuthMiddleware {
-  private readonly authService: AuthService;
-  private readonly publicPaths: Set<string>;
+  private readonly publicPaths: Set<string> = new Set([
+    "/health",
+    "/auth/login",
+    "/auth/register",
+  ]);
 
-  constructor(config: AuthMiddlewareConfig) {
-    this.authService = config.authService;
-    this.publicPaths = new Set(
-      config.publicPaths || ["/health", "/auth/login", "/auth/register"],
-    );
-  }
+  constructor(
+    private readonly authService: AuthService,
+    private readonly httpUtils: HttpUtils,
+  ) {}
 
   /**
    * Check if a path is public (no auth required).
@@ -56,7 +45,7 @@ export class AuthMiddleware {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      HttpUtils.sendJson(res, 401, { error: "Unauthorized" });
+      this.httpUtils.sendJson(res, 401, { error: "Unauthorized" });
       return false;
     }
 
@@ -64,7 +53,7 @@ export class AuthMiddleware {
     const token = this.authService.validateToken(tokenString);
 
     if (!token) {
-      HttpUtils.sendJson(res, 401, { error: "Invalid token" });
+      this.httpUtils.sendJson(res, 401, { error: "Invalid token" });
       return false;
     }
 

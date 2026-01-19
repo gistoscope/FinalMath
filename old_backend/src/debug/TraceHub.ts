@@ -49,10 +49,10 @@ export class TraceHub {
   /**
    * Emit a trace event.
    */
-  static emit(
-    event: Omit<TraceEvent, "timestamp" | "traceId" | "stepId">,
-  ): void {
-    if (!this.enabled) return;
+  static emit(event: Omit<TraceEvent, "timestamp" | "traceId" | "stepId">): void {
+    if (!this.enabled) {
+      return;
+    }
 
     const fullEvent: TraceEvent = {
       ...event,
@@ -121,6 +121,8 @@ export function generateTraceId(): string {
  * Shorten LaTeX for logging.
  */
 export function shortLatex(latex: string, maxLen = 30): string {
-  if (latex.length <= maxLen) return latex;
+  if (latex.length <= maxLen) {
+    return latex;
+  }
   return latex.slice(0, maxLen - 3) + "...";
 }

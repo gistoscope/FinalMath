@@ -18,10 +18,7 @@ import type {
 } from "./primitive-master.types.js";
 
 export interface PrimitiveMasterDeps {
-  parseLatexToAst: (
-    latex: string,
-    invariantSetId?: string,
-  ) => Promise<unknown | undefined>;
+  parseLatexToAst: (latex: string, invariantSetId?: string) => Promise<unknown | undefined>;
   log?: (message: string) => void;
 }
 
@@ -47,9 +44,7 @@ export class PrimitiveMaster {
     ast?: unknown;
     preferredPrimitiveId?: string;
   }): Promise<SelectedOutcome> {
-    this.log(
-      `[PrimitiveMaster] Resolving primitive for: ${params.click.nodeId}`,
-    );
+    this.log(`[PrimitiveMaster] Resolving primitive for: ${params.click.nodeId}`);
 
     // This is a simplified implementation
     // The full implementation would include pattern matching logic
@@ -66,10 +61,7 @@ export class PrimitiveMaster {
     this.log(`[PrimitiveMaster] Matching for: ${request.expressionLatex}`);
 
     try {
-      const ast = await this.deps.parseLatexToAst(
-        request.expressionLatex,
-        request.invariantSetId,
-      );
+      const ast = await this.deps.parseLatexToAst(request.expressionLatex, request.invariantSetId);
 
       if (!ast) {
         return {
@@ -100,9 +92,11 @@ export class PrimitiveMaster {
   resolveClickTarget(
     ast: unknown,
     selectionPath: string,
-    operatorIndex?: number,
+    operatorIndex?: number
   ): ClickTarget | undefined {
-    if (!ast) return undefined;
+    if (!ast) {
+      return undefined;
+    }
 
     const kind = this.classifyNode(ast, selectionPath);
     return {
@@ -117,7 +111,7 @@ export class PrimitiveMaster {
    */
   private classifyNode(
     _ast: unknown,
-    _path: string,
+    _path: string
   ): "operator" | "number" | "fractionBar" | "bracket" | "other" {
     // Simplified classification
     return "other";
@@ -127,8 +121,6 @@ export class PrimitiveMaster {
 /**
  * Factory for backward compatibility
  */
-export function createPrimitiveMaster(
-  deps: PrimitiveMasterDeps,
-): PrimitiveMaster {
+export function createPrimitiveMaster(deps: PrimitiveMasterDeps): PrimitiveMaster {
   return new PrimitiveMaster(deps);
 }

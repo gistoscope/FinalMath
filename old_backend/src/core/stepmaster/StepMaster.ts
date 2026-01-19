@@ -11,11 +11,7 @@
 
 import { injectable } from "tsyringe";
 import type { MapMasterCandidate } from "../mapmaster/mapmaster.types.js";
-import type {
-  StepHistorySnapshot,
-  StepMasterInput,
-  StepMasterResult,
-} from "./stepmaster.types.js";
+import type { StepHistorySnapshot, StepMasterInput, StepMasterResult } from "./stepmaster.types.js";
 
 export interface StepMasterConfig {
   log?: (message: string) => void;
@@ -40,7 +36,7 @@ export class StepMaster {
   decide(input: StepMasterInput): StepMasterResult {
     const { candidates, history, policy, actionTarget } = input;
     this.log(
-      `[StepMaster] Deciding among ${candidates.length} candidates. Last step exists: ${!!history.lastStep}`,
+      `[StepMaster] Deciding among ${candidates.length} candidates. Last step exists: ${!!history.lastStep}`
     );
 
     let validCandidates = candidates;
@@ -52,7 +48,7 @@ export class StepMaster {
         const match = c.targetPath === actionTarget;
         if (!match) {
           this.log(
-            `[StepMaster] Candidate ${c.id} rejected: target ${c.targetPath} != ${actionTarget}`,
+            `[StepMaster] Candidate ${c.id} rejected: target ${c.targetPath} != ${actionTarget}`
           );
         }
         return match;
@@ -104,9 +100,11 @@ export class StepMaster {
    */
   private isCandidateRepetitive(
     candidate: MapMasterCandidate,
-    history: StepHistorySnapshot,
+    history: StepHistorySnapshot
   ): boolean {
-    if (!history.lastStep) return false;
+    if (!history.lastStep) {
+      return false;
+    }
 
     const lastStep = history.lastStep;
 

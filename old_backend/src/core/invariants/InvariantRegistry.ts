@@ -47,10 +47,7 @@ export class InvariantRegistry {
   private readonly ruleMap: Map<string, InvariantRuleDefinition>;
 
   /** Reverse index: for each primitive id, list of rules that reference it. */
-  private readonly primitiveToRulesMap: Map<
-    PrimitiveId,
-    InvariantRuleDefinition[]
-  >;
+  private readonly primitiveToRulesMap: Map<PrimitiveId, InvariantRuleDefinition[]>;
 
   constructor(config: InvariantRegistryConfig) {
     const { model } = config;
@@ -121,10 +118,7 @@ export class InvariantRegistry {
   /**
    * Find a single rule by set id and rule id.
    */
-  findRule(
-    setId: InvariantSetId,
-    ruleId: InvariantRuleId,
-  ): InvariantRuleDefinition | undefined {
+  findRule(setId: InvariantSetId, ruleId: InvariantRuleId): InvariantRuleDefinition | undefined {
     const key = this.makeRuleKey(setId, ruleId);
     const found = this.ruleMap.get(key);
     return found ? this.cloneRule(found) : undefined;

@@ -5,11 +5,7 @@
  */
 
 import { container, singleton } from "tsyringe";
-import type {
-  StepHistory,
-  StepHistoryEntry,
-  StepHistorySnapshot,
-} from "./stepmaster.types.js";
+import type { StepHistory, StepHistoryEntry, StepHistorySnapshot } from "./stepmaster.types.js";
 
 export interface StepHistoryUpdateData {
   expressionBefore?: string;
@@ -76,10 +72,7 @@ export class StepHistoryService {
   /**
    * Update the last step in the history.
    */
-  updateLastStep(
-    history: StepHistory,
-    data: Partial<StepHistoryUpdateData>,
-  ): StepHistory {
+  updateLastStep(history: StepHistory, data: Partial<StepHistoryUpdateData>): StepHistory {
     if (history.entries.length === 0) {
       return history;
     }
@@ -135,14 +128,14 @@ export function getSnapshot(history: StepHistory): StepHistorySnapshot {
 
 export function appendStepFromResult(
   history: StepHistory,
-  data: StepHistoryUpdateData,
+  data: StepHistoryUpdateData
 ): StepHistory {
   return stepHistory.appendStep(history, data);
 }
 
 export function updateLastStep(
   history: StepHistory,
-  data: Partial<StepHistoryUpdateData>,
+  data: Partial<StepHistoryUpdateData>
 ): StepHistory {
   return stepHistory.updateLastStep(history, data);
 }

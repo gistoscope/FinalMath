@@ -77,9 +77,7 @@ export class HttpServer implements IHttpServer {
       this.loggerMiddleware.logResponse(req, res, startTime);
     } catch (error) {
       this.log(
-        `[HttpServer] Unhandled error: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
+        `[HttpServer] Unhandled error: ${error instanceof Error ? error.message : String(error)}`,
       );
       this.httpUtils.sendEngineError(res, 500);
       this.loggerMiddleware.logResponse(req, res, startTime);
