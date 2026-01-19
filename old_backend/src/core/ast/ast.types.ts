@@ -1,69 +1,65 @@
 /**
- * AST Types
+ * MapMaster AST & Parser (TzV1.1)
  *
- * Type definitions for Abstract Syntax Tree nodes.
+ * Provides a robust, recursive descent parser for mathematical expressions
+ * supporting integers, fractions, mixed numbers, and binary operations.
  */
 
-export type AstNodeType =
-  | "integer"
-  | "fraction"
-  | "mixed"
-  | "variable"
-  | "binaryOp"
-  | "unaryOp"
-  | "group";
+export type NodeType = "integer" | "fraction" | "mixed" | "binaryOp" | "variable";
 
-export interface BaseAstNode {
-  type: AstNodeType;
-  id?: string;
+export interface BaseNode {
+  type: NodeType;
 }
 
-export interface IntegerNode extends BaseAstNode {
+export interface IntegerNode extends BaseNode {
   type: "integer";
   value: string;
 }
 
-export interface FractionNode extends BaseAstNode {
+export interface FractionNode extends BaseNode {
   type: "fraction";
   numerator: string;
   denominator: string;
 }
 
-export interface MixedNode extends BaseAstNode {
+export interface MixedNumberNode extends BaseNode {
   type: "mixed";
   whole: string;
   numerator: string;
   denominator: string;
 }
 
-export interface VariableNode extends BaseAstNode {
-  type: "variable";
-  name: string;
-}
-
-export interface BinaryOpNode extends BaseAstNode {
+export interface BinaryOpNode extends BaseNode {
   type: "binaryOp";
-  op: "+" | "-" | "*" | "/";
+  op: "+" | "-" | "*" | "/" | "\\div";
   left: AstNode;
   right: AstNode;
 }
 
-export interface UnaryOpNode extends BaseAstNode {
-  type: "unaryOp";
-  op: "-" | "+";
-  operand: AstNode;
+export interface VariableNode extends BaseNode {
+  type: "variable";
+  name: string;
 }
 
-export interface GroupNode extends BaseAstNode {
-  type: "group";
-  child: AstNode;
-}
+export type AstNode = IntegerNode | FractionNode | MixedNumberNode | BinaryOpNode | VariableNode;
 
-export type AstNode =
-  | IntegerNode
-  | FractionNode
-  | MixedNode
-  | VariableNode
-  | BinaryOpNode
-  | UnaryOpNode
-  | GroupNode;
+// --- Tokenizer ---
+
+export type TokenType =
+  | "NUMBER"
+  | "OP"
+  | "LPAREN"
+  | "RPAREN"
+  | "SLASH"
+  | "SPACE"
+  | "IDENTIFIER"
+  | "LBRACE"
+  | "RBRACE"
+  | "COMMAND"
+  | "COLON";
+
+export interface Token {
+  type: TokenType;
+  value: string;
+  pos: number;
+}
