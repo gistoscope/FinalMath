@@ -13,7 +13,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 
 import { inject, injectable } from "tsyringe";
-import { INVARIANT_LOADER_BASE_PATH } from "../../registry.js";
+import { COURSES_DIR, INVARIANT_LOADER_BASE_PATH } from "../../registry.js";
 import type {
   InvariantModelDefinition,
   InvariantSetDefinition,
@@ -38,14 +38,15 @@ export interface LoadResult {
 export class InvariantLoader {
   constructor(
     @inject(INVARIANT_LOADER_BASE_PATH)
-    private readonly basePath: string
+    private readonly basePath: string,
+    @inject(COURSES_DIR) readonly coursesDir: string
   ) {}
 
   /**
    * Load all courses from a directory.
    */
-  loadFromDirectory(dirPath: string): LoadResult {
-    const fullPath = path.resolve(this.basePath, dirPath);
+  loadFromDirectory(): LoadResult {
+    const fullPath = path.resolve(this.basePath, this.coursesDir);
     const errors: string[] = [];
 
     if (!fs.existsSync(fullPath)) {

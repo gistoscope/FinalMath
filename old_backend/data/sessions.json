@@ -1,7 +1,7 @@
 [
   {
     "id": "default-session",
-    "userId": "anonymous",
+    "userId": "student",
     "role": "student",
     "history": {
       "entries": [
@@ -18683,6 +18683,17 @@
           "expressionBefore": "\\frac{1}{2} \\cdot 1 + \\frac{1}{3} \\cdot 1",
           "errorCode": "no-candidates",
           "expressionAfter": "\\frac{1}{3} \\cdot \\frac{5}{5} + \\frac{2}{5} \\cdot \\frac{3}{3}"
+        },
+        {
+          "id": "step-1768845830281-08ok88cdkz1",
+          "timestamp": 1768845830281,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "term[1].num",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
         }
       ]
     },
@@ -27215,5 +27226,131 @@
       ]
     },
     "createdAt": 1768815702975
+  },
+  {
+    "id": "session-1768845729708",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768845729749-1gsgltisl9m",
+          "timestamp": 1768845729749,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768845729740
+  },
+  {
+    "id": "session-1768845783807",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768845783823-qet2oh7s4",
+          "timestamp": 1768845783823,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768845783816
+  },
+  {
+    "id": "session-1768845864011",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768845864079-5x1fs5zj0j6",
+          "timestamp": 1768845864079,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768845864066
+  },
+  {
+    "id": "session-1768845949620",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768845949671-0ltkqwgrudf",
+          "timestamp": 1768845949671,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768845949658
+  },
+  {
+    "id": "session-1768845975236",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768845975285-gymsrsypgq",
+          "timestamp": 1768845975285,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768845975275
+  },
+  {
+    "id": "session-1768846023439",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768846023456-7mqf0ifwjiq",
+          "timestamp": 1768846023456,
+          "expressionBefore": "2+3",
+          "expressionAfter": "2+3",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768846023449
   }
 ]

@@ -5,11 +5,7 @@
  */
 
 import type { Request, Response } from "express";
-import { inject, injectable } from "tsyringe";
-import { InvariantLoader, StepPolicy } from "../../core/index.js";
-import { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
-import type { OrchestratorContext } from "../../core/orchestrator/orchestrator.types.js";
-import { COURSES_DIR } from "../../registry.js";
+import { injectable } from "tsyringe";
 import { Controller } from "../core/decorator/controller.decorator.js";
 import { GET, POST } from "../core/decorator/routes.decorator.js";
 
@@ -19,23 +15,7 @@ import { GET, POST } from "../core/decorator/routes.decorator.js";
 @injectable()
 @Controller("")
 export class ApiController {
-  private readonly context: OrchestratorContext;
-
-  constructor(
-    private readonly orchestrator: StepOrchestrator,
-    readonly invariantLoader: InvariantLoader,
-    private readonly stepPolicy: StepPolicy,
-    @inject(COURSES_DIR) private readonly coursesDir: string
-  ) {
-    const loadResult = invariantLoader.loadFromDirectory(coursesDir);
-    if (loadResult.errors.length > 0) {
-      console.log(`[Application] Invariant loading warnings: ${loadResult.errors.join(", ")}`);
-    }
-    this.context = {
-      invariantRegistry: loadResult.registry,
-      policy: this.stepPolicy.createStudentPolicy(),
-    };
-  }
+  constructor() {}
 
   /**
    * GET /health - Health check endpoint.
@@ -50,50 +30,9 @@ export class ApiController {
    */
   @POST("/api/entry-step")
   @POST("/engine/step")
-  @POST("/api/orchestrator/v5/step")
+  // @POST("/api/orchestrator/v5/step")
   async handleEntryStep(req: Request, res: Response): Promise<void> {
-    const body = req.body as {
-      sessionId?: string;
-      courseId?: string;
-      expressionLatex?: string;
-      selectionPath?: string;
-      operatorIndex?: number;
-      userRole?: string;
-      userId?: string;
-      preferredPrimitiveId?: string;
-    };
-
-    console.log("[handleEntryStep]: start");
-    console.log("[handleEntryStep]: body", body);
-
-    if (!body) {
-      res.status(400).json({ error: "Invalid request body" });
-      return;
-    }
-
-    if (!body.sessionId || !body.courseId || !body.expressionLatex) {
-      res.status(400).json({ error: "Missing required fields" });
-      return;
-    }
-
-    try {
-      const result = await this.orchestrator.runStep(this.context, {
-        sessionId: body.sessionId,
-        courseId: body.courseId,
-        expressionLatex: body.expressionLatex,
-        selectionPath: body.selectionPath || null,
-        operatorIndex: body.operatorIndex,
-        userRole: (body.userRole as "student" | "teacher") || "student",
-        userId: body.userId,
-        preferredPrimitiveId: body.preferredPrimitiveId,
-      });
-
-      res.status(200).json(result);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      console.log(`[ApiController] Entry step failed: ${message}`);
-      res.status(500).json({ error: "Internal server error" });
-    }
+    // clg
   }
 
   /**

@@ -3,6 +3,7 @@ import { registerController } from "./http/core/controller/register-controller.j
 import { HttpServer } from "./http/HttpServer.js";
 import { ApiController, AuthController, DebugController } from "./http/index.js";
 import { AuthService } from "./modules/auth/AuthService.js";
+import { OrchestratorController } from "./modules/orchestrator/orchestrator.controller.js";
 import { SessionService } from "./modules/session/SessionService.js";
 
 @injectable()
@@ -21,7 +22,12 @@ export class Application {
   }
 
   private setupHttpServer(): void {
-    registerController(this.httpServer.app, [ApiController, DebugController, AuthController]);
+    registerController(this.httpServer.app, [
+      ApiController,
+      DebugController,
+      AuthController,
+      OrchestratorController,
+    ]);
   }
 
   async start(): Promise<number> {

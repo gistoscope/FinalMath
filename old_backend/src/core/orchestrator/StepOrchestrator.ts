@@ -30,6 +30,7 @@ import type {
 @injectable()
 export class StepOrchestrator {
   private readonly log: (message: string) => void = console.log;
+  private stepReq: OrchestratorStepRequest | null = null;
 
   constructor(
     private readonly sessionService: SessionService,
@@ -41,12 +42,16 @@ export class StepOrchestrator {
     private readonly astParser: AstParser
   ) {}
 
-  async updateHistory(sessionId: string, history: StepHistory) {
-    return this.sessionService.updateHistory(sessionId, history);
+  async updateHistory(history: StepHistory) {
+    return this.sessionService.updateHistory(this.stepReq?.sessionId || "", history);
   }
 
-  async getHistory(sessionId: string, userId?: string, userRole?: string) {
-    return this.sessionService.getHistory(sessionId, userId, userRole as any);
+  async getHistory() {
+    return this.sessionService.getHistory(
+      this.stepReq?.sessionId || "",
+      this.stepReq?.userId || "",
+      this.stepReq?.userRole || "student"
+    );
   }
   /**
    * Run a single step orchestration.
@@ -56,12 +61,15 @@ export class StepOrchestrator {
     req: OrchestratorStepRequest
   ): Promise<OrchestratorStepResult> {
     this.log(`[Orchestrator] Processing step for session: ${req.sessionId}`);
+    this.stepReq = req;
+
+    const { courseId, selectionPath, expressionLatex, operatorIndex, preferredPrimitiveId } = req;
 
     // 1. Load history from Session Service
-    let history = await this.getHistory(req.sessionId, req.userId, req.userRole);
+    let history = await this.getHistory();
 
     // 2. Parse expression
-    const ast = this.astParser.parse(req.expressionLatex);
+    const ast = this.astParser.parse(expressionLatex);
     if (!ast) {
       return {
         status: "engine-error",
@@ -71,21 +79,21 @@ export class StepOrchestrator {
     }
 
     // 3. Get target invariant set
-    const targetSet = ctx.invariantRegistry.getInvariantSetById(req.courseId);
+    const targetSet = ctx.invariantRegistry.getInvariantSetById(courseId);
     if (!targetSet) {
       return {
         status: "engine-error",
         engineResult: {
           ok: false,
-          errorCode: `course-not-found: ${req.courseId}`,
+          errorCode: `course-not-found: ${courseId}`,
         },
         history,
       };
     }
 
     // 4. Check for integer click (return choice)
-    const clickedNode = this.astUtils.getNodeAt(ast, req.selectionPath || "root");
-    if (clickedNode?.type === "integer" && !req.preferredPrimitiveId) {
+    const clickedNode = this.astUtils.getNodeAt(ast, selectionPath || "root");
+    if (clickedNode?.type === "integer" && !preferredPrimitiveId) {
       return {
         status: "choice",
         engineResult: null,
@@ -95,24 +103,24 @@ export class StepOrchestrator {
             id: "int-to-frac",
             label: "Convert to fraction",
             primitiveId: "P.INT_TO_FRAC",
-            targetNodeId: req.selectionPath || "root",
+            targetNodeId: selectionPath || "root",
           },
         ],
         debugInfo: {
           clickedNodeType: "integer",
-          clickedNodePath: req.selectionPath,
+          clickedNodePath: selectionPath,
         },
       };
     }
 
     // 5. Handle preferred primitive (direct execution)
-    if (req.preferredPrimitiveId === "P.INT_TO_FRAC") {
-      const result = this.executeIntToFrac(ast, req.selectionPath || "root", req.expressionLatex);
+    if (preferredPrimitiveId === "P.INT_TO_FRAC") {
+      const result = this.executeIntToFrac(ast, selectionPath || "root", expressionLatex);
       if (result.ok) {
         history = this.stepHistoryService.updateLastStep(history, {
           expressionAfter: result.newLatex,
         });
-        await this.updateHistory(req.sessionId, history);
+        await this.updateHistory(history);
       }
       return {
         status: result.ok ? "step-applied" : "engine-error",
@@ -131,9 +139,9 @@ export class StepOrchestrator {
 
     // 6. Generate candidates via MapMaster
     const mapResult = this.mapMaster.generate({
-      expressionLatex: req.expressionLatex,
-      selectionPath: req.selectionPath,
-      operatorIndex: req.operatorIndex,
+      expressionLatex: expressionLatex,
+      selectionPath: selectionPath,
+      operatorIndex: operatorIndex,
       invariantSetIds: [targetSet.id],
       registry: ctx.invariantRegistry,
     });
@@ -154,7 +162,7 @@ export class StepOrchestrator {
       candidates: mapResult.candidates,
       history: snapshot,
       policy: ctx.policy,
-      actionTarget: req.selectionPath,
+      actionTarget: selectionPath,
     });
 
     if (decision.decision.status === "no-candidates") {
@@ -182,7 +190,7 @@ export class StepOrchestrator {
     }
 
     const engineResult = await this.engineRunner.executeStep({
-      expressionLatex: req.expressionLatex,
+      expressionLatex: expressionLatex,
       primitiveId: decision.primitivesToApply[0].id,
       targetPath: chosenCandidate.targetPath,
       bindings: chosenCandidate.bindings,
@@ -191,13 +199,13 @@ export class StepOrchestrator {
     // 9. Update history
     if (engineResult.ok && engineResult.newExpressionLatex) {
       history = this.stepHistoryService.appendStep(history, {
-        expressionBefore: req.expressionLatex,
+        expressionBefore: expressionLatex,
         expressionAfter: engineResult.newExpressionLatex,
         invariantRuleId: chosenCandidate.invariantRuleId,
         targetPath: chosenCandidate.targetPath,
         primitiveIds: chosenCandidate.primitiveIds,
       });
-      await this.updateHistory(req.sessionId, history);
+      await this.updateHistory(history);
     }
 
     return {
