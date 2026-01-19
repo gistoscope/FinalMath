@@ -4,32 +4,25 @@
  * Handles authentication endpoints.
  */
 
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Request, Response } from "express";
 import { injectable } from "tsyringe";
 import { AuthService } from "../../modules/auth/AuthService.js";
-import { HttpUtils } from "../utils/HttpUtils.js";
-import { BaseController } from "./BaseController.js";
 
 @injectable()
-export class AuthController extends BaseController {
-  constructor(
-    private readonly authService: AuthService,
-    httpUtils: HttpUtils,
-  ) {
-    super(httpUtils);
-  }
+export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * POST /auth/login - User login.
    */
-  async handleLogin(req: IncomingMessage, res: ServerResponse): Promise<void> {
-    const body = await this.parseBody<{
+  async handleLogin(req: Request, res: Response): Promise<void> {
+    const body = req.body as {
       username?: string;
       password?: string;
-    }>(req);
+    };
 
     if (!body?.username || !body?.password) {
-      this.sendError(res, 400, "Missing username or password");
+      res.status(400).json({ error: "Missing username or password" });
       return;
     }
 
@@ -37,12 +30,12 @@ export class AuthController extends BaseController {
       const token = await this.authService.login(body.username, body.password);
 
       if (!token) {
-        this.sendError(res, 401, "Invalid credentials");
+        res.status(401).json({ error: "Invalid credentials" });
         return;
       }
 
       const tokenString = this.authService.generateTokenString(token);
-      this.sendJson(res, 200, {
+      res.status(200).json({
         ok: true,
         token: tokenString,
         user: {
@@ -54,38 +47,31 @@ export class AuthController extends BaseController {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.log(`[AuthController] Login failed: ${message}`);
-      this.sendError(res, 500, "Internal server error");
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
   /**
    * POST /auth/register - User registration.
    */
-  async handleRegister(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const body = await this.parseBody<{
+  async handleRegister(req: Request, res: Response): Promise<void> {
+    const body = req.body as {
       username?: string;
       password?: string;
       role?: string;
-    }>(req);
+    };
 
     if (!body?.username || !body?.password) {
-      this.sendError(res, 400, "Missing username or password");
+      res.status(400).json({ error: "Missing username or password" });
       return;
     }
 
     const role = (body.role as "student" | "teacher") || "student";
 
     try {
-      const user = await this.authService.register(
-        body.username,
-        body.password,
-        role,
-      );
+      const user = await this.authService.register(body.username, body.password, role);
 
-      this.sendJson(res, 201, {
+      res.status(201).json({
         ok: true,
         user: {
           userId: user.id,
@@ -96,10 +82,10 @@ export class AuthController extends BaseController {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (message.includes("already exists")) {
-        this.sendError(res, 409, message);
+        res.status(409).json({ error: message });
       } else {
         console.log(`[AuthController] Register failed: ${message}`);
-        this.sendError(res, 500, "Internal server error");
+        res.status(500).json({ error: "Internal server error" });
       }
     }
   }
@@ -107,14 +93,11 @@ export class AuthController extends BaseController {
   /**
    * POST /auth/validate - Validate token.
    */
-  async handleValidateToken(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
+  async handleValidateToken(req: Request, res: Response): Promise<void> {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      this.sendError(res, 401, "Missing or invalid authorization header");
+      res.status(401).json({ error: "Missing or invalid authorization header" });
       return;
     }
 
@@ -122,11 +105,11 @@ export class AuthController extends BaseController {
     const token = this.authService.validateToken(tokenString);
 
     if (!token) {
-      this.sendError(res, 401, "Invalid token");
+      res.status(401).json({ error: "Invalid token" });
       return;
     }
 
-    this.sendJson(res, 200, {
+    res.status(200).json({
       ok: true,
       user: {
         userId: token.userId,

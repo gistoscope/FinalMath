@@ -4,35 +4,29 @@
  * Handles main API endpoints for student-facing and core operations.
  */
 
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Request, Response } from "express";
 import { inject, injectable } from "tsyringe";
 import { InvariantLoader, StepPolicy } from "../../core/index.js";
 import { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
 import type { OrchestratorContext } from "../../core/orchestrator/orchestrator.types.js";
 import { COURSES_DIR } from "../../registry.js";
-import { HttpUtils } from "../utils/HttpUtils.js";
-import { BaseController } from "./BaseController.js";
 
 /**
  * ApiController - Main API endpoints
  */
 @injectable()
-export class ApiController extends BaseController {
+export class ApiController {
   private readonly context: OrchestratorContext;
 
   constructor(
     private readonly orchestrator: StepOrchestrator,
     readonly invariantLoader: InvariantLoader,
     private readonly stepPolicy: StepPolicy,
-    @inject(COURSES_DIR) private readonly coursesDir: string,
-    httpUtils: HttpUtils,
+    @inject(COURSES_DIR) private readonly coursesDir: string
   ) {
-    super(httpUtils);
     const loadResult = invariantLoader.loadFromDirectory(coursesDir);
     if (loadResult.errors.length > 0) {
-      console.log(
-        `[Application] Invariant loading warnings: ${loadResult.errors.join(", ")}`,
-      );
+      console.log(`[Application] Invariant loading warnings: ${loadResult.errors.join(", ")}`);
     }
     this.context = {
       invariantRegistry: loadResult.registry,
@@ -43,23 +37,15 @@ export class ApiController extends BaseController {
   /**
    * GET /health - Health check endpoint.
    */
-  async handleHealth(
-    _req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.end("ok");
+  async handleHealth(_req: Request, res: Response): Promise<void> {
+    res.status(200).send("ok");
   }
 
   /**
    * POST /api/entry-step - Main entry step endpoint.
    */
-  async handleEntryStep(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const body = await this.parseBody<{
+  async handleEntryStep(req: Request, res: Response): Promise<void> {
+    const body = req.body as {
       sessionId?: string;
       courseId?: string;
       expressionLatex?: string;
@@ -68,16 +54,18 @@ export class ApiController extends BaseController {
       userRole?: string;
       userId?: string;
       preferredPrimitiveId?: string;
-    }>(req);
+    };
+
     console.log("[handleEntryStep]: start");
     console.log("[handleEntryStep]: body", body);
+
     if (!body) {
-      this.sendError(res, 400, "Invalid request body");
+      res.status(400).json({ error: "Invalid request body" });
       return;
     }
 
     if (!body.sessionId || !body.courseId || !body.expressionLatex) {
-      this.sendError(res, 400, "Missing required fields");
+      res.status(400).json({ error: "Missing required fields" });
       return;
     }
 
@@ -93,53 +81,35 @@ export class ApiController extends BaseController {
         preferredPrimitiveId: body.preferredPrimitiveId,
       });
 
-      this.sendJson(res, 200, result);
+      res.status(200).json(result);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       console.log(`[ApiController] Entry step failed: ${message}`);
-      this.sendError(res, 500, "Internal server error");
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
   /**
    * POST /api/undo-step - Undo step endpoint.
    */
-  async handleUndoStep(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const body = await this.parseBody<{ sessionId?: string }>(req);
+  async handleUndoStep(req: Request, res: Response): Promise<void> {
+    const body = req.body as { sessionId?: string };
 
     if (!body?.sessionId) {
-      this.sendError(res, 400, "Missing sessionId");
+      res.status(400).json({ error: "Missing sessionId" });
       return;
     }
 
     // TODO: Implement undo logic
-    this.sendJson(res, 200, { ok: true, message: "Undo not yet implemented" });
+    res.status(200).json({ ok: true, message: "Undo not yet implemented" });
   }
 
   /**
    * POST /api/hint-request - Hint request endpoint.
    */
-  async handleHintRequest(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const body = await this.parseBody<{
-      sessionId?: string;
-      courseId?: string;
-      expressionLatex?: string;
-      selectionPath?: string;
-    }>(req);
-
-    if (!body) {
-      this.sendError(res, 400, "Invalid request body");
-      return;
-    }
-
+  async handleHintRequest(req: Request, res: Response): Promise<void> {
     // TODO: Implement hint logic
-    this.sendJson(res, 200, {
+    res.status(200).json({
       hintText: "Try simplifying the expression",
       suggestedPrimitiveId: null,
     });

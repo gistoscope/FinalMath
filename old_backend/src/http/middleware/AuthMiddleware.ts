@@ -1,25 +1,21 @@
-import type { IncomingMessage, ServerResponse } from "node:http";
+import { NextFunction, Request, Response } from "express";
 import { injectable } from "tsyringe";
 import type { AuthService } from "../../modules/auth/AuthService.js";
 import type { AuthToken } from "../../types/user.types.js";
-import { HttpUtils } from "../utils/HttpUtils.js";
 
-export interface AuthenticatedRequest extends IncomingMessage {
-  user?: AuthToken;
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthToken;
+    }
+  }
 }
 
 @injectable()
 export class AuthMiddleware {
-  private readonly publicPaths: Set<string> = new Set([
-    "/health",
-    "/auth/login",
-    "/auth/register",
-  ]);
+  private readonly publicPaths: Set<string> = new Set(["/health", "/auth/login", "/auth/register"]);
 
-  constructor(
-    private readonly authService: AuthService,
-    private readonly httpUtils: HttpUtils,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   /**
    * Check if a path is public (no auth required).
@@ -29,36 +25,32 @@ export class AuthMiddleware {
   }
 
   /**
-   * Authenticate a request.
-   * Returns true if authenticated or public, false if unauthorized.
+   * Express middleware handler
    */
-  authenticate(
-    req: AuthenticatedRequest,
-    res: ServerResponse,
-    path: string,
-  ): boolean {
+  handle = (req: Request, res: Response, next: NextFunction): void => {
     // Skip auth for public paths
-    if (this.isPublicPath(path)) {
-      return true;
+    if (this.isPublicPath(req.path)) {
+      next();
+      return;
     }
 
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      this.httpUtils.sendJson(res, 401, { error: "Unauthorized" });
-      return false;
+      res.status(401).json({ error: "Unauthorized" });
+      return;
     }
 
     const tokenString = authHeader.slice(7);
     const token = this.authService.validateToken(tokenString);
 
     if (!token) {
-      this.httpUtils.sendJson(res, 401, { error: "Invalid token" });
-      return false;
+      res.status(401).json({ error: "Invalid token" });
+      return;
     }
 
     // Attach user to request
     req.user = token;
-    return true;
-  }
+    next();
+  };
 }

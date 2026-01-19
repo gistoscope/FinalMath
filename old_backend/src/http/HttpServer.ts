@@ -1,22 +1,9 @@
-/**
- * HttpServer Class
- *
- * Main HTTP server for the Engine API.
- * Coordinates routers and middleware to handle incoming requests.
- */
-
-import http, {
-  type IncomingMessage,
-  type Server,
-  type ServerResponse,
-} from "node:http";
-
-import { container, inject, injectable } from "tsyringe";
+import cors from "cors";
+import express, { Express } from "express";
+import http from "node:http";
+import { inject, injectable } from "tsyringe";
 import { HTTP_SERVER_PORT, HTTP_SERVER_ROUTERS } from "../registry.js";
-import { CorsMiddleware } from "./middleware/CorsMiddleware.js";
-import { LoggerMiddleware } from "./middleware/LoggerMiddleware.js";
-import type { BaseRouter } from "./routes/BaseRouter.js";
-import { HttpUtils } from "./utils/HttpUtils.js";
+import { IRouter } from "./interfaces.js";
 
 export interface IHttpServer {
   start(): Promise<number>;
@@ -24,63 +11,40 @@ export interface IHttpServer {
 }
 
 /**
- * HttpServer - Main HTTP server implementation
+ * HttpServer - Express-based HTTP server
  */
 @injectable()
 export class HttpServer implements IHttpServer {
-  private readonly log: (message: string) => void = console.log;
-  private readonly server: Server;
+  private readonly app: Express;
+  private server: http.Server | null = null;
 
   constructor(
-    private readonly corsMiddleware: CorsMiddleware,
-    private readonly loggerMiddleware: LoggerMiddleware,
-    @inject(HTTP_SERVER_ROUTERS)
-    private readonly routers: BaseRouter[],
-    @inject(HTTP_SERVER_PORT) private readonly port: number,
-    private readonly httpUtils: HttpUtils,
+    @inject(HTTP_SERVER_ROUTERS) private readonly routers: IRouter[],
+    @inject(HTTP_SERVER_PORT) private readonly port: number
   ) {
-    // Create HTTP server
-    this.server = http.createServer(this.handleRequest.bind(this));
+    this.app = express();
+    this.setupMiddleware();
+    this.setupRoutes();
   }
 
-  /**
-   * Main request handler.
-   */
-  private async handleRequest(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const startTime = this.loggerMiddleware.logRequest(req);
+  private setupMiddleware(): void {
+    this.app.use(cors());
+    this.app.use(express.json());
 
-    try {
-      // Apply CORS headers
-      this.corsMiddleware.applyHeaders(res);
+    // Simple logger
+    this.app.use((req, res, next) => {
+      const start = Date.now();
+      res.on("finish", () => {
+        const duration = Date.now() - start;
+        console.log(`[HTTP] ${req.method} ${req.originalUrl} ${res.statusCode} (${duration}ms)`);
+      });
+      next();
+    });
+  }
 
-      // Handle preflight
-      if (this.corsMiddleware.handlePreflight(req.method ?? "GET", res)) {
-        return;
-      }
-
-      const url = this.httpUtils.extractUrlPath(req);
-
-      // Try each router
-      for (const router of this.routers) {
-        const handled = await router.handle(req, res, url);
-        if (handled) {
-          this.loggerMiddleware.logResponse(req, res, startTime);
-          return;
-        }
-      }
-
-      // No router handled the request
-      this.httpUtils.sendNotFound(res);
-      this.loggerMiddleware.logResponse(req, res, startTime);
-    } catch (error) {
-      this.log(
-        `[HttpServer] Unhandled error: ${error instanceof Error ? error.message : String(error)}`,
-      );
-      this.httpUtils.sendEngineError(res, 500);
-      this.loggerMiddleware.logResponse(req, res, startTime);
+  private setupRoutes(): void {
+    for (const router of this.routers) {
+      router.register(this.app);
     }
   }
 
@@ -89,16 +53,9 @@ export class HttpServer implements IHttpServer {
    */
   start(): Promise<number> {
     return new Promise((resolve) => {
-      this.server.listen(this.port, () => {
-        const address = this.server.address();
-        const actualPort =
-          typeof address === "object" && address && "port" in address
-            ? (address as { port: number }).port
-            : this.port;
-
-        this.log(`[HttpServer] Listening on http://localhost:${actualPort}/`);
-
-        resolve(actualPort);
+      this.server = this.app.listen(this.port, () => {
+        console.log(`[HttpServer] Listening on http://localhost:${this.port}/`);
+        resolve(this.port);
       });
     });
   }
@@ -108,21 +65,23 @@ export class HttpServer implements IHttpServer {
    */
   stop(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!this.server) {
+        resolve();
+        return;
+      }
       this.server.close((err) => {
         if (err) {
           reject(err);
           return;
         }
-        this.log("[HttpServer] Stopped.");
+        console.log("[HttpServer] Stopped.");
         resolve();
       });
     });
   }
 }
 
-/**
- * Factory function to create an HTTP server.
- */
 export function createHttpServer(): IHttpServer {
-  return container.resolve(HttpServer);
+  // Container resolution is handled in Application.ts
+  throw new Error("Use DI container to resolve HttpServer");
 }

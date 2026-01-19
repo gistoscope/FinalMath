@@ -5,7 +5,6 @@
  */
 
 import { container } from "tsyringe";
-import { HttpUtils } from "./http/utils/HttpUtils.js";
 import { JsonFileStorage } from "./modules/storage/JsonFileStorage.js";
 import {
   COURSES_DIR,
@@ -15,7 +14,6 @@ import {
   HTTP_SERVER_LOG,
   HTTP_SERVER_PORT,
   HTTP_SERVER_ROUTERS,
-  HTTP_UTILS,
   INVARIANT_LOADER_BASE_PATH,
   JWT_SECRET,
   JWT_SECRET_EXPIRY,
@@ -54,7 +52,7 @@ export const resolveDependencies = () => {
 
   // HttpServer
   container.register(HTTP_SERVER_PORT, {
-    useValue: process.env.HTTP_SERVER_PORT || 4201,
+    useValue: Number(process.env.HTTP_SERVER_PORT) || 4201,
   });
   container.register(HTTP_SERVER_ROUTERS, {
     useValue: [],
@@ -67,9 +65,6 @@ export const resolveDependencies = () => {
   });
   container.register(HTTP_SERVER_ENABLE_LOGGING, {
     useValue: true,
-  });
-  container.register(HTTP_UTILS, {
-    useClass: HttpUtils,
   });
 };
 

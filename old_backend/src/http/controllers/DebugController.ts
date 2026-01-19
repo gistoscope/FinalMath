@@ -5,37 +5,27 @@
  */
 
 import { AstParser } from "@/core/index.js";
-import type { IncomingMessage, ServerResponse } from "node:http";
+import type { Request, Response } from "express";
 import { injectable } from "tsyringe";
-import { HttpUtils } from "../utils/HttpUtils.js";
-import { BaseController } from "./BaseController.js";
 
 @injectable()
-export class DebugController extends BaseController {
-  constructor(
-    httpUtils: HttpUtils,
-    private readonly astParser: AstParser,
-  ) {
-    super(httpUtils);
-  }
+export class DebugController {
+  constructor(private readonly astParser: AstParser) {}
 
   /**
    * POST /debug/ast - Parse and return AST.
    */
-  async handleAstDebug(
-    req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
-    const body = await this.parseBody<{ latex?: string }>(req);
+  async handleAstDebug(req: Request, res: Response): Promise<void> {
+    const body = req.body as { latex?: string };
 
     if (!body?.latex) {
-      this.sendError(res, 400, "Missing latex field");
+      res.status(400).json({ error: "Missing latex field" });
       return;
     }
 
     const ast = this.astParser.parse(body.latex);
 
-    this.sendJson(res, 200, {
+    res.status(200).json({
       ok: !!ast,
       latex: body.latex,
       ast,
@@ -45,12 +35,9 @@ export class DebugController extends BaseController {
   /**
    * POST /debug/mapmaster - Debug MapMaster output.
    */
-  async handleMapMasterDebug(
-    _req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
+  async handleMapMasterDebug(_req: Request, res: Response): Promise<void> {
     // TODO: Implement MapMaster debug
-    this.sendJson(res, 200, {
+    res.status(200).json({
       ok: true,
       message: "MapMaster debug not yet implemented",
     });
@@ -59,12 +46,9 @@ export class DebugController extends BaseController {
   /**
    * POST /debug/step - Debug step execution.
    */
-  async handleStepDebug(
-    _req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
+  async handleStepDebug(_req: Request, res: Response): Promise<void> {
     // TODO: Implement step debug
-    this.sendJson(res, 200, {
+    res.status(200).json({
       ok: true,
       message: "Step debug not yet implemented",
     });
@@ -73,12 +57,9 @@ export class DebugController extends BaseController {
   /**
    * GET /debug/trace - Get trace data.
    */
-  async handleTraceDebug(
-    _req: IncomingMessage,
-    res: ServerResponse,
-  ): Promise<void> {
+  async handleTraceDebug(_req: Request, res: Response): Promise<void> {
     // TODO: Implement trace retrieval
-    this.sendJson(res, 200, {
+    res.status(200).json({
       ok: true,
       traces: [],
     });
