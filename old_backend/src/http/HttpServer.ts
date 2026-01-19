@@ -2,8 +2,7 @@ import cors from "cors";
 import express, { Express } from "express";
 import http from "node:http";
 import { inject, injectable } from "tsyringe";
-import { HTTP_SERVER_PORT, HTTP_SERVER_ROUTERS } from "../registry.js";
-import { IRouter } from "./interfaces.js";
+import { HTTP_SERVER_PORT } from "../registry.js";
 
 export interface IHttpServer {
   start(): Promise<number>;
@@ -15,16 +14,12 @@ export interface IHttpServer {
  */
 @injectable()
 export class HttpServer implements IHttpServer {
-  private readonly app: Express;
+  readonly app: Express;
   private server: http.Server | null = null;
 
-  constructor(
-    @inject(HTTP_SERVER_ROUTERS) private readonly routers: IRouter[],
-    @inject(HTTP_SERVER_PORT) private readonly port: number
-  ) {
+  constructor(@inject(HTTP_SERVER_PORT) private readonly port: number) {
     this.app = express();
     this.setupMiddleware();
-    this.setupRoutes();
   }
 
   private setupMiddleware(): void {
@@ -40,12 +35,6 @@ export class HttpServer implements IHttpServer {
       });
       next();
     });
-  }
-
-  private setupRoutes(): void {
-    for (const router of this.routers) {
-      router.register(this.app);
-    }
   }
 
   /**

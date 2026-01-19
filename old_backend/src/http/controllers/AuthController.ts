@@ -7,14 +7,18 @@
 import type { Request, Response } from "express";
 import { injectable } from "tsyringe";
 import { AuthService } from "../../modules/auth/AuthService.js";
+import { Controller } from "../core/decorator/controller.decorator.js";
+import { POST } from "../core/decorator/routes.decorator.js";
 
 @injectable()
+@Controller("/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   /**
    * POST /auth/login - User login.
    */
+  @POST("/login")
   async handleLogin(req: Request, res: Response): Promise<void> {
     const body = req.body as {
       username?: string;
@@ -54,6 +58,7 @@ export class AuthController {
   /**
    * POST /auth/register - User registration.
    */
+  @POST("/register")
   async handleRegister(req: Request, res: Response): Promise<void> {
     const body = req.body as {
       username?: string;
@@ -93,6 +98,7 @@ export class AuthController {
   /**
    * POST /auth/validate - Validate token.
    */
+  @POST("/validate")
   async handleValidateToken(req: Request, res: Response): Promise<void> {
     const authHeader = req.headers.authorization;
 

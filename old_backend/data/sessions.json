@@ -27194,5 +27194,26 @@
       ]
     },
     "createdAt": 1768814029682
+  },
+  {
+    "id": "session-1768815702951",
+    "userId": "anonymous",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768815702979-gfh3y8lnut",
+          "timestamp": 1768815702979,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.INT_PLUS_FRAC",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_PLUS_FRAC"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768815702975
   }
 ]

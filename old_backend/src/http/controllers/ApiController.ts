@@ -10,11 +10,14 @@ import { InvariantLoader, StepPolicy } from "../../core/index.js";
 import { StepOrchestrator } from "../../core/orchestrator/StepOrchestrator.js";
 import type { OrchestratorContext } from "../../core/orchestrator/orchestrator.types.js";
 import { COURSES_DIR } from "../../registry.js";
+import { Controller } from "../core/decorator/controller.decorator.js";
+import { GET, POST } from "../core/decorator/routes.decorator.js";
 
 /**
  * ApiController - Main API endpoints
  */
 @injectable()
+@Controller("")
 export class ApiController {
   private readonly context: OrchestratorContext;
 
@@ -37,6 +40,7 @@ export class ApiController {
   /**
    * GET /health - Health check endpoint.
    */
+  @GET("/health")
   async handleHealth(_req: Request, res: Response): Promise<void> {
     res.status(200).send("ok");
   }
@@ -44,6 +48,9 @@ export class ApiController {
   /**
    * POST /api/entry-step - Main entry step endpoint.
    */
+  @POST("/api/entry-step")
+  @POST("/engine/step")
+  @POST("/api/orchestrator/v5/step")
   async handleEntryStep(req: Request, res: Response): Promise<void> {
     const body = req.body as {
       sessionId?: string;
@@ -92,6 +99,7 @@ export class ApiController {
   /**
    * POST /api/undo-step - Undo step endpoint.
    */
+  @POST("/api/undo-step")
   async handleUndoStep(req: Request, res: Response): Promise<void> {
     const body = req.body as { sessionId?: string };
 
@@ -107,6 +115,7 @@ export class ApiController {
   /**
    * POST /api/hint-request - Hint request endpoint.
    */
+  @POST("/api/hint-request")
   async handleHintRequest(req: Request, res: Response): Promise<void> {
     // TODO: Implement hint logic
     res.status(200).json({
