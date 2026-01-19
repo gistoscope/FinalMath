@@ -1,99 +1,113 @@
 /**
- * HttpUtils.ts
+ * HttpUtils Class
  *
- * Common HTTP utilities for request/response handling.
+ * Utility functions for HTTP request/response handling.
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-
-import type { EngineStepResponse } from "../../protocol/backend-step.types.js";
-
-export interface RequestContext {
-  req: IncomingMessage;
-  res: ServerResponse;
-  url: string;
-  method: string;
-  body?: unknown;
-}
+import { singleton } from "tsyringe";
 
 /**
- * HTTP utility methods for the engine server.
+ * HttpUtils - HTTP utility functions
  */
+@singleton()
 export class HttpUtils {
   /**
-   * Send a JSON response.
+   * Parse JSON body from request.
    */
-  static sendJson(
-    res: ServerResponse,
-    statusCode: number,
-    payload: unknown,
-  ): void {
-    res.statusCode = statusCode;
-    res.setHeader("Content-Type", "application/json; charset=utf-8");
-    res.end(JSON.stringify(payload));
+  async parseJsonBody<T>(req: IncomingMessage): Promise<T | null> {
+    return new Promise((resolve) => {
+      const chunks: Buffer[] = [];
+
+      req.on("data", (chunk: Buffer) => {
+        chunks.push(chunk);
+      });
+
+      req.on("end", () => {
+        try {
+          const body = Buffer.concat(chunks).toString("utf-8");
+          if (!body) {
+            resolve(null);
+            return;
+          }
+          const parsed = JSON.parse(body) as T;
+          resolve(parsed);
+        } catch {
+          resolve(null);
+        }
+      });
+
+      req.on("error", () => {
+        resolve(null);
+      });
+    });
   }
 
   /**
-   * Send an error response in the engine format.
+   * Send a JSON response.
    */
-  static sendEngineError(
-    res: ServerResponse,
-    statusCode: number,
-    message?: string,
-  ): void {
-    const errorResponse: EngineStepResponse = {
-      status: "engine-error",
-      expressionLatex: "",
-    };
-
-    if (message) {
-      (errorResponse as EngineStepResponse & { message?: string }).message =
-        message;
-    }
-
-    HttpUtils.sendJson(res, statusCode, errorResponse);
+  sendJson(res: ServerResponse, status: number, data: unknown): void {
+    res.statusCode = status;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify(data));
   }
 
   /**
    * Send a 404 Not Found response.
    */
-  static sendNotFound(res: ServerResponse, message = "Route not found."): void {
-    HttpUtils.sendJson(res, 404, {
-      status: "engine-error",
-      message,
-    });
+  sendNotFound(res: ServerResponse): void {
+    res.statusCode = 404;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(JSON.stringify({ error: "Not Found" }));
   }
 
   /**
-   * Parse the request body as JSON.
+   * Send an engine error response.
    */
-  static parseBody(req: IncomingMessage): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      let body = "";
-
-      req.on("data", (chunk: Buffer | string) => {
-        body += chunk.toString();
-      });
-
-      req.on("end", () => {
-        try {
-          const parsed = body.length > 0 ? JSON.parse(body) : null;
-          resolve(parsed);
-        } catch (error) {
-          reject(error);
-        }
-      });
-
-      req.on("error", reject);
-    });
+  sendEngineError(res: ServerResponse, status: number): void {
+    res.statusCode = status;
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.end(
+      JSON.stringify({
+        ok: false,
+        error: "engine-error",
+        status,
+      }),
+    );
   }
 
   /**
    * Extract URL path from request.
    */
-  static extractUrlPath(req: IncomingMessage): string {
-    const rawUrl = req.url ?? "/";
-    const [urlPath] = rawUrl.split("?", 2);
-    return urlPath || "/";
+  extractUrlPath(req: IncomingMessage): string {
+    const url = req.url || "/";
+    const questionMarkIndex = url.indexOf("?");
+    return questionMarkIndex === -1 ? url : url.slice(0, questionMarkIndex);
+  }
+
+  /**
+   * Extract query parameters from request.
+   */
+  extractQueryParams(req: IncomingMessage): Record<string, string> {
+    const url = req.url || "/";
+    const questionMarkIndex = url.indexOf("?");
+
+    if (questionMarkIndex === -1) {
+      return {};
+    }
+
+    const queryString = url.slice(questionMarkIndex + 1);
+    const params: Record<string, string> = {};
+
+    for (const pair of queryString.split("&")) {
+      const [key, value] = pair.split("=");
+      if (key) {
+        params[decodeURIComponent(key)] = value
+          ? decodeURIComponent(value)
+          : "";
+      }
+    }
+
+    return params;
   }
 }

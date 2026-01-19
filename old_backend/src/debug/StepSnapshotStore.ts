@@ -1,58 +1,97 @@
 /**
- * StepSnapshotStore.ts
+ * StepSnapshotStore Class
  *
- * In-memory store for the latest step snapshot.
- * Used for debugging to inspect the details of the last executed step.
+ * Stores step execution snapshots for debugging.
+ *
+ * Responsibilities:
+ *  - Store step execution details
+ *  - Retrieve snapshots by session or step ID
+ *  - Support debugging workflows
  */
 
+import { singleton } from "tsyringe";
+
 export interface StepSnapshot {
-    id: string;
-    timestamp: string;
-    inputLatex: string;
-    outputLatex?: string;
-    selectionPath?: string | null;
-    selectionAstPath?: string | null;
-    engineRequest?: any;
-    engineResponseStatus: string;
-    chosenCandidate?: any;
-    allCandidates?: any[];
-    error?: any;
+  id: string;
+  sessionId: string;
+  timestamp: number;
+  expressionBefore: string;
+  expressionAfter?: string;
+  primitiveId?: string;
+  targetPath?: string;
+  status: "pending" | "success" | "error";
+  debugData?: Record<string, unknown>;
 }
 
-export interface SessionStepSnapshot extends StepSnapshot {
-    stepIndex: number;
-}
+/**
+ * StepSnapshotStore - Step snapshot storage
+ */
+@singleton()
+export class StepSnapshotStore {
+  private snapshots: Map<string, StepSnapshot> = new Map();
+  private sessionIndex: Map<string, string[]> = new Map();
+  private maxSnapshots = 500;
 
-let latestSnapshot: StepSnapshot | null = null;
-let sessionSnapshots: SessionStepSnapshot[] = [];
-let currentStepIndex = 0;
+  /**
+   * Store a step snapshot.
+   */
+  store(snapshot: StepSnapshot): void {
+    this.snapshots.set(snapshot.id, snapshot);
 
-export const StepSnapshotStore = {
-    setLatest(snapshot: StepSnapshot) {
-        latestSnapshot = snapshot;
-        console.log(`[STEP SNAPSHOT] id=${snapshot.id} status=${snapshot.engineResponseStatus}`);
-    },
+    // Update session index
+    const sessionSnapshots = this.sessionIndex.get(snapshot.sessionId) || [];
+    sessionSnapshots.push(snapshot.id);
+    this.sessionIndex.set(snapshot.sessionId, sessionSnapshots);
 
-    getLatest(): StepSnapshot | null {
-        return latestSnapshot;
-    },
-
-    appendSnapshot(snapshot: StepSnapshot): SessionStepSnapshot {
-        const sessionSnapshot: SessionStepSnapshot = {
-            ...snapshot,
-            stepIndex: currentStepIndex++
-        };
-        sessionSnapshots.push(sessionSnapshot);
-        return sessionSnapshot;
-    },
-
-    getSessionSnapshots(): SessionStepSnapshot[] {
-        return [...sessionSnapshots];
-    },
-
-    resetSession() {
-        sessionSnapshots = [];
-        currentStepIndex = 0;
-        console.log("[STEP SNAPSHOT] Session reset");
+    // Limit storage
+    if (this.snapshots.size > this.maxSnapshots) {
+      const oldest = this.snapshots.keys().next().value;
+      if (oldest) {
+        this.snapshots.delete(oldest);
+      }
     }
-};
+  }
+
+  /**
+   * Get a snapshot by ID.
+   */
+  get(id: string): StepSnapshot | undefined {
+    return this.snapshots.get(id);
+  }
+
+  /**
+   * Get all snapshots for a session.
+   */
+  getBySession(sessionId: string): StepSnapshot[] {
+    const ids = this.sessionIndex.get(sessionId) || [];
+    return ids
+      .map((id) => this.snapshots.get(id))
+      .filter((s): s is StepSnapshot => s !== undefined);
+  }
+
+  /**
+   * Update a snapshot.
+   */
+  update(id: string, updates: Partial<StepSnapshot>): boolean {
+    const existing = this.snapshots.get(id);
+    if (!existing) return false;
+
+    this.snapshots.set(id, { ...existing, ...updates });
+    return true;
+  }
+
+  /**
+   * Clear all snapshots.
+   */
+  clear(): void {
+    this.snapshots.clear();
+    this.sessionIndex.clear();
+  }
+
+  /**
+   * Get count of stored snapshots.
+   */
+  count(): number {
+    return this.snapshots.size;
+  }
+}

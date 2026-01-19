@@ -1,194 +1,126 @@
 /**
- * TraceHub.ts
- * 
- * Universal event tracing infrastructure for end-to-end debugging.
- * Ring buffer implementation to keep memory bounded.
+ * TraceHub Class
+ *
+ * Centralized tracing infrastructure for debugging and observability.
+ *
+ * Responsibilities:
+ *  - Emit and collect trace events
+ *  - Context management for trace correlation
+ *  - Event filtering and formatting
  */
-
-// ============================================================
-// TRACE EVENT SCHEMA
-// ============================================================
-
-export type TraceLevel = "INFO" | "DEBUG" | "TRACE";
-
-export type TraceEventType =
-    | "CLICK"
-    | "HINT_APPLY"
-    | "RESOLVE_TARGET"
-    | "STEP_REQUEST"
-    | "CANDIDATES"
-    | "DECISION"
-    | "RUN_START"
-    | "RUN_END"
-    | "UI_RENDER"
-    | "FILTER"
-    | "ORCHESTRATOR_ENTER"
-    | "ORCHESTRATOR_EXIT"
-    | "PRIMITIVE_RESOLVE"
-    | "STEPMASTER_DECIDE"
-    | "LOCALITY_FILTER"
-    | "ERROR";
 
 export interface TraceEvent {
-    ts: string;          // ISO timestamp
-    traceId: string;     // Correlation ID per apply attempt
-    stepId: string | null; // Backend step ID if available
-    module: string;      // e.g., "backend.orchestrator"
-    level: TraceLevel;
-    event: TraceEventType | string;
-    data: Record<string, unknown>;
+  module: string;
+  event: string;
+  data?: Record<string, unknown>;
+  timestamp?: number;
+  traceId?: string;
+  stepId?: string;
 }
 
-// ============================================================
-// RING BUFFER IMPLEMENTATION
-// ============================================================
-
-const MAX_EVENTS = 200_000;
-
-class TraceHubStore {
-    private events: TraceEvent[] = [];
-    private maxSize: number = MAX_EVENTS;
-    private currentTraceId: string | null = null;
-    private currentStepId: string | null = null;
-
-    /**
-     * Set the current trace context (from incoming request)
-     */
-    setContext(traceId: string, stepId?: string | null) {
-        this.currentTraceId = traceId;
-        this.currentStepId = stepId ?? null;
-    }
-
-    /**
-     * Clear the current trace context
-     */
-    clearContext() {
-        this.currentTraceId = null;
-        this.currentStepId = null;
-    }
-
-    /**
-     * Emit a trace event
-     */
-    emit(params: {
-        module: string;
-        event: TraceEventType | string;
-        level?: TraceLevel;
-        data?: Record<string, unknown>;
-        traceId?: string;
-        stepId?: string | null;
-    }) {
-        const traceEvent: TraceEvent = {
-            ts: new Date().toISOString(),
-            traceId: params.traceId ?? this.currentTraceId ?? "unknown",
-            stepId: params.stepId ?? this.currentStepId,
-            module: params.module,
-            level: params.level ?? "INFO",
-            event: params.event,
-            data: params.data ?? {},
-        };
-
-        // Ring buffer: remove oldest if at capacity
-        if (this.events.length >= this.maxSize) {
-            this.events.shift();
-        }
-
-        this.events.push(traceEvent);
-
-        // Also log to console for development visibility
-        if (traceEvent.level === "INFO" || traceEvent.level === "DEBUG") {
-            console.log(`[TraceHub] ${traceEvent.module}:${traceEvent.event} traceId=${traceEvent.traceId.substring(0, 8)}`);
-        }
-    }
-
-    /**
-     * Get the last N events
-     */
-    getLastN(n: number): TraceEvent[] {
-        return this.events.slice(-n);
-    }
-
-    /**
-     * Get all events for a specific traceId
-     */
-    getByTraceId(traceId: string): TraceEvent[] {
-        return this.events.filter(e => e.traceId === traceId);
-    }
-
-    /**
-     * Get the last traceId used
-     */
-    getLastTraceId(): string | null {
-        if (this.events.length === 0) return null;
-        return this.events[this.events.length - 1].traceId;
-    }
-
-    /**
-     * Get the last stepId used
-     */
-    getLastStepId(): string | null {
-        for (let i = this.events.length - 1; i >= 0; i--) {
-            if (this.events[i].stepId) {
-                return this.events[i].stepId;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get all events
-     */
-    dump(): TraceEvent[] {
-        return [...this.events];
-    }
-
-    /**
-     * Get event count
-     */
-    count(): number {
-        return this.events.length;
-    }
-
-    /**
-     * Clear all events
-     */
-    reset() {
-        this.events = [];
-        this.currentTraceId = null;
-        this.currentStepId = null;
-        console.log("[TraceHub] Buffer reset");
-    }
-
-    /**
-     * Export as JSONL string
-     */
-    toJsonl(): string {
-        return this.events.map(e => JSON.stringify(e)).join("\n");
-    }
+export interface TraceContext {
+  traceId: string;
+  stepId: string;
 }
-
-// ============================================================
-// SINGLETON EXPORT
-// ============================================================
-
-export const TraceHub = new TraceHubStore();
-
-// ============================================================
-// HELPER FUNCTIONS
-// ============================================================
 
 /**
- * Shortens a LaTeX string for logging (avoid huge outputs)
+ * TraceHub - Centralized tracing
  */
-export function shortLatex(latex: string, maxLen: number = 50): string {
-    if (!latex) return "";
-    if (latex.length <= maxLen) return latex;
-    return latex.substring(0, maxLen) + "...";
+export class TraceHub {
+  private static currentContext: TraceContext | null = null;
+  private static events: TraceEvent[] = [];
+  private static maxEvents = 1000;
+  private static enabled = true;
+
+  /**
+   * Set the current trace context.
+   */
+  static setContext(traceId: string, stepId: string): void {
+    this.currentContext = { traceId, stepId };
+  }
+
+  /**
+   * Clear the current context.
+   */
+  static clearContext(): void {
+    this.currentContext = null;
+  }
+
+  /**
+   * Emit a trace event.
+   */
+  static emit(
+    event: Omit<TraceEvent, "timestamp" | "traceId" | "stepId">,
+  ): void {
+    if (!this.enabled) return;
+
+    const fullEvent: TraceEvent = {
+      ...event,
+      timestamp: Date.now(),
+      traceId: this.currentContext?.traceId,
+      stepId: this.currentContext?.stepId,
+    };
+
+    this.events.push(fullEvent);
+
+    // Limit event storage
+    if (this.events.length > this.maxEvents) {
+      this.events = this.events.slice(-this.maxEvents);
+    }
+
+    // Optional: Log to console for development
+    if (process.env.TRACE_DEBUG === "true") {
+      console.log(`[Trace] ${event.module}::${event.event}`, event.data);
+    }
+  }
+
+  /**
+   * Get all events for a trace.
+   */
+  static getEventsForTrace(traceId: string): TraceEvent[] {
+    return this.events.filter((e) => e.traceId === traceId);
+  }
+
+  /**
+   * Get recent events.
+   */
+  static getRecentEvents(count = 100): TraceEvent[] {
+    return this.events.slice(-count);
+  }
+
+  /**
+   * Clear all events.
+   */
+  static clear(): void {
+    this.events = [];
+  }
+
+  /**
+   * Enable or disable tracing.
+   */
+  static setEnabled(enabled: boolean): void {
+    this.enabled = enabled;
+  }
+
+  /**
+   * Get the current context.
+   */
+  static getContext(): TraceContext | null {
+    return this.currentContext;
+  }
 }
 
 /**
- * Generate a simple unique ID for tracing
+ * Generate a unique trace ID.
  */
 export function generateTraceId(): string {
-    return `tr-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 8)}`;
+  return `trace-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/**
+ * Shorten LaTeX for logging.
+ */
+export function shortLatex(latex: string, maxLen = 30): string {
+  if (latex.length <= maxLen) return latex;
+  return latex.slice(0, maxLen - 3) + "...";
 }

@@ -9,8 +9,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server",
-    "start:dev": "npx tsx src/server",
-    "start:new": "npx tsx --watch src/new_app/server",
+    "start:dev": "npx tsx --watch src/server",
     "test": "vitest"
   },
   "devDependencies": {

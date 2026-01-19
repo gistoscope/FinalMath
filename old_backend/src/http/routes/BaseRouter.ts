@@ -1,15 +1,13 @@
 /**
- * BaseRouter.ts
+ * BaseRouter Class
  *
- * Base abstract router with common routing utilities.
+ * Base class for HTTP routers.
  */
 
 import type { IncomingMessage, ServerResponse } from "node:http";
-
-import type { Logger } from "pino";
-
-import type { HandlerDeps } from "../../server/HandlerPostEntryStep.js";
 import { HttpUtils } from "../utils/HttpUtils.js";
+
+export type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export type RouteHandler = (
   req: IncomingMessage,
@@ -17,33 +15,25 @@ export type RouteHandler = (
   body?: unknown,
 ) => Promise<void>;
 
-export interface Route {
-  method: "GET" | "POST";
+interface Route {
+  method: HttpMethod;
   path: string;
   handler: RouteHandler;
 }
 
 export interface RouterDeps {
-  handlerDeps: HandlerDeps;
-  logger?: Logger;
+  log?: (message: string) => void;
 }
 
 /**
- * Base router class with common routing functionality.
+ * BaseRouter - Base class for all routers
  */
 export abstract class BaseRouter {
   protected readonly routes: Route[] = [];
-  protected readonly handlerDeps: HandlerDeps;
-  protected readonly logger?: Logger;
-
-  constructor(deps: RouterDeps) {
-    this.handlerDeps = deps.handlerDeps;
-    this.logger = deps.logger;
-    this.registerRoutes();
-  }
+  protected readonly log: (message: string) => void = console.log;
 
   /**
-   * Override this method to register routes.
+   * Register routes - to be implemented by subclasses.
    */
   protected abstract registerRoutes(): void;
 
@@ -62,66 +52,58 @@ export abstract class BaseRouter {
   }
 
   /**
-   * Check if this router can handle the given request.
+   * Register a PUT route.
    */
-  canHandle(method: string, url: string): boolean {
-    return this.routes.some(
-      (route) => route.method === method && route.path === url,
-    );
+  protected put(path: string, handler: RouteHandler): void {
+    this.routes.push({ method: "PUT", path, handler });
   }
 
   /**
-   * Handle the request.
-   * @returns true if handled, false otherwise.
+   * Register a DELETE route.
+   */
+  protected delete(path: string, handler: RouteHandler): void {
+    this.routes.push({ method: "DELETE", path, handler });
+  }
+
+  /**
+   * Handle an incoming request.
+   * Returns true if handled, false otherwise.
    */
   async handle(
     req: IncomingMessage,
     res: ServerResponse,
     url: string,
   ): Promise<boolean> {
-    const method = req.method ?? "GET";
-    const route = this.routes.find(
-      (r) => r.method === method && r.path === url,
-    );
+    const method = req.method as HttpMethod;
 
-    if (!route) {
-      return false;
-    }
-
-    try {
-      if (method === "POST") {
-        const body = await HttpUtils.parseBody(req);
-        await route.handler(req, res, body);
-      } else {
-        await route.handler(req, res);
+    for (const route of this.routes) {
+      if (route.method === method && this.matchPath(route.path, url)) {
+        try {
+          let body: unknown = undefined;
+          if (method === "POST" || method === "PUT" || method === "PATCH") {
+            body = await HttpUtils.parseJsonBody(req);
+          }
+          await route.handler(req, res, body);
+          return true;
+        } catch (error) {
+          const message =
+            error instanceof Error ? error.message : String(error);
+          this.log(`[Router] Handler error: ${message}`);
+          HttpUtils.sendEngineError(res, 500);
+          return true;
+        }
       }
-      return true;
-    } catch (error) {
-      this.logError(error, `Error handling ${method} ${url}`);
-      HttpUtils.sendEngineError(res, 500);
-      return true;
     }
+
+    return false;
   }
 
   /**
-   * Log an info message.
+   * Match a path pattern against a URL.
    */
-  protected logInfo(msg: string): void {
-    if (this.logger) {
-      this.logger.info(msg);
-    } else {
-      console.log(msg);
-    }
-  }
-
-  /**
-   * Log an error.
-   */
-  protected logError(error: unknown, msg: string): void {
-    if (this.logger) {
-      this.logger.error({ err: error }, msg);
-    } else {
-      console.error(msg, error);
-    }
+  protected matchPath(pattern: string, url: string): boolean {
+    // Simple exact match for now
+    // Could be extended to support path parameters
+    return pattern === url;
   }
 }

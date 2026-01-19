@@ -1,32 +1,11 @@
 /**
- * HTTP Module Index
+ * HTTP Layer Index
  *
- * Main entry point for the HTTP server components.
+ * All HTTP-related code including controllers, routes, and middleware.
  */
 
-// Main server
-export {
-  createEngineHttpServer,
-  EngineHttpServer,
-  type EngineHttpServerOptions,
-  type IEngineHttpServer,
-} from "./EngineHttpServer.js";
-
-// Middleware
-export {
-  CorsMiddleware,
-  type CorsOptions,
-} from "./middleware/CorsMiddleware.js";
-
-// Routers
-export { ApiRouter } from "./routes/ApiRouter.js";
-export {
-  BaseRouter,
-  type Route,
-  type RouteHandler,
-  type RouterDeps,
-} from "./routes/BaseRouter.js";
-export { DebugRouter } from "./routes/DebugRouter.js";
-
-// Utilities
-export { HttpUtils, type RequestContext } from "./utils/HttpUtils.js";
+export * from "./controllers/index.js";
+export * from "./HttpServer.js";
+export * from "./middleware/index.js";
+export * from "./routes/index.js";
+export * from "./utils/index.js";
