@@ -11,7 +11,7 @@
  */
 
 import type {
-  InvariantModelDefinition,
+  InvariantRegistryConfig,
   InvariantRuleDefinition,
   InvariantRuleId,
   InvariantSetDefinition,
@@ -19,13 +19,6 @@ import type {
   PrimitiveDefinition,
   PrimitiveId,
 } from "./invariant.types.js";
-
-/**
- * Configuration object for constructing the InvariantRegistry.
- */
-export interface InvariantRegistryConfig {
-  model: InvariantModelDefinition;
-}
 
 /**
  * InvariantRegistry - Pure domain class for invariant data access

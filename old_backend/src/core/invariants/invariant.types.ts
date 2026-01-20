@@ -146,3 +146,7 @@ export interface InvariantModelValidationResult {
   /** Normalized model if ok === true. */
   model?: InvariantModelDefinition;
 }
+
+export interface InvariantRegistryConfig {
+  model: InvariantModelDefinition;
+}
