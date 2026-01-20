@@ -6,6 +6,7 @@
  */
 
 import { AstNode } from "@/core/ast";
+import { injectable } from "tsyringe";
 
 /**
  * Path to a node in the AST, represented as an array of keys/indices.
@@ -74,6 +75,7 @@ export interface AstHelpers {
 /**
  * Concrete implementation of AstHelpers.
  */
+@injectable()
 export class MapMasterAstHelpers implements AstHelpers {
   /**
    * Navigate to a node by following a path through the AST.

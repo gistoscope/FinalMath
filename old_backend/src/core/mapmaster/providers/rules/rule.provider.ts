@@ -9,10 +9,12 @@
  */
 
 import { injectable } from "tsyringe";
-import type { InvariantRegistryAdapter } from "../../adapters/invarient-registry";
+import { DefaultInvariantRegistryAdapter } from "../../adapters/invarient-registry";
 import type { MapMasterCandidate, MapMasterInput } from "../../mapmaster.types";
-import type { AstHelpers, AstPath, ExpressionAstNode } from "../helpers/ast.helpers";
-import type { AnchorKind, SelectionNormalizer } from "../selection-normalizer";
+import type { AstPath, ExpressionAstNode } from "../helpers/ast.helpers";
+import { MapMasterAstHelpers } from "../helpers/ast.helpers";
+import type { AnchorKind } from "../selection-normalizer";
+import { MapMasterSelectionNormalizer } from "../selection-normalizer";
 import type { RuleContext } from "./common/common.rules";
 import { buildCandidatesForFractionsStage1 } from "./fractions";
 import { buildCandidatesForIntegersStage1 } from "./integers/integers.rules";
@@ -33,9 +35,9 @@ export class MapMasterRuleProvider implements IMapMasterRuleProvider {
     warn: (msg: string) => console.warn(msg),
   };
   constructor(
-    private readonly selectionNormalizer: SelectionNormalizer,
-    private readonly astHelpers: AstHelpers,
-    private readonly invariantRegistry: InvariantRegistryAdapter
+    private readonly selectionNormalizer: MapMasterSelectionNormalizer,
+    private readonly astHelpers: MapMasterAstHelpers,
+    private readonly invariantRegistry: DefaultInvariantRegistryAdapter
   ) {}
 
   /**

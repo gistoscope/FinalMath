@@ -27352,5 +27352,14 @@
       ]
     },
     "createdAt": 1768846023449
+  },
+  {
+    "id": "session-1768926791188",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1768926791211
   }
 ]

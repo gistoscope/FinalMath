@@ -7,7 +7,8 @@
 
 import { injectable } from "tsyringe";
 import type { MapMasterInput } from "../../mapmaster.types";
-import type { AstPath, ExpressionAstNode, MapMasterAstHelpers } from "../helpers/ast.helpers";
+import type { AstPath, ExpressionAstNode } from "../helpers/ast.helpers";
+import { MapMasterAstHelpers } from "../helpers/ast.helpers";
 import type { AnchorKind, NormalizedSelection, SelectionNormalizer } from "./normalizer.type";
 
 @injectable()

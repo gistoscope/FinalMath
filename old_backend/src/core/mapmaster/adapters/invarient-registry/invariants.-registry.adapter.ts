@@ -7,13 +7,14 @@
  */
 
 import { injectable } from "tsyringe";
-import type {
+import type { InvariantRuleDefinition } from "../../../invariants/invarient-registry";
+import {
   InMemoryInvariantRegistry,
   InvariantRegistryProvider,
-  InvariantRuleDefinition,
 } from "../../../invariants/invarient-registry";
 import type { MapMasterInput } from "../../mapmaster.types";
-import type { AstHelpers, AstPath, ExpressionAstNode } from "../../providers/helpers/ast.helpers";
+import type { AstPath, ExpressionAstNode } from "../../providers/helpers/ast.helpers";
+import { MapMasterAstHelpers } from "../../providers/helpers/ast.helpers";
 import { InvariantRegistryAdapter, InvariantRule } from "./type";
 
 /**
@@ -36,7 +37,7 @@ import { InvariantRegistryAdapter, InvariantRule } from "./type";
 export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter {
   constructor(
     private readonly registry: InMemoryInvariantRegistry,
-    private readonly astHelpers: AstHelpers,
+    private readonly astHelpers: MapMasterAstHelpers,
     private readonly invariantRegistryProvider: InvariantRegistryProvider
   ) {}
 
