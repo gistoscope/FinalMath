@@ -6,22 +6,23 @@
  */
 
 // Invariants
-export * from "./invariants/index.js";
+export * from "./invariants";
 
 // StepMaster
-export * from "./stepmaster/index.js";
+export * from "./stepmaster";
 
 // MapMaster
-export * from "./mapmaster/index.js";
+export * from "./mapmaster";
 
 // PrimitiveMaster
-export * from "./primitive-master/index.js";
+// todo remove primitive id from invariant
+// export * from "./primitive-master";
 
 // Engine
-export * from "./engine/index.js";
+export * from "./engine";
 
 // Orchestrator
-export * from "./orchestrator/index.js";
+export * from "./orchestrator";
 
 // AST
-export * from "./ast/index.js";
+export * from "./ast";

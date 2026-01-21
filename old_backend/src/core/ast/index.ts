@@ -5,5 +5,5 @@
  */
 
 export * from "./ast.types.js";
-export * from "./AstParser.js";
-export * from "./AstUtils.js";
+export { AstParser } from "./parser.ast.js";
+export { AstUtils } from "./utils.ast.js";

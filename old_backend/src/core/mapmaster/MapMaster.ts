@@ -11,7 +11,7 @@
  */
 
 import { container, injectable } from "tsyringe";
-import { AstParser } from "../ast/AstParser.js";
+import { AstParser } from "../ast/parser.ast.js";
 import type { MapMasterInput, MapMasterResult } from "./mapmaster.types.js";
 import { MapMasterRuleProvider } from "./providers/rules/rule.provider.js";
 import { MapMasterSelectionNormalizer } from "./providers/selection-normalizer";

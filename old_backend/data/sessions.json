@@ -27439,5 +27439,131 @@
       ]
     },
     "createdAt": 1768979818791
+  },
+  {
+    "id": "session-1768996368108",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768996368128-gaynravt48h",
+          "timestamp": 1768996368128,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768996368119
+  },
+  {
+    "id": "session-1768996372860",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768996372875-cndz1ak72u8",
+          "timestamp": 1768996372875,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768996372867
+  },
+  {
+    "id": "session-1768996797148",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1768996797163-smedjg2jdo",
+          "timestamp": 1768996797163,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1768996797155
+  },
+  {
+    "id": "session-1769002865418",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769002865497-j5oout6sif",
+          "timestamp": 1769002865497,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769002865484
+  },
+  {
+    "id": "session-1769002879381",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769002879398-p11umikw6jn",
+          "timestamp": 1769002879398,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "R.FRAC_ADD_SAME",
+          "targetPath": "",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769002879388
+  },
+  {
+    "id": "session-1769006954432",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769006954483-3ys27067i1e",
+          "timestamp": 1769006954483,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{1}{7} + \\frac{3}{7}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769006954470
   }
 ]

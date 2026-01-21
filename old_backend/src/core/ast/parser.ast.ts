@@ -8,24 +8,126 @@
  *  - Handle various mathematical expressions
  */
 
-import { container, singleton } from "tsyringe";
+import { singleton } from "tsyringe";
 import type { AstNode, Token } from "./ast.types.js";
+
+/**
+ * MapMaster AST & Parser (TzV1.1)
+ *
+ * Provides a robust, recursive descent parser for mathematical expressions
+ * supporting integers, fractions, mixed numbers, and binary operations.
+ */
 
 /**
  * AstParser - Parses LaTeX expressions into AST
  */
 @singleton()
 export class AstParser {
-  /**
-   * Parse a LaTeX expression into an AST.
-   */
+  tokenize(input: string): Token[] {
+    const tokens: Token[] = [];
+    let i = 0;
+    while (i < input.length) {
+      const char = input[i];
+
+      if (/\s/.test(char)) {
+        // Coalesce spaces
+        let val = char;
+        i++;
+        while (i < input.length && /\s/.test(input[i])) {
+          val += input[i];
+          i++;
+        }
+        tokens.push({ type: "SPACE", value: val, pos: i - val.length });
+        continue;
+      }
+
+      if (/\d/.test(char)) {
+        let val = char;
+        i++;
+        while (i < input.length && (/\d/.test(input[i]) || input[i] === ".")) {
+          val += input[i];
+          i++;
+        }
+        tokens.push({ type: "NUMBER", value: val, pos: i - val.length });
+        continue;
+      }
+
+      if (/[a-zA-Z]/.test(char)) {
+        let val = char;
+        i++;
+        while (i < input.length && /[a-zA-Z]/.test(input[i])) {
+          val += input[i];
+          i++;
+        }
+        tokens.push({ type: "IDENTIFIER", value: val, pos: i - val.length });
+        continue;
+      }
+
+      if (char === "\\") {
+        let val = ""; // Don't include backslash in value? Or do? Let's include it or just the name.
+        // Let's just capture the command name.
+        i++; // skip backslash
+        while (i < input.length && /[a-zA-Z]/.test(input[i])) {
+          val += input[i];
+          i++;
+        }
+        tokens.push({ type: "COMMAND", value: val, pos: i - val.length - 1 });
+        continue;
+      }
+
+      if (["+", "-", "*", "^"].includes(char)) {
+        tokens.push({ type: "OP", value: char, pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === "/") {
+        tokens.push({ type: "SLASH", value: "/", pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === ":") {
+        tokens.push({ type: "COLON", value: ":", pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === "(") {
+        tokens.push({ type: "LPAREN", value: char, pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === ")") {
+        tokens.push({ type: "RPAREN", value: char, pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === "{") {
+        tokens.push({ type: "LBRACE", value: char, pos: i });
+        i++;
+        continue;
+      }
+
+      if (char === "}") {
+        tokens.push({ type: "RBRACE", value: char, pos: i });
+        i++;
+        continue;
+      }
+
+      // Unknown char, skip or error? For now skip
+      i++;
+    }
+    return tokens;
+  }
+
+  // --- Parser ---
+  //
   parse(latex: string): AstNode | undefined {
     return this.parseExpression(latex);
   }
-
-  /**
-   * Parse an expression.
-   */
   parseExpression(latex: string): AstNode | undefined {
     const tokens = this.tokenize(latex).filter((t) => t.type !== "SPACE" || t.value.includes(" "));
     const processedTokens = this.preprocessMixedNumbers(tokens);
@@ -268,106 +370,6 @@ export class AstParser {
     }
   }
 
-  tokenize(input: string): Token[] {
-    const tokens: Token[] = [];
-    let i = 0;
-    while (i < input.length) {
-      const char = input[i];
-
-      if (/\s/.test(char)) {
-        // Coalesce spaces
-        let val = char;
-        i++;
-        while (i < input.length && /\s/.test(input[i])) {
-          val += input[i];
-          i++;
-        }
-        tokens.push({ type: "SPACE", value: val, pos: i - val.length });
-        continue;
-      }
-
-      if (/\d/.test(char)) {
-        let val = char;
-        i++;
-        while (i < input.length && (/\d/.test(input[i]) || input[i] === ".")) {
-          val += input[i];
-          i++;
-        }
-        tokens.push({ type: "NUMBER", value: val, pos: i - val.length });
-        continue;
-      }
-
-      if (/[a-zA-Z]/.test(char)) {
-        let val = char;
-        i++;
-        while (i < input.length && /[a-zA-Z]/.test(input[i])) {
-          val += input[i];
-          i++;
-        }
-        tokens.push({ type: "IDENTIFIER", value: val, pos: i - val.length });
-        continue;
-      }
-
-      if (char === "\\") {
-        let val = ""; // Don't include backslash in value? Or do? Let's include it or just the name.
-        // Let's just capture the command name.
-        i++; // skip backslash
-        while (i < input.length && /[a-zA-Z]/.test(input[i])) {
-          val += input[i];
-          i++;
-        }
-        tokens.push({ type: "COMMAND", value: val, pos: i - val.length - 1 });
-        continue;
-      }
-
-      if (["+", "-", "*", "^"].includes(char)) {
-        tokens.push({ type: "OP", value: char, pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === "/") {
-        tokens.push({ type: "SLASH", value: "/", pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === ":") {
-        tokens.push({ type: "COLON", value: ":", pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === "(") {
-        tokens.push({ type: "LPAREN", value: char, pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === ")") {
-        tokens.push({ type: "RPAREN", value: char, pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === "{") {
-        tokens.push({ type: "LBRACE", value: char, pos: i });
-        i++;
-        continue;
-      }
-
-      if (char === "}") {
-        tokens.push({ type: "RBRACE", value: char, pos: i });
-        i++;
-        continue;
-      }
-
-      // Unknown char, skip or error? For now skip
-      i++;
-    }
-    return tokens;
-  }
-
   preprocessMixedNumbers(tokens: Token[]): Token[] {
     const result: Token[] = [];
     let i = 0;
@@ -407,11 +409,4 @@ export class AstParser {
 
     return result;
   }
-}
-
-/**
- * Standalone function for backward compatibility
- */
-export function parseExpression(latex: string): AstNode | undefined {
-  return container.resolve(AstParser).parse(latex);
 }

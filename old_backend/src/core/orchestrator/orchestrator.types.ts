@@ -7,7 +7,7 @@
 import type { PrimitiveDebugInfo, StepChoice, UserRole } from "../../types/backend-step.types.js";
 import type { EngineStepExecutionResult } from "../engine/engine.types.js";
 import type { InvariantRegistry } from "../invariants/InvariantRegistry.js";
-import type { PrimitiveMaster } from "../primitive-master/PrimitiveMaster.js";
+import type { PrimitiveMaster } from "../primitive-master";
 import type { StepHistory, StepPolicyConfig } from "../stepmaster/stepmaster.types.js";
 
 export interface OrchestratorContext {

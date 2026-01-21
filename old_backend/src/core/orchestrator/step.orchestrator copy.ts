@@ -11,8 +11,8 @@
 
 import { container, injectable } from "tsyringe";
 import { SessionService } from "../../modules/index.js";
-import { AstParser } from "../ast/AstParser.js";
-import { AstUtils } from "../ast/AstUtils.js";
+import { AstParser } from "../ast/parser.ast.js";
+import { AstUtils } from "../ast/utils.ast.js";
 import { EngineRunner } from "../engine/EngineRunner.js";
 import { MapMaster } from "../mapmaster/MapMaster.js";
 import type { SelectedOutcome } from "../primitive-master/primitive-master.types.js";
@@ -89,62 +89,6 @@ export class StepOrchestrator {
     }
 
     return null;
-  }
-
-  /**
-   * Augment AST with IDs for V5 Surface Map integration.
-   * Assigns path-based IDs to each node in the AST.
-   */
-  private augmentAstWithIds(root: any): any {
-    if (!root) return root;
-
-    const traverse = (node: any, path: string) => {
-      if (!node || typeof node !== "object") return;
-
-      // Assign ID to this node
-      node.id = path;
-
-      // Handle different node types
-      switch (node.type) {
-        case "binaryOp":
-          // For binary operations, traverse left and right children
-          if (node.left) {
-            traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
-          }
-          if (node.right) {
-            traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
-          }
-          break;
-
-        case "fraction":
-          // Fractions have numerator/denominator as strings in current AST,
-          // so no child traversal needed
-          break;
-
-        case "mixed":
-          // Mixed numbers have whole, numerator, denominator as strings
-          break;
-
-        case "integer":
-        case "variable":
-          // Leaf nodes, no children to traverse
-          break;
-
-        default:
-          // For any other node types, try to traverse common child properties
-          if (node.left) traverse(node.left, `${path}.left`);
-          if (node.right) traverse(node.right, `${path}.right`);
-          if (node.children && Array.isArray(node.children)) {
-            node.children.forEach((child: any, i: number) => {
-              traverse(child, `${path}.child[${i}]`);
-            });
-          }
-          break;
-      }
-    };
-
-    traverse(root, "root");
-    return root;
   }
 
   /**
@@ -290,6 +234,7 @@ export class StepOrchestrator {
 
     return { mapResult, isPrimitiveMasterPath, pmPrimitiveId };
   }
+
   /**
    * Run a single step orchestration.
    */
@@ -442,7 +387,7 @@ export class StepOrchestrator {
       this.log("[Orchestrator] Using V5 PrimitiveMaster Path");
 
       // Augment AST with IDs (Surface Map)
-      this.augmentAstWithIds(ast);
+      this.astUtils.augmentAstWithIds(ast);
       this.log(`[V5-ORCH] rootAst.id=${(ast as any).id}, kind=${ast.type}`);
 
       // Resolve Click Target
