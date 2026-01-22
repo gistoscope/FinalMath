@@ -9,7 +9,8 @@
  */
 
 import { container, injectable } from "tsyringe";
-import type { EngineStepExecutionResult, EngineStepInput } from "./engine.types.js";
+import { PrimitiveRunner } from "./primitives-runner";
+import type { EngineStepExecutionResult, EngineStepInput } from "./types.engine.js";
 
 export interface EngineRunnerConfig {
   log?: (message: string) => void;
@@ -21,6 +22,7 @@ export interface EngineRunnerConfig {
 @injectable()
 export class EngineRunner {
   private readonly log: (message: string) => void = console.log;
+  constructor(private readonly primitiveRunner: PrimitiveRunner) {}
 
   /**
    * Execute a step transformation.
@@ -29,12 +31,17 @@ export class EngineRunner {
     this.log(`[Engine] Executing primitive: ${input.primitiveId}`);
 
     try {
-      // In a full implementation, this would delegate to primitive handlers
-      // For now, return a successful result placeholder
-      return {
-        ok: true,
-        newExpressionLatex: input.expressionLatex, // Placeholder
+      // Delegate execution to the PrimitiveRunner
+      const request = {
+        expressionLatex: input.expressionLatex,
+        targetPath: input.targetPath,
+        primitiveId: input.primitiveId as any, // Cast to PrimitiveId
+        invariantRuleId: input.invariantRuleId as any, // Cast if needed
+        bindings: input.bindings,
+        resultPattern: input.resultPattern,
       };
+
+      return this.primitiveRunner.run(request);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.log(`[Engine] Execution failed: ${message}`);

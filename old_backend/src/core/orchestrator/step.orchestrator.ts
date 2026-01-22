@@ -13,7 +13,7 @@ import { container, injectable } from "tsyringe";
 import { SessionService } from "../../modules/index.js";
 import { AstParser } from "../ast/parser.ast.js";
 import { AstUtils } from "../ast/utils.ast.js";
-import { EngineRunner } from "../engine/EngineRunner.js";
+import { EngineRunner } from "../engine";
 import { StepHistoryService } from "../stepmaster/StepHistory.js";
 import { StepMaster } from "../stepmaster/StepMaster.js";
 import type { StepHistory } from "../stepmaster/stepmaster.types.js";
