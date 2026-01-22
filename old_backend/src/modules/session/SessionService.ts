@@ -10,7 +10,7 @@
  */
 
 import { inject, injectable } from "tsyringe";
-import type { StepHistory } from "../../core/stepmaster/stepmaster.types.js";
+import type { StepHistory } from "../../core/stepmaster/step-master.types.js";
 import { STORAGE_SERVICE } from "../../registry.js";
 import type { UserRole } from "../../types/user.types.js";
 import type { StorageService } from "../storage/StorageService.js";
@@ -40,9 +40,7 @@ export class SessionService {
   private sessions = new Map<string, Session>();
   private initialized = false;
 
-  constructor(
-    @inject(STORAGE_SERVICE) private readonly storage: StorageService,
-  ) {}
+  constructor(@inject(STORAGE_SERVICE) private readonly storage: StorageService) {}
 
   /**
    * Initialize the session service.
@@ -72,7 +70,7 @@ export class SessionService {
   async createSession(
     sessionId: string,
     userId = "anonymous",
-    role: UserRole = "student",
+    role: UserRole = "student"
   ): Promise<Session> {
     await this.init();
 
@@ -101,11 +99,7 @@ export class SessionService {
   /**
    * Get or create session history.
    */
-  async getHistory(
-    sessionId: string,
-    userId?: string,
-    role?: UserRole,
-  ): Promise<StepHistory> {
+  async getHistory(sessionId: string, userId?: string, role?: UserRole): Promise<StepHistory> {
     let session = await this.getSession(sessionId);
 
     if (!session) {

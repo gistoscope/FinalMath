@@ -1,20 +1,8 @@
-/**
- * StepPolicy Class
- *
- * Defines step execution policies.
- */
+import { injectable } from "tsyringe";
+import { StepPolicyConfig } from "../step-master.types";
 
-import { container, injectable } from "tsyringe";
-import type { StepPolicyConfig } from "./stepmaster.types.js";
-
-/**
- * StepPolicy - Factory for creating step policies
- */
 @injectable()
-export class StepPolicy {
-  /**
-   * Create the default student policy.
-   */
+export class StepPolicyFactory {
   createStudentPolicy(): StepPolicyConfig {
     return {
       name: "student-default",
@@ -24,9 +12,6 @@ export class StepPolicy {
     };
   }
 
-  /**
-   * Create a teacher policy (more permissive).
-   */
   createTeacherPolicy(): StepPolicyConfig {
     return {
       name: "teacher-default",
@@ -36,9 +21,6 @@ export class StepPolicy {
     };
   }
 
-  /**
-   * Create a custom policy.
-   */
   createCustomPolicy(overrides: Partial<StepPolicyConfig>): StepPolicyConfig {
     return {
       name: "custom",
@@ -48,12 +30,4 @@ export class StepPolicy {
       ...overrides,
     };
   }
-}
-
-/**
- * Backward compatibility function
- */
-export function createDefaultStudentPolicy(): StepPolicyConfig {
-  const stepPolicy = container.resolve(StepPolicy);
-  return stepPolicy.createStudentPolicy();
 }

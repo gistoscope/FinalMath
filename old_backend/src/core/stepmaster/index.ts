@@ -4,7 +4,9 @@
  * Pure business logic for step decision making.
  */
 
-export * from "./StepHistory.js";
-export * from "./StepMaster.js";
-export * from "./stepmaster.types.js";
-export * from "./StepPolicy.js";
+export * from "./step-master.core.js";
+export * from "./step-master.types.js";
+
+export { StepHistoryService } from "./history/history.service";
+export { StepPolicyFactory } from "./policy/policy.factory";
+export { StepPolicyService } from "./policy/policy.service";

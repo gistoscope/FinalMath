@@ -1,6 +1,8 @@
-import { InvariantLoader, OrchestratorContext, StepOrchestrator, StepPolicy } from "@/core";
+import { InvariantLoader, OrchestratorContext, StepOrchestrator } from "@/core";
 
-import { createPrimitiveMaster } from "@/core/primitive-master";
+import { PrimitiveMaster } from "@/core/primitive-master";
+import { StepPolicyFactory } from "@/core/stepmaster/";
+
 import { injectable } from "tsyringe";
 import { OrchestratorEntryDTO } from "./dtos/orchestrator-entry.dto";
 
@@ -9,7 +11,8 @@ export class OrchestratorService {
   constructor(
     private readonly orchestrator: StepOrchestrator,
     private readonly invariantLoader: InvariantLoader,
-    private readonly stepPolicy: StepPolicy
+    private readonly stepPolicy: StepPolicyFactory,
+    private readonly primitiveMaster: PrimitiveMaster
   ) {}
   async handleEntry(dto: OrchestratorEntryDTO) {
     const context = this.generateContext();
@@ -33,7 +36,7 @@ export class OrchestratorService {
     const context = {
       invariantRegistry: loadResult.registry,
       policy: this.stepPolicy.createStudentPolicy(),
-      primitiveMaster: createPrimitiveMaster(), // ✅ ENABLED: V5 PrimitiveMaster for intelligent candidate generation
+      primitiveMaster: this.primitiveMaster,
     };
 
     return context;

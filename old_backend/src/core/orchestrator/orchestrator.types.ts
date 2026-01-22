@@ -8,7 +8,7 @@ import type { PrimitiveDebugInfo, StepChoice, UserRole } from "../../types/backe
 import type { EngineStepExecutionResult } from "../engine/types.engine.js";
 import type { InvariantRegistry } from "../invariants/InvariantRegistry.js";
 import type { PrimitiveMaster } from "../primitive-master";
-import type { StepHistory, StepPolicyConfig } from "../stepmaster/stepmaster.types.js";
+import type { StepHistory, StepPolicyConfig } from "../stepmaster/step-master.types.js";
 
 export interface OrchestratorContext {
   invariantRegistry: InvariantRegistry;

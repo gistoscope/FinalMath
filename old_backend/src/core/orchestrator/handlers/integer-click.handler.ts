@@ -7,7 +7,7 @@
 
 import { injectable } from "tsyringe";
 import { AstUtils } from "../../ast/utils.ast.js";
-import type { StepHistory } from "../../stepmaster/stepmaster.types.js";
+import type { StepHistory } from "../../stepmaster/step-master.types.js";
 import type { OrchestratorStepResult } from "../orchestrator.types.js";
 import { AstSearch } from "../utils/ast-search.util.js";
 import { DebugInfoBuilder } from "../utils/debug-info.builder.js";

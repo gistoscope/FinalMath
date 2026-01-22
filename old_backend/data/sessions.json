@@ -27628,5 +27628,26 @@
       ]
     },
     "createdAt": 1769086333747
+  },
+  {
+    "id": "session-1769090629850",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769090629938-tr4jn9ni4z",
+          "timestamp": 1769090629938,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769090629914
   }
 ]

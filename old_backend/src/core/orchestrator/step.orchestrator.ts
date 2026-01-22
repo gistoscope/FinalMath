@@ -14,9 +14,9 @@ import { SessionService } from "../../modules/index.js";
 import { AstParser } from "../ast/parser.ast.js";
 import { AstUtils } from "../ast/utils.ast.js";
 import { EngineRunner } from "../engine";
-import { StepHistoryService } from "../stepmaster/StepHistory.js";
-import { StepMaster } from "../stepmaster/StepMaster.js";
-import type { StepHistory } from "../stepmaster/stepmaster.types.js";
+
+import { StepMaster } from "../stepmaster/step-master.core.js";
+import type { StepHistory } from "../stepmaster/step-master.types.js";
 import type {
   OrchestratorContext,
   OrchestratorStepRequest,
@@ -33,6 +33,7 @@ import { IntegerClickHandler, LegacyCandidateHandler, V5OutcomeHandler } from ".
 import { PreferredPrimitiveFilter } from "./filters/index.js";
 
 // Utils
+import { StepHistoryService } from "../stepmaster/index.js";
 import { DebugInfoBuilder } from "./utils/index.js";
 
 /**
