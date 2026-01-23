@@ -48,7 +48,8 @@ import {
 // ============================================================
 // DEBUG IMPORTS
 // ============================================================
-import { setupDebugPanel } from "./features/debug/index.js";
+import { DebugController, setupDebugPanel } from "./features/debug/index.js";
+import "./features/trace-hub/index.js";
 
 // ============================================================
 // INITIALIZE ADAPTERS
@@ -105,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Setup debug panel
   setupDebugPanel(fileBus);
+  DebugController.init();
 
   // Setup container events (pointer, drag selection)
   if (container) {

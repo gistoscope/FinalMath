@@ -1,0 +1,180 @@
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ast-parser/LatexInstrumenter.js:      console.error(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ast-parser/LatexInstrumenter.js:      console.error(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ast-parser/LatexInstrumenter.js:    console.log("[STABLE-ID] Instrumented LaTeX:", instrumented);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ast-parser/Parser.js:      console.error("[AST Parser] Parse error:", e);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:    console.warn("[STABLE-ID] No .katex-html found in container");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:        console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:    console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/stable-id.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/state.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/state.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/core/state.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:        console.log('[Debug-Tool] Number clicked:', lastClickedIntegerTarget);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:        console.log('[Debug-Tool] Non-number clicked:', text);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:                console.log(`[Debug-Tool] Found integer ${value} in fraction numerator at ${numPath}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:                console.log(`[Debug-Tool] Found integer ${value} in fraction denominator at ${denPath}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:                console.log(`[Debug-Tool] Found non-integer ${value} in fraction at ${path} - NON_TARGETABLE`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:    console.log("[TraceHub] Download Trace JSONL clicked");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:    console.log("[TraceHub] Reset clicked");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:    console.log("[TraceHub] Fetch Backend Trace clicked");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:        console.log(`[TraceHub] Backend has ${data.count} events, lastTraceId=${data.lastTraceId}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/debug-tool.js:        console.error("[TraceHub] Failed to fetch backend trace:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/display-adapter.js:    console.log("[VIEWER-CLICK] Raw Click Target:", {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/display-adapter.js:      console.error("[DisplayAdapter] onClientEvent error", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/display-adapter.js:    // Mirror to console for quick inspection
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/display-adapter.js:    console.log("[ClientEvent]", evt);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/display-adapter.js:      console.warn("[ClientEventRecorder] No events to download");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:    console.log(`[EngineAdapter] Started in ${this.config.mode} mode (Pure V5)`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:  console.log(`[P1] Integer click ignored by EngineAdapter (handled locally): nodeId=${nodeId}, clickCount=${clickCount}, type=${t}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:        console.log(`[P1] Integer double-click: primitiveId=${primitive.id}, selectionPath=${v5Payload.selectionPath}, mode=${cycleIndex}, isSameNode=${isSameNode}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:    console.log("[VIEWER-REQUEST] Sending to V5:", {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:      console.log("[EngineAdapter] Choice response received:", v5Result.choices);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/engine-adapter.js:      // Show error indication in console (already logged), maybe helpful meta
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/engine/response-handler.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:        console.warn("[FileBus] No messages to download");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:        console.error(e);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:        console.error(e);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:        console.error(e);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:      console.info("[SEL] clear via button/esc");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/button-handlers.js:    console.info("[SEL] clear button wired");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:    console.log("[DEBUG] pointerup target:", e.target, "found node:", node);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:    console.log("[click] SurfaceNode:", {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:        console.log("[SmartOperatorSelection] Context created successfully:", {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:            console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:            console.error("[SmartOperatorSelection] Highlight error:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/container-events.js:        console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/global-events.js:      console.info("[SEL] clear via button/esc");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/global-events.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/events/global-events.js:        console.info(`[SEL] outside-click`, {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/cycle-state.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/cycle-state.js:  console.log("[P1] Reset integer cycle state");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(`${logPrefix} Ignored: already applying`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(`[APPLY RESULT] status=${result.status}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(`[APPLY RESULT] SUCCESS! newLatex=${newLatex}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.warn(`[APPLY RESULT] FAILED status=${result.status}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.error(`${logPrefix} Exception:`, err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.warn("[P1-APPLY] No primitive for cycleIndex", cycleIndex);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] === Hint/DblClick Apply Action ===`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] surfaceNodeId: ${surfaceNodeId}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] astNodeId (param): ${astNodeId}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] primitive: ${primitive.id}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] currentLatex: "${currentLatex}"`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.error(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.error(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-APPLY] targetPath (resolved): ${targetPath}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-HINT-APPLY] primitiveId: ${primitive.id}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-HINT-APPLY] selectionPath: ${targetPath}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.error(`[P1-HINT-APPLY][ERROR] Engine error:`, result.rawResponse);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.error(`[P1-HINT-APPLY][ERROR] Exception calling backend:`, err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.warn("[P1-HINT-APPLY] No primitiveId provided");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-HINT-APPLY] primitiveId: ${primitiveId}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-HINT-APPLY] selectionPath: ${astNodeId || "root"}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:  console.log(`[P1-HINT-APPLY] request URL: ${endpointUrl}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.log(`[P1-HINT-APPLY] response status: ${result.status}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:      console.warn(`[P1-HINT-APPLY] Response status: ${result.status}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/hint-actions.js:    console.error(`[P1-HINT-APPLY][ERROR] Exception:`, err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:  console.log(`[P1-CLICK] StableKey: ${clickStableKey || "MISSING"}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:        console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/integer-click-handler.js:      console.warn("[P1] ensureP1IntegerContext failed (single-click):", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js: * P1: Self-test function (can be triggered from console: window.runP1SelfTest())
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log("[P1-SELF-TEST] Starting self-test...");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.error("[P1-SELF-TEST] FAIL: No surface map available");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.error("[P1-SELF-TEST] FAIL: No Num node found");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.error(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(`[P1-ORDER-TEST] Starting order-independence test (${order})...`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.error("[P1-ORDER-TEST] FAIL: No surface map available");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(`[P1-ORDER-TEST] === SUMMARY ===`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(`[P1-ORDER-TEST] Order: ${order}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:  console.log(`[P1-ORDER-TEST] Final expression: ${getCurrentLatex()}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/p1/tests.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/rendering/formula-render.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/rendering/formula-render.js:      console.log(`[BUG] Backend instrument failed: ${reason}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/rendering/formula-render.js:    console.log(`[BUG] Backend instrument failed: ${reason}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/rendering/formula-render.js:    console.log("[STABLE-ID] Local instrumentation succeeded");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/rendering/formula-render.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:    console.log("[applyOperatorHighlight] No context or boxes provided");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:        console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:  console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/operator-highlight.js:  console.log("[clearOperatorHighlight] Operator highlight cleared");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/features/selection/selection-manager.js:  console.info("[SEL] clearSelection", { reason });
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/filebus.js:            console.error("[FileBus] Async subscriber error:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/filebus.js:        console.error("[FileBus] Subscriber error:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/hint-cycle.js:      console.warn("[HintCycle] selectToken called with null stableKey");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/hint-cycle.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/hint-cycle.js:      console.warn("[HintCycle] cycleNext: no active entry");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/hint-cycle.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/hint-cycle.js:    console.log("[HintCycle] Reset");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/introspect/IntrospectPage.js:      console.error("HTTP introspect failed", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/introspect/IntrospectRenderer.js:      console.error("Error rendering KaTeX formula:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/main.js:  console.info("[SEL] init", { entry: "app/main.js" });
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/operator-selection-context.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/operator-selection-context.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/operator-selection-context.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/operator-selection-context.js:      console.log("[OperatorContext] Could not find operands for operator");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/operator-selection-context.js:    console.log("[OperatorContext] Created context:", {
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/element-classifier.js:      console.log("[DEBUG] classifyElement found op:", t);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/operand-finder.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/operand-finder.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-builder.js:    console.log("[SurfaceMap] Segmenting mixed content:", text);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-builder.js:        console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-enhancer.js:      console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-enhancer.js:      console.warn(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-enhancer.js:      console.error(`[STABLE-ID] Missing IDs: ${missing.length}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/surface-map/surface-map-enhancer.js:      console.log(`[STABLE-ID] All ${count} OK.`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/trace-hub/TraceEvent.js:   * Check if an event should be logged to console
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/trace-hub/TraceEvent.js:   * Format event for console logging
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/trace-hub/TraceExporter.js:    console.log(`[TraceHub] Downloaded ${events.length} events to ${filename}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/trace-hub/ViewerTraceHub.js:      console.log(TraceEvent.formatForConsole(event));
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/trace-hub/ViewerTraceHub.js:    console.log("[TraceHub] Buffer cleared");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:    console.log("[ChoicePopup] No choices to display");
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:      console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:  console.log(`[ApplyChoice] Applying ${primitiveId} to ${selectionPath}`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:    console.log("[ApplyChoice] Response:", json);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:      console.warn("[ApplyChoice] Step not applied:", json.status);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/choice-popup.js:    console.error("[ApplyChoice] Error:", err);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/hint-indicator.js:      console.log(`[P1-HINT][BLOCK] Blocked ${e.type} in capture phase`);
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/hint-indicator.js:    console.log(
+/media/prince/Works/project/vasily/FinalMath/viewer/src/new_app/ui/hint-indicator.js:    console.log(
