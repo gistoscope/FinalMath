@@ -1,5 +1,4 @@
-// ui/hover-panel.js
-// Hover and click info panel UI
+import { uiBridge } from "../services/ui-bridge.ts";
 
 let lastHoverNode = null;
 
@@ -9,25 +8,20 @@ let lastHoverNode = null;
  * @param {object|null} node - Surface node
  */
 export function updateHoverPanel(kind, node) {
-  const hoverSpan = document.getElementById("hover-info");
-  const clickSpan = document.getElementById("click-info");
-
   if (kind === "hover") {
-    if (!hoverSpan) return;
     if (!node) {
-      hoverSpan.textContent = "—";
+      uiBridge.updateHover({ target: "—" });
       return;
     }
     const text = node.latexFragment ? ` "${node.latexFragment}"` : "";
-    hoverSpan.textContent = `${node.id} · ${node.kind}${text}`;
+    uiBridge.updateHover({ target: `${node.id} · ${node.kind}${text}` });
   } else if (kind === "click") {
-    if (!clickSpan) return;
     if (!node) {
-      clickSpan.textContent = "—";
+      uiBridge.updateHover({ lastClick: "—" });
       return;
     }
     const text = node.latexFragment ? ` "${node.latexFragment}"` : "";
-    clickSpan.textContent = `${node.id} · ${node.kind}${text}`;
+    uiBridge.updateHover({ lastClick: `${node.id} · ${node.kind}${text}` });
   }
 }
 

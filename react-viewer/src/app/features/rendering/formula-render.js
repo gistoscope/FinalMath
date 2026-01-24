@@ -9,23 +9,23 @@ import { getCurrentLatex, stableIdState } from "../../core/state.js";
  * Render LaTeX with KaTeX using trust for \htmlData.
  */
 export function doRender(latex, container) {
-  window.katex.render(latex, container, {
-    throwOnError: false,
-    displayMode: true,
-    output: "html",
-    // TRUST: Enable htmlData command for Stable-ID rendering
-    trust: (context) => {
-      // Only allow our htmlData commands for data-ast-id
-      return context.command === "\\htmlData";
-    },
-    // STRICT: Silence only htmlExtension warnings, keep others
-    strict: (errorCode, errorMsg, token) => {
-      if (errorCode === "htmlExtension") {
-        return "ignore"; // Silence our intended htmlData usage
-      }
-      return "warn"; // Keep warnings for everything else
-    },
-  });
+  if (!window.katex) {
+    container.innerHTML = `<div style="color:red; padding:10px;">KaTeX error: window.katex missing</div>`;
+    return container;
+  }
+
+  try {
+    window.katex.render(latex, container, {
+      throwOnError: false,
+      displayMode: true,
+      output: "html",
+      trust: (context) => context.command === "\\htmlData",
+      strict: (errorCode) =>
+        errorCode === "htmlExtension" ? "ignore" : "warn",
+    });
+  } catch (err) {
+    container.innerHTML = `<div style="color:red; padding:10px;">KaTeX internal error: ${err.message}</div>`;
+  }
 
   return container;
 }
@@ -91,24 +91,27 @@ export async function tryBackendInstrumentation(
 
 /**
  * Render the formula to the container
+ * @param {string} [latex] - Optional LaTeX expression (falls back to global appState)
+ * @param {HTMLElement} [container] - Optional container (falls back to document.getElementById)
  * @returns {HTMLElement|null} The container element
  */
-export function renderFormula() {
-  const currentLatex = getCurrentLatex();
+export function renderFormula(latex, container) {
+  const currentLatex = latex || getCurrentLatex();
+  const targetContainer =
+    container || document.getElementById("formula-container");
 
-  /** @type {HTMLElement|null} */
-  const container = document.getElementById("formula-container");
-  if (!container) return null;
+  if (!targetContainer) return null;
 
-  container.innerHTML = "";
+  targetContainer.innerHTML = "";
 
   // Remove any existing Stable-ID disabled banner
   const existingBanner = document.getElementById("stable-id-banner");
   if (existingBanner) existingBanner.remove();
 
   if (!window.katex || !window.katex.render) {
-    container.textContent = "KaTeX is not available (window.katex missing).";
-    return container;
+    targetContainer.textContent =
+      "KaTeX is not available (window.katex missing).";
+    return targetContainer;
   }
 
   // STABLE-ID: Try local instrumentation first
@@ -120,7 +123,7 @@ export function renderFormula() {
     stableIdState.enabled = true;
     stableIdState.reason = null;
     console.log("[STABLE-ID] Local instrumentation succeeded");
-    doRender(localResult.latex, container);
+    doRender(localResult.latex, targetContainer);
   } else {
     // Local failed - try backend
     console.log(
@@ -129,10 +132,10 @@ export function renderFormula() {
     tryBackendInstrumentation(
       currentLatex,
       localResult.latex,
-      container,
+      targetContainer,
       localResult.reason,
     );
   }
 
-  return container;
+  return targetContainer;
 }

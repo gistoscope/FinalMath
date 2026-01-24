@@ -1,5 +1,6 @@
 // features/rendering/surface-map-builder.js
 // Surface map building and management
+import { uiBridge } from "../../services/ui-bridge.ts";
 
 import {
   assertDOMStableIds,
@@ -17,26 +18,28 @@ import { resetIntegerCycleState } from "../p1/cycle-state.js";
 
 /**
  * Build and show the surface map for the formula container
+ * @param {HTMLElement} [container] - Optional container (falls back to document.getElementById)
+ * @param {string} [latex] - Optional LaTeX expression (falls back to global state)
  * @returns {object|null} The current app state or null
  */
-export function buildAndShowMap() {
+export function buildAndShowMap(container, latex) {
   /** @type {HTMLElement|null} */
-  const container = document.getElementById("formula-container");
-  if (!container) return null;
+  const targetContainer =
+    container || document.getElementById("formula-container");
+  if (!targetContainer) return null;
 
-  let map = buildSurfaceNodeMap(container);
-  map = enhanceSurfaceMap(map, container);
-  map = correlateOperatorsWithAST(map, getCurrentLatex());
+  const currentLatex = latex || getCurrentLatex();
+
+  let map = buildSurfaceNodeMap(targetContainer);
+  map = enhanceSurfaceMap(map, targetContainer);
+  map = correlateOperatorsWithAST(map, currentLatex);
 
   // STABLE-ID: Scan DOM for data-ast-id elements (render-time injection)
-  scanDOMForStableIds(map, container);
-  assertDOMStableIds(container);
+  scanDOMForStableIds(map, targetContainer);
+  assertDOMStableIds(targetContainer);
   const serializable = surfaceMapToSerializable(map);
 
-  const pre = document.getElementById("surface-json");
-  if (pre) {
-    pre.textContent = JSON.stringify(serializable, null, 2);
-  }
+  uiBridge.setSurfaceMap(serializable);
 
   appState.current = { map, serializable };
   if (typeof window !== "undefined") {
