@@ -1,17 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import katex from "katex";
 import "katex/dist/katex.min.css";
-
-// Expose KaTeX globally for legacy code
-if (typeof window !== "undefined") {
-  (window as any).katex = katex;
-}
 
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { displayAdapter, eventRecorder, fileBus } from "./app/features/engine";
-import { buildAndShowMap, renderFormula } from "./app/features/rendering";
-import "./app/features/trace-hub";
 
 // Components
 import JsonInspector from "./components/console/JsonInspector";
@@ -19,6 +10,7 @@ import LogConsole from "./components/console/LogConsole";
 import ControlToolbar from "./components/controls/ControlToolbar";
 import ManualLatexInput from "./components/controls/ManualLatexInput";
 import TestSelector from "./components/controls/TestSelector";
+import AdvancedDebugTool from "./components/debug/AdvancedDebugTool/AdvancedDebugTool";
 import EngineDebugPanel from "./components/debug/EngineDebugPanel";
 import HoverDebugPanel from "./components/debug/HoverDebugPanel";
 import StepHint from "./components/debug/StepHint";
@@ -29,27 +21,14 @@ import MainLayout from "./components/layout/MainLayout";
 import FormulaViewer from "./components/viewer/FormulaViewer";
 
 // Hooks
+import "./app/features/trace-hub";
 import { useViewer } from "./context/ViewerContext";
 import { useAppEvents } from "./hooks/useAppEvents";
 import { useEngine } from "./hooks/useEngine";
 import { useFormulaInteraction } from "./hooks/useFormulaInteraction";
-import { useFormulaRenderer } from "./hooks/useFormulaRenderer";
-import { useSurfaceMap } from "./hooks/useSurfaceMap";
-
-declare global {
-  interface Window {
-    runP1SelfTest: () => void;
-    runP1OrderTest: (order?: string) => void;
-    __v5EndpointUrl?: string; // If used
-    katex: any;
-    __surfaceMapUtils?: any;
-    __currentSurfaceMap?: any;
-    __currentOperatorContext?: any;
-  }
-}
 
 const App: React.FC = () => {
-  const { state } = useViewer();
+  const { state, actions } = useViewer();
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   const formulaContainerRef = useRef<HTMLDivElement>(null);
 
@@ -62,8 +41,6 @@ const App: React.FC = () => {
 
   // Phase 4 Hooks: Core Logic
   useEngine();
-  useFormulaRenderer(state.formula.latex, { current: containerEl });
-  useSurfaceMap(state.formula.latex, { current: containerEl });
   useFormulaInteraction({ current: containerEl }, displayAdapter);
 
   // Initialize App Control Events
@@ -77,7 +54,7 @@ const App: React.FC = () => {
     handleResetSession,
     handleLoadLatex,
     handleClearSelection,
-  } = useAppEvents(renderFormula, buildAndShowMap, eventRecorder, fileBus);
+  } = useAppEvents(eventRecorder, fileBus);
 
   // Global Key/Window Listeners
   useEffect(() => {
@@ -90,8 +67,8 @@ const App: React.FC = () => {
     };
 
     const handleResize = () => {
-      renderFormula(state.formula.latex, formulaContainerRef.current!);
-      buildAndShowMap(formulaContainerRef.current!, state.formula.latex);
+      // Re-triggering state triggers re-render in FormulaViewer
+      actions.setLatex(state.formula.latex);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -101,7 +78,7 @@ const App: React.FC = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", handleResize);
     };
-  }, [handleClearSelection, state.formula.latex]);
+  }, [handleClearSelection, state.formula.latex, actions]);
 
   return (
     <MainLayout>
@@ -112,7 +89,10 @@ const App: React.FC = () => {
           title="Display Viewer (KaTeX)"
           footerNote="Формула рендерится KaTeX, затем строится карта интерактивности по DOM + геометрии."
         >
-          <FormulaViewer containerRef={formulaContainerRef} />
+          <FormulaViewer
+            ref={formulaContainerRef}
+            latex={state.formula.latex}
+          />
           <HoverDebugPanel />
           <StepHint />
           <EngineDebugPanel />
@@ -143,6 +123,10 @@ const App: React.FC = () => {
 
           <ManualLatexInput onLoad={handleLoadLatex} />
           <JsonInspector />
+        </Card>
+
+        <Card title="Advanced Debug Tool">
+          <AdvancedDebugTool />
         </Card>
       </div>
     </MainLayout>

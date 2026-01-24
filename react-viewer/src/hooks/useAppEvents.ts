@@ -5,17 +5,15 @@ import { clearSelection } from "../app/features/selection/selection-manager.js";
 import { useViewer } from "../context/ViewerContext";
 
 export function useAppEvents(
-  renderFormula: (latex?: string, container?: HTMLElement) => any,
-  buildAndShowMap: (container?: HTMLElement, latex?: string) => any,
   eventRecorder: { download: () => void },
   fileBus: { getHistory: () => any[] },
 ) {
   const { state, actions } = useViewer();
 
   const handleRebuild = useCallback(() => {
-    renderFormula();
-    buildAndShowMap();
-  }, [renderFormula, buildAndShowMap]);
+    // Re-trigger state to ensure React reconciliation verifies the view
+    actions.setLatex(state.formula.latex);
+  }, [state.formula.latex, actions]);
 
   const handleDownloadJson = useCallback(() => {
     const current = (appState as any).current;

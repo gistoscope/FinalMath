@@ -1,13 +1,11 @@
 import React, {
   createContext,
   useContext,
-  useEffect,
   useMemo,
   useReducer,
   type ReactNode,
 } from "react";
 import { TESTS } from "../app/core/state.js";
-import { uiBridge } from "../app/services/ui-bridge";
 import type { ViewerAction, ViewerState } from "../types/viewer-state";
 
 const initialState: ViewerState = {
@@ -19,16 +17,14 @@ const initialState: ViewerState = {
   debug: {
     hover: { target: null, lastClick: null },
     stepHint: null,
-    engine: { clientEvent: "—", request: "—", response: "—" },
+    engine: {
+      lastClientEvent: null,
+      lastEngineRequest: null,
+      lastEngineResponse: null,
+    },
     tsa: {
-      operator: "—",
-      strategy: "—",
-      invariant: "—",
-      invariantText: "—",
-      windowBefore: "—",
-      windowAfter: "—",
-      error: "—",
-      astSize: "—",
+      lastTsa: null,
+      log: [],
     },
   },
   system: {
@@ -122,14 +118,6 @@ export const ViewerProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(viewerReducer, initialState);
-
-  // Wire React to Bridge
-  useEffect(() => {
-    const unsubscribe = uiBridge.subscribe((action) => {
-      dispatch(action);
-    });
-    return unsubscribe;
-  }, []);
 
   const actions = useMemo(
     () => ({

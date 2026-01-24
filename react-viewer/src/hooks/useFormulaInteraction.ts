@@ -11,13 +11,15 @@ import {
 } from "../app/features/selection/operator-highlight.js";
 import { hitTestRect } from "../app/features/selection/selection-manager.js";
 import { OperatorSelectionContext } from "../app/operator-selection-context.js";
+import { hitTestPoint } from "../app/surface-map";
 import { getOperandNodes } from "../app/surface-map.js";
 import {
   clearDomHighlight,
+  formatNodeInfo,
   highlightNode,
-  updateHoverPanel,
 } from "../app/ui/hover-panel.js";
 import { applySelectionVisual } from "../app/ui/selection-overlay.js";
+import { useViewer } from "../context/ViewerContext";
 
 /**
  * Find node by element using hit testing
@@ -34,16 +36,13 @@ function findNodeByElement(
   if (!(appState as any).current || !(appState as any).current.map) return null;
 
   if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
-    const { hitTestPoint: htp } = (window as any).__surfaceMapUtils || {};
-    if (htp) {
-      const node = htp(
-        (appState as any).current.map,
-        e.clientX,
-        e.clientY,
-        container,
-      );
-      if (node) return node;
-    }
+    const node = hitTestPoint(
+      (appState as any).current.map,
+      e.clientX,
+      e.clientY,
+      container,
+    );
+    if (node) return node;
   }
 
   if (!(appState as any).current.map.byElement) return null;
@@ -62,6 +61,8 @@ export function useFormulaInteraction(
   containerRef: RefObject<HTMLDivElement | null>,
   displayAdapter: any,
 ) {
+  const { dispatch } = useViewer();
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -82,10 +83,13 @@ export function useFormulaInteraction(
 
       if (!node) {
         clearDomHighlight();
-        updateHoverPanel("hover", null);
+        dispatch({ type: "UPDATE_HOVER", payload: { target: "—" } });
       } else {
         highlightNode(node);
-        updateHoverPanel("hover", node);
+        dispatch({
+          type: "UPDATE_HOVER",
+          payload: { target: formatNodeInfo(node) },
+        });
       }
 
       displayAdapter.emitHover(node, e);
@@ -211,7 +215,10 @@ export function useFormulaInteraction(
       applySelectionVisual(map);
       displayAdapter.emitSelectionChanged("click", e);
 
-      updateHoverPanel("click", node);
+      dispatch({
+        type: "UPDATE_HOVER",
+        payload: { lastClick: formatNodeInfo(node) },
+      });
 
       // SMART OPERATOR SELECTION
       if (

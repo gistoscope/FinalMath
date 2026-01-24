@@ -9,21 +9,20 @@ export interface DebugUIState {
     target: string | null;
     lastClick: string | null;
   };
+  choicePopup: {
+    choices: any[];
+    clickContext: { surfaceNodeId?: string; selectionPath?: string };
+    position: { x: number; y: number };
+  } | null;
   stepHint: string | null;
   engine: {
-    clientEvent: string;
-    request: string;
-    response: string;
+    lastClientEvent: unknown | null;
+    lastEngineRequest: unknown | null;
+    lastEngineResponse: unknown | null;
   };
   tsa: {
-    operator: string;
-    strategy: string;
-    invariant: string;
-    invariantText: string;
-    windowBefore: string;
-    windowAfter: string;
-    error: string;
-    astSize: number | string;
+    lastTsa: unknown | null;
+    log: unknown[];
   };
 }
 
@@ -44,6 +43,8 @@ export type ViewerAction =
   | { type: "SET_IS_RENDERING"; payload: boolean }
   | { type: "SET_MANUAL_INPUT"; payload: string }
   | { type: "UPDATE_HOVER"; payload: Partial<DebugUIState["hover"]> }
+  | { type: "OPEN_CHOICE_POPUP"; payload: DebugUIState["choicePopup"] }
+  | { type: "CLOSE_CHOICE_POPUP" }
   | { type: "UPDATE_STEP_HINT"; payload: string | null }
   | { type: "UPDATE_ENGINE"; payload: Partial<DebugUIState["engine"]> }
   | { type: "UPDATE_TSA"; payload: Partial<DebugUIState["tsa"]> }

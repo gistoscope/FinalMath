@@ -1,17 +1,22 @@
 import { useEffect } from "react";
-import { DebugController, setupDebugPanel } from "../app/features/debug";
+import { getCurrentLatex } from "../app/core/state";
 import {
-  fileBus,
   initializeAdapters,
   setEngineResponseCallbacks,
 } from "../app/features/engine";
-import { buildAndShowMap, renderFormula } from "../app/features/rendering";
 import { clearSelection } from "../app/features/selection";
+import { useViewer } from "../context/ViewerContext";
+import { useTsaEngine } from "./useTsaEngine";
 
 /**
  * Hook to manage Engine lifecycle and callbacks
  */
 export function useEngine() {
+  const { actions } = useViewer();
+
+  // Phase 2: Reactive Engine Status
+  useTsaEngine();
+
   useEffect(() => {
     // 1. Initialize Adapters once on mount
     initializeAdapters();
@@ -19,22 +24,19 @@ export function useEngine() {
     // 2. Set up the Reverse Callbacks (Engine -> App)
     setEngineResponseCallbacks(
       () => {
-        renderFormula();
+        const newLatex = getCurrentLatex();
+        actions.setLatex(newLatex);
       },
       () => {
-        buildAndShowMap();
+        // Handled by FormulaViewer internal mapping
       },
-      (reason) => {
+      (reason: string) => {
         clearSelection(reason);
       },
     );
 
-    // 3. Setup debug panel
-    setupDebugPanel(fileBus);
-    DebugController.init();
-
-    console.log("[useEngine] Engine and Debug initialized");
-  }, []);
+    console.log("[useEngine] Engine initialized with reactive callbacks");
+  }, [actions]);
 
   return {};
 }

@@ -1,4 +1,9 @@
 import React from "react";
+import {
+  formatClientEvent,
+  formatEngineRequest,
+  formatEngineResponse,
+} from "../../app/features/debug/formatters";
 import { useViewer } from "../../context/ViewerContext";
 
 const EngineDebugPanel: React.FC = () => {
@@ -10,15 +15,21 @@ const EngineDebugPanel: React.FC = () => {
       <div className="hover-title">Engine debug (FileBus)</div>
       <div className="hover-line">
         <span className="label">ClientEvent:</span>
-        <span id="engine-debug-client">{engine.clientEvent || "—"}</span>
+        <span id="engine-debug-client">
+          {formatClientEvent(engine.lastClientEvent)}
+        </span>
       </div>
       <div className="hover-line">
         <span className="label">EngineRequest:</span>
-        <span id="engine-debug-request">{engine.request || "—"}</span>
+        <span id="engine-debug-request">
+          {formatEngineRequest(engine.lastEngineRequest)}
+        </span>
       </div>
       <div className="hover-line">
         <span className="label">EngineResponse:</span>
-        <span id="engine-debug-response">{engine.response || "—"}</span>
+        <span id="engine-debug-response">
+          {formatEngineResponse(engine.lastEngineResponse)}
+        </span>
       </div>
     </div>
   );
