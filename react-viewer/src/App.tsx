@@ -1,20 +1,14 @@
 import "katex/dist/katex.min.css";
-
 import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import { displayAdapter, eventRecorder, fileBus } from "./app/features/engine";
 
 // Components
 import JsonInspector from "./components/console/JsonInspector";
-import LogConsole from "./components/console/LogConsole";
 import ControlToolbar from "./components/controls/ControlToolbar";
 import ManualLatexInput from "./components/controls/ManualLatexInput";
 import TestSelector from "./components/controls/TestSelector";
-import AdvancedDebugTool from "./components/debug/AdvancedDebugTool/AdvancedDebugTool";
-import EngineDebugPanel from "./components/debug/EngineDebugPanel";
-import HoverDebugPanel from "./components/debug/HoverDebugPanel";
-import StepHint from "./components/debug/StepHint";
-import TSADebugPanel from "./components/debug/TSADebugPanel";
+import DiagnosticsPanel from "./components/debug/DiagnosticsPanel";
 import Card from "./components/layout/Card";
 import Header from "./components/layout/Header";
 import MainLayout from "./components/layout/MainLayout";
@@ -22,13 +16,15 @@ import FormulaViewer from "./components/viewer/FormulaViewer";
 
 // Hooks
 import "./app/features/trace-hub";
-import { useViewer } from "./context/ViewerContext";
 import { useAppEvents } from "./hooks/useAppEvents";
 import { useEngine } from "./hooks/useEngine";
 import { useFormulaInteraction } from "./hooks/useFormulaInteraction";
+import { useViewerStore } from "./store/useViewerStore";
 
 const App: React.FC = () => {
-  const { state, actions } = useViewer();
+  const latex = useViewerStore((state) => state.formula.latex);
+  const { setLatex } = useViewerStore((state) => state.actions);
+
   const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
   const formulaContainerRef = useRef<HTMLDivElement>(null);
 
@@ -44,17 +40,7 @@ const App: React.FC = () => {
   useFormulaInteraction({ current: containerEl }, displayAdapter);
 
   // Initialize App Control Events
-  const {
-    handleRebuild,
-    handleDownloadJson,
-    handleDownloadEvents,
-    handleDownloadBus,
-    handleDownloadSnapshot,
-    handleDownloadSession,
-    handleResetSession,
-    handleLoadLatex,
-    handleClearSelection,
-  } = useAppEvents(eventRecorder, fileBus);
+  const { handleClearSelection } = useAppEvents(eventRecorder, fileBus);
 
   // Global Key/Window Listeners
   useEffect(() => {
@@ -68,7 +54,7 @@ const App: React.FC = () => {
 
     const handleResize = () => {
       // Re-triggering state triggers re-render in FormulaViewer
-      actions.setLatex(state.formula.latex);
+      setLatex(latex);
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -78,7 +64,7 @@ const App: React.FC = () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", handleResize);
     };
-  }, [handleClearSelection, state.formula.latex, actions]);
+  }, [handleClearSelection, latex, setLatex]);
 
   return (
     <MainLayout>
@@ -89,18 +75,7 @@ const App: React.FC = () => {
           title="Display Viewer (KaTeX)"
           footerNote="Формула рендерится KaTeX, затем строится карта интерактивности по DOM + геометрии."
         >
-          <FormulaViewer
-            ref={formulaContainerRef}
-            latex={state.formula.latex}
-          />
-          <HoverDebugPanel />
-          <StepHint />
-          <EngineDebugPanel />
-          <TSADebugPanel />
-        </Card>
-
-        <Card title="TSA steps log">
-          <LogConsole />
+          <FormulaViewer ref={formulaContainerRef} latex={latex} />
         </Card>
 
         <Card
@@ -109,26 +84,15 @@ const App: React.FC = () => {
         >
           <div className="controls">
             <TestSelector />
-            <ControlToolbar
-              onRebuild={handleRebuild}
-              onDownloadJson={handleDownloadJson}
-              onDownloadEvents={handleDownloadEvents}
-              onDownloadBus={handleDownloadBus}
-              onDownloadSnapshot={handleDownloadSnapshot}
-              onDownloadSession={handleDownloadSession}
-              onResetSession={handleResetSession}
-              onClearSelection={handleClearSelection}
-            />
+            <ControlToolbar />
           </div>
 
-          <ManualLatexInput onLoad={handleLoadLatex} />
+          <ManualLatexInput />
           <JsonInspector />
         </Card>
-
-        <Card title="Advanced Debug Tool">
-          <AdvancedDebugTool />
-        </Card>
       </div>
+
+      <DiagnosticsPanel />
     </MainLayout>
   );
 };

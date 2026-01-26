@@ -1,26 +1,17 @@
-import React from "react";
+import { eventRecorder, fileBus } from "../../app/features";
+import { useAppEvents } from "../../hooks/useAppEvents";
 
-interface ControlToolbarProps {
-  onRebuild: () => void;
-  onDownloadJson: () => void;
-  onDownloadEvents: () => void;
-  onDownloadBus: () => void;
-  onDownloadSnapshot: () => void;
-  onDownloadSession: () => void;
-  onResetSession: () => void;
-  onClearSelection: () => void;
-}
-
-const ControlToolbar: React.FC<ControlToolbarProps> = ({
-  onRebuild,
-  onDownloadJson,
-  onDownloadEvents,
-  onDownloadBus,
-  onDownloadSnapshot,
-  onDownloadSession,
-  onResetSession,
-  onClearSelection,
-}) => {
+const ControlToolbar = () => {
+  const {
+    handleRebuild: onRebuild,
+    handleDownloadJson: onDownloadJson,
+    handleDownloadEvents: onDownloadEvents,
+    handleDownloadBus: onDownloadBus,
+    handleDownloadSnapshot: onDownloadSnapshot,
+    handleDownloadSession: onDownloadSession,
+    handleResetSession: onResetSession,
+    handleClearSelection: onClearSelection,
+  } = useAppEvents(eventRecorder, fileBus);
   return (
     <>
       <button id="btn-rebuild" className="primary" onClick={onRebuild}>

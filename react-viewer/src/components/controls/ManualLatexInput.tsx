@@ -1,12 +1,11 @@
-import React from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { eventRecorder, fileBus } from "../../app/features";
+import { useAppEvents } from "../../hooks/useAppEvents";
+import { useViewerStore } from "../../store/useViewerStore";
 
-interface ManualLatexInputProps {
-  onLoad: () => void;
-}
-
-const ManualLatexInput: React.FC<ManualLatexInputProps> = ({ onLoad }) => {
-  const { state, actions } = useViewer();
+const ManualLatexInput = () => {
+  const manualInput = useViewerStore((state) => state.formula.manualInput);
+  const { setManualInput } = useViewerStore((state) => state.actions);
+  const { handleLoadLatex: onLoad } = useAppEvents(eventRecorder, fileBus);
 
   return (
     <div
@@ -23,8 +22,8 @@ const ManualLatexInput: React.FC<ManualLatexInputProps> = ({ onLoad }) => {
       <textarea
         id="manual-latex-input"
         rows={2}
-        value={state.formula.manualInput}
-        onChange={(e) => actions.setManualInput(e.target.value)}
+        value={manualInput}
+        onChange={(e) => setManualInput(e.target.value)}
         style={{
           width: "100%",
           resize: "vertical",

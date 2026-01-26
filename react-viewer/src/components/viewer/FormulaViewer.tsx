@@ -7,8 +7,8 @@ import {
   useRef,
 } from "react";
 import { buildAndShowMap } from "../../app/features/rendering/surface-map-builder.js";
-import { useViewer } from "../../context/ViewerContext";
 import { useMathInstrumentation } from "../../hooks/useMathInstrumentation";
+import { useViewerStore } from "../../store/useViewerStore";
 import StableIdBanner from "./StableIdBanner";
 
 interface FormulaViewerProps {
@@ -18,7 +18,7 @@ interface FormulaViewerProps {
 const FormulaViewer = memo(
   forwardRef<HTMLDivElement, FormulaViewerProps>(({ latex }, ref) => {
     const internalRef = useRef<HTMLDivElement>(null);
-    const { dispatch } = useViewer();
+    const { setSurfaceMap } = useViewerStore((state) => state.actions);
 
     // Sync external ref if provided
     useImperativeHandle(ref, () => internalRef.current!);
@@ -42,16 +42,13 @@ const FormulaViewer = memo(
           // 2. Build and Show Map (Synchronous now, ensuring DOM matches map)
           const result = buildAndShowMap(internalRef.current, latex);
           if (result && result.serializable) {
-            dispatch({
-              type: "SET_SURFACE_MAP",
-              payload: result.serializable,
-            });
+            setSurfaceMap(result.serializable);
           }
         } catch (err) {
           console.error("KaTeX rendering error:", err);
         }
       }
-    }, [instrumentedLatex, latex, dispatch]);
+    }, [instrumentedLatex, latex, setSurfaceMap]);
 
     return (
       <div

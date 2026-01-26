@@ -2,21 +2,23 @@ import { useCallback } from "react";
 import { getEngineBaseUrl } from "../app/core/api.js";
 import { appState, setCurrentLatex, TESTS } from "../app/core/state.js";
 import { clearSelection } from "../app/features/selection/selection-manager.js";
-import { useViewer } from "../context/ViewerContext";
+import { useViewerStore } from "../store/useViewerStore";
 
 export function useAppEvents(
   eventRecorder: { download: () => void },
   fileBus: { getHistory: () => any[] },
 ) {
-  const { state, actions } = useViewer();
+  const latex = useViewerStore((state) => state.formula.latex);
+  const manualInput = useViewerStore((state) => state.formula.manualInput);
+  const { setLatex, setActiveTest } = useViewerStore((state) => state.actions);
 
   const handleRebuild = useCallback(() => {
     // Re-trigger state to ensure React reconciliation verifies the view
-    actions.setLatex(state.formula.latex);
-  }, [state.formula.latex, actions]);
+    setLatex(latex);
+  }, [latex, setLatex]);
 
   const handleDownloadJson = useCallback(() => {
-    const current = (appState as any).current;
+    const current = appState.current;
     if (!current) return;
     const data = JSON.stringify(current.serializable, null, 2);
     const blob = new Blob([data], { type: "application/json" });
@@ -115,25 +117,25 @@ export function useAppEvents(
 
   const handleTestChange = useCallback(
     (value: string) => {
-      actions.setActiveTest(value);
+      setActiveTest(value);
       const idx = parseInt(value, 10) || 0;
       const newLatex = (TESTS as string[])[
         Math.max(0, Math.min(TESTS.length - 1, idx))
       ];
       setCurrentLatex(newLatex);
-      actions.setLatex(newLatex);
+      setLatex(newLatex);
       clearSelection("latex-changed");
     },
-    [actions],
+    [setActiveTest, setLatex],
   );
 
   const handleLoadLatex = useCallback(() => {
-    const value = state.formula.manualInput.trim();
+    const value = manualInput.trim();
     if (!value) return;
     setCurrentLatex(value);
-    actions.setLatex(value);
+    setLatex(value);
     clearSelection("latex-changed");
-  }, [state.formula.manualInput, actions]);
+  }, [manualInput, setLatex]);
 
   const handleClearSelection = useCallback(() => {
     clearSelection("button");

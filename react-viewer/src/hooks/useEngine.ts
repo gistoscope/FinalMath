@@ -5,14 +5,14 @@ import {
   setEngineResponseCallbacks,
 } from "../app/features/engine";
 import { clearSelection } from "../app/features/selection";
-import { useViewer } from "../context/ViewerContext";
+import { useViewerStore } from "../store/useViewerStore";
 import { useTsaEngine } from "./useTsaEngine";
 
 /**
  * Hook to manage Engine lifecycle and callbacks
  */
 export function useEngine() {
-  const { actions } = useViewer();
+  const { setLatex } = useViewerStore((state) => state.actions);
 
   // Phase 2: Reactive Engine Status
   useTsaEngine();
@@ -25,7 +25,7 @@ export function useEngine() {
     setEngineResponseCallbacks(
       () => {
         const newLatex = getCurrentLatex();
-        actions.setLatex(newLatex);
+        setLatex(newLatex);
       },
       () => {
         // Handled by FormulaViewer internal mapping
@@ -36,7 +36,7 @@ export function useEngine() {
     );
 
     console.log("[useEngine] Engine initialized with reactive callbacks");
-  }, [actions]);
+  }, [setLatex]);
 
   return {};
 }

@@ -3,14 +3,16 @@ import { formatStudentHint } from "../app/features/debug/formatters.js";
 import { fileBus } from "../app/features/engine";
 import { handleEngineResponse } from "../app/features/engine/response-handler.js";
 import { handleClientEvent } from "../app/features/p1/integer-click-handler.js";
-import { useViewer } from "../context/ViewerContext";
+import { useViewerStore } from "../store/useViewerStore";
 
 /**
  * Hook that captures engine events from the FileBus and updates the React context.
  * This effectively replaces the legacy panel-setup.js.
  */
 export function useTsaEngine() {
-  const { dispatch } = useViewer();
+  const { updateEngine, updateTsa, updateStepHint } = useViewerStore(
+    (state) => state.actions,
+  );
 
   useEffect(() => {
     const debugState = {
@@ -44,31 +46,22 @@ export function useTsaEngine() {
       }
 
       // 1. Update Engine Status
-      dispatch({
-        type: "UPDATE_ENGINE",
-        payload: {
-          lastClientEvent: debugState.lastClientEvent,
-          lastEngineRequest: debugState.lastEngineRequest,
-          lastEngineResponse: debugState.lastEngineResponse,
-        },
+      updateEngine({
+        lastClientEvent: debugState.lastClientEvent,
+        lastEngineRequest: debugState.lastEngineRequest,
+        lastEngineResponse: debugState.lastEngineResponse,
       });
 
       // 2. Update TSA Strategy Info
-      dispatch({
-        type: "UPDATE_TSA",
-        payload: {
-          lastTsa: debugState.lastTsa,
-          log: [...debugState.tsaLog],
-        },
+      updateTsa({
+        lastTsa: debugState.lastTsa,
+        log: [...debugState.tsaLog],
       });
 
       // 3. Update Student Hint
-      dispatch({
-        type: "UPDATE_STEP_HINT",
-        payload: formatStudentHint(debugState.lastTsa),
-      });
+      updateStepHint(formatStudentHint(debugState.lastTsa));
     });
 
     return unsubscribe;
-  }, [dispatch]);
+  }, [updateEngine, updateTsa, updateStepHint]);
 }

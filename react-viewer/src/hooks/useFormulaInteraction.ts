@@ -4,40 +4,35 @@ import {
   dragState,
   getCurrentLatex,
   selectionState,
-} from "../app/core/state.js";
+} from "../app/core/state";
 import {
   applyOperatorHighlight,
   clearOperatorHighlight,
-} from "../app/features/selection/operator-highlight.js";
-import { hitTestRect } from "../app/features/selection/selection-manager.js";
-import { OperatorSelectionContext } from "../app/operator-selection-context.js";
-import { hitTestPoint } from "../app/surface-map";
-import { getOperandNodes } from "../app/surface-map.js";
+} from "../app/features/selection/operator-highlight";
+import { hitTestRect } from "../app/features/selection/selection-manager";
+import { OperatorSelectionContext } from "../app/operator-selection-context";
+import { getOperandNodes, hitTestPoint } from "../app/surface-map";
 import {
   clearDomHighlight,
   formatNodeInfo,
   highlightNode,
-} from "../app/ui/hover-panel.js";
-import { applySelectionVisual } from "../app/ui/selection-overlay.js";
-import { useViewer } from "../context/ViewerContext";
+} from "../app/ui/hover-panel";
+import { applySelectionVisual } from "../app/ui/selection-overlay";
+import { useViewerStore } from "../store/useViewerStore";
 
 /**
  * Find node by element using hit testing
- * @param {HTMLElement} target - Target element
- * @param {PointerEvent} e - Pointer event
- * @param {HTMLElement} container - Formula container
- * @returns {object|null} Surface node or null
  */
 function findNodeByElement(
   target: HTMLElement,
   e: PointerEvent,
   container: HTMLElement,
 ) {
-  if (!(appState as any).current || !(appState as any).current.map) return null;
+  if (!appState.current || !appState.current.map) return null;
 
   if (e && typeof e.clientX === "number" && typeof e.clientY === "number") {
     const node = hitTestPoint(
-      (appState as any).current.map,
+      appState.current.map,
       e.clientX,
       e.clientY,
       container,
@@ -45,23 +40,21 @@ function findNodeByElement(
     if (node) return node;
   }
 
-  if (!(appState as any).current.map.byElement) return null;
+  const byElement = (appState.current.map as any).byElement;
+  if (!byElement) return null;
+
   let el: HTMLElement | null = target;
-  while (
-    el &&
-    el !== container &&
-    !(appState as any).current.map.byElement.has(el)
-  ) {
+  while (el && el !== container && !byElement.has(el)) {
     el = el.parentElement;
   }
-  return el ? (appState as any).current.map.byElement.get(el) : null;
+  return el ? byElement.get(el) : null;
 }
 
 export function useFormulaInteraction(
   containerRef: RefObject<HTMLDivElement | null>,
   displayAdapter: any,
 ) {
-  const { dispatch } = useViewer();
+  const { updateHover } = useViewerStore((state) => state.actions);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -69,51 +62,40 @@ export function useFormulaInteraction(
 
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
-      if (!(appState as any).current || !(appState as any).current.map) return;
-      (dragState as any).isDragging = true;
-      (dragState as any).dragStart = { x: e.clientX, y: e.clientY };
-      (dragState as any).dragEnd = { x: e.clientX, y: e.clientY };
+      if (!appState.current || !appState.current.map) return;
+      dragState.isDragging = true;
+      dragState.dragStart = { x: e.clientX, y: e.clientY };
+      dragState.dragEnd = { x: e.clientX, y: e.clientY };
     };
 
     const handlePointerMove = (e: PointerEvent) => {
-      if (!(appState as any).current || !(appState as any).current.map) return;
+      if (!appState.current || !appState.current.map) return;
       const containerBox = container.getBoundingClientRect();
 
       const node = findNodeByElement(e.target as HTMLElement, e, container);
 
       if (!node) {
         clearDomHighlight();
-        dispatch({ type: "UPDATE_HOVER", payload: { target: "—" } });
+        updateHover({ target: "—" });
       } else {
         highlightNode(node);
-        dispatch({
-          type: "UPDATE_HOVER",
-          payload: { target: formatNodeInfo(node) },
-        });
+        updateHover({ target: formatNodeInfo(node) });
       }
 
       displayAdapter.emitHover(node, e);
 
-      if ((dragState as any).isDragging && (dragState as any).dragStart) {
-        (dragState as any).dragEnd = { x: e.clientX, y: e.clientY };
+      if (dragState.isDragging && dragState.dragStart) {
+        dragState.dragEnd = { x: e.clientX, y: e.clientY };
         const dragRectEl = document.getElementById("drag-rect");
         if (dragRectEl) {
           const left =
-            Math.min(
-              (dragState as any).dragStart.x,
-              (dragState as any).dragEnd.x,
-            ) - containerBox.left;
+            Math.min(dragState.dragStart.x, dragState.dragEnd.x) -
+            containerBox.left;
           const top =
-            Math.min(
-              (dragState as any).dragStart.y,
-              (dragState as any).dragEnd.y,
-            ) - containerBox.top;
-          const width = Math.abs(
-            (dragState as any).dragEnd.x - (dragState as any).dragStart.x,
-          );
-          const height = Math.abs(
-            (dragState as any).dragEnd.y - (dragState as any).dragStart.y,
-          );
+            Math.min(dragState.dragStart.y, dragState.dragEnd.y) -
+            containerBox.top;
+          const width = Math.abs(dragState.dragEnd.x - dragState.dragStart.x);
+          const height = Math.abs(dragState.dragEnd.y - dragState.dragStart.y);
           dragRectEl.style.display = "block";
           dragRectEl.style.left = left + "px";
           dragRectEl.style.top = top + "px";
@@ -124,71 +106,63 @@ export function useFormulaInteraction(
     };
 
     const handlePointerUp = (e: PointerEvent) => {
-      if (!(appState as any).current || !(appState as any).current.map) return;
-      const map = (appState as any).current.map;
+      if (!appState.current || !appState.current.map) return;
+      const map = appState.current.map;
       const containerBox = container.getBoundingClientRect();
       const dragRectEl = document.getElementById("drag-rect");
 
-      if ((dragState as any).isDragging && (dragState as any).dragStart) {
-        const dx = e.clientX - (dragState as any).dragStart.x;
-        const dy = e.clientY - (dragState as any).dragStart.y;
+      if (dragState.isDragging && dragState.dragStart) {
+        const dx = e.clientX - dragState.dragStart.x;
+        const dy = e.clientY - dragState.dragStart.y;
         const dist2 = dx * dx + dy * dy;
         const threshold2 = 7 * 7;
 
         if (dist2 > threshold2) {
           const rect = {
             left:
-              Math.min((dragState as any).dragStart.x, e.clientX) -
-              containerBox.left,
+              Math.min(dragState.dragStart.x, e.clientX) - containerBox.left,
             right:
-              Math.max((dragState as any).dragStart.x, e.clientX) -
-              containerBox.left,
-            top:
-              Math.min((dragState as any).dragStart.y, e.clientY) -
-              containerBox.top,
+              Math.max(dragState.dragStart.x, e.clientX) - containerBox.left,
+            top: Math.min(dragState.dragStart.y, e.clientY) - containerBox.top,
             bottom:
-              Math.max((dragState as any).dragStart.y, e.clientY) -
-              containerBox.top,
+              Math.max(dragState.dragStart.y, e.clientY) - containerBox.top,
           };
 
           const nodesInRect = hitTestRect(map, rect);
 
           if (nodesInRect.length > 0) {
             if (e.ctrlKey) {
-              const newSet = new Set((selectionState as any).selectedIds);
+              const newSet = new Set(selectionState.selectedIds);
               for (const n of nodesInRect) {
                 if (newSet.has(n.id)) newSet.delete(n.id);
                 else newSet.add(n.id);
               }
-              (selectionState as any).selectedIds = newSet;
-              (selectionState as any).mode =
-                newSet.size <= 1 ? "single" : "multi";
-              (selectionState as any).primaryId =
-                nodesInRect[nodesInRect.length - 1].id;
+              selectionState.selectedIds = newSet;
+              selectionState.mode = newSet.size <= 1 ? "single" : "multi";
+              selectionState.primaryId = nodesInRect[nodesInRect.length - 1].id;
             } else {
-              (selectionState as any).selectedIds = new Set(
+              selectionState.selectedIds = new Set(
                 nodesInRect.map((n) => n.id),
               );
-              (selectionState as any).mode = "rect";
-              (selectionState as any).primaryId =
-                nodesInRect[nodesInRect.length - 1].id;
+              selectionState.mode = "rect";
+              selectionState.primaryId = nodesInRect[nodesInRect.length - 1].id;
             }
             applySelectionVisual(map);
             displayAdapter.emitSelectionChanged("rect", e);
           }
 
           if (dragRectEl) dragRectEl.style.display = "none";
-          (dragState as any).isDragging = false;
-          (dragState as any).dragStart = null;
-          (dragState as any).dragEnd = null;
+          dragState.isDragging = false;
+          dragState.dragStart = null;
+          dragState.dragEnd = null;
           return;
         }
       }
 
       if (dragRectEl) dragRectEl.style.display = "none";
-      (dragState as any).isDragging = false;
-      (dragState as any).dragStart = null;
-      (dragState as any).dragEnd = null;
+      dragState.isDragging = false;
+      dragState.dragStart = null;
+      dragState.dragEnd = null;
 
       if (e.button !== 0) return;
 
@@ -197,28 +171,25 @@ export function useFormulaInteraction(
       if (!node) return;
 
       if (e.ctrlKey) {
-        const newSet = new Set((selectionState as any).selectedIds);
+        const newSet = new Set(selectionState.selectedIds);
         if (newSet.has(node.id)) {
           newSet.delete(node.id);
         } else {
           newSet.add(node.id);
         }
-        (selectionState as any).selectedIds = newSet;
-        (selectionState as any).mode =
+        selectionState.selectedIds = newSet;
+        selectionState.mode =
           newSet.size === 0 ? "none" : newSet.size === 1 ? "single" : "multi";
-        (selectionState as any).primaryId = newSet.size ? node.id : null;
+        selectionState.primaryId = newSet.size ? node.id : null;
       } else {
-        (selectionState as any).selectedIds = new Set([node.id]);
-        (selectionState as any).mode = "single";
-        (selectionState as any).primaryId = node.id;
+        selectionState.selectedIds = new Set([node.id]);
+        selectionState.mode = "single";
+        selectionState.primaryId = node.id;
       }
       applySelectionVisual(map);
       displayAdapter.emitSelectionChanged("click", e);
 
-      dispatch({
-        type: "UPDATE_HOVER",
-        payload: { lastClick: formatNodeInfo(node) },
-      });
+      updateHover({ lastClick: formatNodeInfo(node) });
 
       // SMART OPERATOR SELECTION
       if (
@@ -228,7 +199,7 @@ export function useFormulaInteraction(
       ) {
         const operatorContext = OperatorSelectionContext.create(
           node,
-          (appState as any).current.map,
+          appState.current.map,
           getOperandNodes,
         );
 
@@ -273,5 +244,5 @@ export function useFormulaInteraction(
       container.removeEventListener("pointercancel", handlePointerCancel);
       container.removeEventListener("pointerleave", handlePointerCancel);
     };
-  }, [containerRef, displayAdapter]);
+  }, [containerRef, displayAdapter, updateHover]);
 }

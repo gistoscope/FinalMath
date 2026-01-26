@@ -1,5 +1,5 @@
 import React from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 interface TestOption {
   label: string;
@@ -26,7 +26,8 @@ const defaultOptions: TestOption[] = [
 ];
 
 const TestSelector: React.FC = () => {
-  const { state, actions } = useViewer();
+  const activeTestId = useViewerStore((state) => state.system.activeTestId);
+  const { setActiveTest } = useViewerStore((state) => state.actions);
 
   return (
     <>
@@ -35,8 +36,8 @@ const TestSelector: React.FC = () => {
       </label>
       <select
         id="test-select"
-        value={state.system.activeTestId}
-        onChange={(e) => actions.setActiveTest(e.target.value)}
+        value={activeTestId}
+        onChange={(e) => setActiveTest(e.target.value)}
       >
         {defaultOptions.map((option) => (
           <option key={option.value} value={option.value}>

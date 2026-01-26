@@ -9,11 +9,10 @@ import {
   formatTsaWindowAfter,
   formatTsaWindowBefore,
 } from "../../app/features/debug/formatters";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 const TSADebugPanel: React.FC = () => {
-  const { state } = useViewer();
-  const { tsa } = state.debug;
+  const tsa = useViewerStore((state) => state.debug.tsa);
 
   return (
     <div id="tsa-debug-panel" className="hover-panel">
