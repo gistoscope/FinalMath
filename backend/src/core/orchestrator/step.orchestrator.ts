@@ -34,6 +34,7 @@ import { PreferredPrimitiveFilter } from "./filters/index.js";
 
 // Utils
 import { StepHistoryService } from "../stepmaster/index.js";
+import { ContextGenerator } from "./context-generator.orchestrator.js";
 import { DebugInfoBuilder } from "./utils/index.js";
 
 /**
@@ -61,7 +62,9 @@ export class StepOrchestrator {
     // Filters
     private readonly preferredPrimitiveFilter: PreferredPrimitiveFilter,
     // Utils
-    private readonly debugInfoBuilder: DebugInfoBuilder
+    private readonly debugInfoBuilder: DebugInfoBuilder,
+    // Context Generator
+    private readonly contextGenerator: ContextGenerator
   ) {}
 
   async updateHistory(history: StepHistory) {
@@ -80,8 +83,8 @@ export class StepOrchestrator {
    * Run a single step orchestration.
    */
   async runStep(
-    ctx: OrchestratorContext,
-    req: OrchestratorStepRequest
+    req: OrchestratorStepRequest,
+    ctx: OrchestratorContext = this.contextGenerator.generateContext()
   ): Promise<OrchestratorStepResult> {
     this.log(`[Orchestrator] Processing step for session: ${req.sessionId}`);
     this.stepReq = req;
