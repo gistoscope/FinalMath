@@ -19,6 +19,23 @@ export class OrchestratorClient extends BaseApiClient {
   }
 
   /**
+   * Execute a V5 orchestrator step
+   */
+  async runV5Step(payload: any): Promise<any> {
+    return this.post("/api/orchestrator/v5/step", payload);
+  }
+
+  /**
+   * Validate an operator selection
+   */
+  async validateOperator(latex: string, operatorPath: string): Promise<any> {
+    return this.post("/api/orchestrator/v5/validate-operator", {
+      latex,
+      operatorPath,
+    });
+  }
+
+  /**
    * Health check
    */
   async checkHealth(): Promise<boolean> {

@@ -1,8 +1,10 @@
-import { SurfaceNode } from "../../surface-map/models/SurfaceNode";
+import type { SurfaceMapResult } from "../../surface-map/interfaces/IMapEngine";
+import type { BBox, SurfaceNode } from "../../surface-map/models/SurfaceNode";
+import { OperandFinder } from "../../surface-map/utils/OperandFinder";
 
 export interface BoundingBoxItem {
   node: SurfaceNode;
-  bbox: any;
+  bbox: BBox;
   role: string;
 }
 
@@ -10,13 +12,65 @@ export interface BoundingBoxItem {
  * Class representing an operator selection context.
  */
 export class OperatorSelectionContext {
+  public operatorSurfaceNode: SurfaceNode;
+  public leftOperandSurfaceNode: SurfaceNode | null;
+  public rightOperandSurfaceNode: SurfaceNode | null;
+  public astPath: string;
+  public operatorSymbol: string;
+
+  /**
+   * Create an operator context from a clicked operator node.
+   */
+  static create(
+    operatorNode: SurfaceNode,
+    surfaceMap: SurfaceMapResult | null,
+  ): OperatorSelectionContext | null {
+    if (
+      !operatorNode ||
+      !(
+        operatorNode.kind === "BinaryOp" ||
+        operatorNode.kind === "MinusBinary" ||
+        operatorNode.kind === "Op" ||
+        operatorNode.role === "operator"
+      )
+    ) {
+      return null;
+    }
+
+    if (!operatorNode.astNodeId) {
+      return null;
+    }
+
+    const operands = OperandFinder.find(surfaceMap, operatorNode.astNodeId);
+
+    if (!operands) {
+      return null;
+    }
+
+    const operatorSymbol = operatorNode.latexFragment || "?";
+
+    return new OperatorSelectionContext(
+      operatorNode,
+      operands.left,
+      operands.right,
+      operatorNode.astNodeId,
+      operatorSymbol,
+    );
+  }
+
   constructor(
-    public operatorSurfaceNode: SurfaceNode,
-    public leftOperandSurfaceNode: SurfaceNode | null,
-    public rightOperandSurfaceNode: SurfaceNode | null,
-    public astPath: string,
-    public operatorSymbol: string,
-  ) {}
+    operatorSurfaceNode: SurfaceNode,
+    leftOperandSurfaceNode: SurfaceNode | null,
+    rightOperandSurfaceNode: SurfaceNode | null,
+    astPath: string,
+    operatorSymbol: string,
+  ) {
+    this.operatorSurfaceNode = operatorSurfaceNode;
+    this.leftOperandSurfaceNode = leftOperandSurfaceNode;
+    this.rightOperandSurfaceNode = rightOperandSurfaceNode;
+    this.astPath = astPath;
+    this.operatorSymbol = operatorSymbol;
+  }
 
   public isComplete(): boolean {
     return !!(

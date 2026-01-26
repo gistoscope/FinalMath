@@ -1,6 +1,6 @@
 import { singleton } from "tsyringe";
-import { IGeometryProvider } from "../interfaces/IMapEngine";
-import { BBox } from "../models/SurfaceNode";
+import type { IGeometryProvider } from "../interfaces/IMapEngine";
+import type { BBox } from "../models/SurfaceNode";
 
 @singleton()
 export class GeometryProvider implements IGeometryProvider {

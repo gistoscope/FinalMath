@@ -36,6 +36,7 @@ export interface IStoreService {
 
   // Surface Map
   setSurfaceMap(mapJson: any): void;
+  getSurfaceMap(): any;
 
   // Hover
   updateHover(hover: {
@@ -46,6 +47,21 @@ export interface IStoreService {
   // Interaction State
   updateOperatorSelection(operatorSelection: any): void;
   getOperatorSelection(): any;
+
+  // Integer Cycle
+  updateIntegerCycle(cycle: any): void;
+  getIntegerCycle(): any;
+
+  // New - Engine & TSA
+  updateEngine(engine: {
+    lastClientEvent?: unknown | null;
+    lastEngineRequest?: unknown | null;
+    lastEngineResponse?: unknown | null;
+  }): void;
+  updateTsa(tsa: { lastTsa?: unknown | null; log?: unknown[] }): void;
+  updateStepHint(hint: string | null): void;
+
+  updateP1Diagnostics(diagnostics: any): void;
 
   // System
   addLog(message: string): void;

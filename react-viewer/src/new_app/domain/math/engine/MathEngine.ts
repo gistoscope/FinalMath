@@ -1,4 +1,5 @@
 import { inject, singleton } from "tsyringe";
+import { IntrospectClient } from "../../../core/api/clients/IntrospectClient";
 import { Tokens } from "../../../di/tokens";
 import {
   LatexInstrumenter,
@@ -16,15 +17,18 @@ export class MathEngine {
   private parser: IParser;
   private traverser: AstTraverser;
   private instrumenter: LatexInstrumenter;
+  private backendClient: IntrospectClient;
 
   constructor(
     @inject(Tokens.IMathParser) parser: IParser,
-    traverser: AstTraverser,
-    instrumenter: LatexInstrumenter,
+    @inject(AstTraverser) traverser: AstTraverser,
+    @inject(LatexInstrumenter) instrumenter: LatexInstrumenter,
+    @inject(IntrospectClient) backendClient: IntrospectClient,
   ) {
     this.parser = parser;
     this.traverser = traverser;
     this.instrumenter = instrumenter;
+    this.backendClient = backendClient;
   }
 
   /**
@@ -39,30 +43,32 @@ export class MathEngine {
   /**
    * Convert LaTeX to instrumented version for the viewer.
    */
-  public instrumentLatex(latex: string): InstrumentationResult {
+  public async instrumentLatex(latex: string): Promise<InstrumentationResult> {
     const ast = this.buildAugmentedAst(latex);
 
     if (!ast) {
-      return {
-        success: false,
-        latex: latex,
-        reason: "Failed to parse expression",
-      };
+      console.log("[MathEngine] Local parse failed, trying backend...");
+      try {
+        const backendResult = await this.backendClient.instrumentLatex(latex);
+        return {
+          success: backendResult.success,
+          latex: backendResult.latex || latex,
+          reason: backendResult.reason,
+        };
+      } catch {
+        return {
+          success: false,
+          latex: latex,
+          reason: "Backend instrumentation failed",
+        };
+      }
     }
 
     const instrumented = this.instrumenter.toInstrumentedLatex(ast);
-
-    if (!instrumented) {
-      return {
-        success: false,
-        latex: latex,
-        reason: "Failed to serialize instrumented AST",
-      };
-    }
-
     return {
-      success: true,
-      latex: instrumented,
+      success: !!instrumented,
+      latex: instrumented || latex,
+      reason: instrumented ? undefined : "Instrumentation failed",
     };
   }
 

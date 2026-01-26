@@ -1,5 +1,4 @@
-import { eventRecorder, fileBus } from "../../app/features";
-import { useAppEvents } from "../../hooks/useAppEvents";
+import { useAppActions } from "../../new_app/hooks/useAppActions";
 
 const ControlToolbar = () => {
   const {
@@ -11,7 +10,7 @@ const ControlToolbar = () => {
     handleDownloadSession: onDownloadSession,
     handleResetSession: onResetSession,
     handleClearSelection: onClearSelection,
-  } = useAppEvents(eventRecorder, fileBus);
+  } = useAppActions();
   return (
     <>
       <button id="btn-rebuild" className="primary" onClick={onRebuild}>

@@ -19,4 +19,8 @@ export class IntrospectClient extends BaseApiClient {
   async getAllMetadata(): Promise<any[]> {
     return this.get("/");
   }
+
+  async instrumentLatex(latex: string): Promise<any> {
+    return this.post("/instrument", { latex });
+  }
 }

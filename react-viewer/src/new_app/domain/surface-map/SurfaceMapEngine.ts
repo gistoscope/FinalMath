@@ -30,6 +30,7 @@ export class SurfaceMapEngine implements IMapEngine {
     clientX: number,
     clientY: number,
     container: HTMLElement,
+    target?: HTMLElement,
   ): SurfaceNode | null {
     if (!this.currentMap) return null;
 
@@ -52,15 +53,49 @@ export class SurfaceMapEngine implements IMapEngine {
       return x >= b.left && x <= b.right && y >= b.top && y <= b.bottom;
     });
 
-    if (candidates.length === 0) return null;
+    if (candidates.length > 0) {
+      // Select the smallest by area (deepest/most specific)
+      candidates.sort((a, b) => {
+        const areaA =
+          (a.bbox.right - a.bbox.left) * (a.bbox.bottom - a.bbox.top);
+        const areaB =
+          (b.bbox.right - b.bbox.left) * (b.bbox.bottom - b.bbox.top);
+        return areaA - areaB;
+      });
 
-    // Select the smallest by area (deepest/most specific)
-    candidates.sort((a, b) => {
-      const areaA = (a.bbox.right - a.bbox.left) * (a.bbox.bottom - a.bbox.top);
-      const areaB = (b.bbox.right - b.bbox.left) * (b.bbox.bottom - b.bbox.top);
-      return areaA - areaB;
+      return candidates[0];
+    }
+
+    // Fallback: Check by element
+    if (target) {
+      let curr: HTMLElement | null = target;
+      while (curr && curr !== container) {
+        if (this.currentMap.byElement.has(curr)) {
+          return this.currentMap.byElement.get(curr)!;
+        }
+        curr = curr.parentElement;
+      }
+    }
+
+    return null;
+  }
+
+  public hitTestRect(rect: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  }): SurfaceNode[] {
+    if (!this.currentMap) return [];
+
+    return this.currentMap.atoms.filter((node) => {
+      const b = node.bbox;
+      return (
+        b.left >= rect.left &&
+        b.right <= rect.right &&
+        b.top >= rect.top &&
+        b.bottom <= rect.bottom
+      );
     });
-
-    return candidates[0];
   }
 }

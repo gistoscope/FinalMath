@@ -1,8 +1,5 @@
-/**
- * @fileoverview Operand finder for Smart Operator Selection
- */
-
-import { SurfaceNode } from "./surface-node";
+import type { SurfaceMapResult } from "../interfaces/IMapEngine";
+import type { SurfaceNode } from "../models/SurfaceNode";
 
 /**
  * Class for finding operand nodes in a surface map.
@@ -10,9 +7,10 @@ import { SurfaceNode } from "./surface-node";
 export class OperandFinder {
   /**
    * Find operand surface nodes for a given operator AST path.
+   * Used by Smart Operator Selection to find visual elements for highlighting.
    */
   static find(
-    surfaceMap: { atoms: SurfaceNode[] },
+    surfaceMap: SurfaceMapResult | null,
     operatorAstPath: string,
   ): { left: SurfaceNode | null; right: SurfaceNode | null } | null {
     if (!surfaceMap || !Array.isArray(surfaceMap.atoms) || !operatorAstPath) {
@@ -20,7 +18,8 @@ export class OperandFinder {
     }
 
     // Compute child paths
-    let leftPath: string, rightPath: string;
+    let leftPath: string;
+    let rightPath: string;
 
     if (operatorAstPath === "root") {
       leftPath = "term[0]";
@@ -85,22 +84,22 @@ export class OperandFinder {
 
         if (!leftNode) {
           const leftCandidates = operandCandidates.filter(
-            (a) => a.bbox.right <= opCenter,
+            (a) => a.bbox!.right <= opCenter,
           );
           if (leftCandidates.length > 0) {
             leftNode = leftCandidates.sort(
-              (a, b) => b.bbox.right - a.bbox.right,
+              (a, b) => b.bbox!.right - a.bbox!.right,
             )[0];
           }
         }
 
         if (!rightNode) {
           const rightCandidates = operandCandidates.filter(
-            (a) => a.bbox.left >= opCenter,
+            (a) => a.bbox!.left >= opCenter,
           );
           if (rightCandidates.length > 0) {
             rightNode = rightCandidates.sort(
-              (a, b) => a.bbox.left - b.bbox.left,
+              (a, b) => a.bbox!.left - b.bbox!.left,
             )[0];
           }
         }
@@ -112,14 +111,4 @@ export class OperandFinder {
       right: rightNode,
     };
   }
-}
-
-/**
- * Find operand surface nodes for a given operator AST path.
- */
-export function getOperandNodes(
-  surfaceMap: { atoms: SurfaceNode[] },
-  operatorAstPath: string,
-): { left: SurfaceNode | null; right: SurfaceNode | null } | null {
-  return OperandFinder.find(surfaceMap, operatorAstPath);
 }

@@ -1,6 +1,6 @@
 import { singleton } from "tsyringe";
 import { OP_CHARS, STRUCTURAL_CLASSES } from "../constants";
-import { INodeClassifier } from "../interfaces/IMapEngine";
+import type { INodeClassifier } from "../interfaces/IMapEngine";
 
 @singleton()
 export class NodeClassifier implements INodeClassifier {
@@ -9,7 +9,7 @@ export class NodeClassifier implements INodeClassifier {
   }
 
   public classify(
-    element: HTMLElement,
+    _element: HTMLElement,
     classes: string[],
     text: string,
   ): { kind: string; role: string; idPrefix: string; atomic: boolean } {

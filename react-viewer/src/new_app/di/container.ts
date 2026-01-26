@@ -3,6 +3,7 @@ import { container, Lifecycle } from "tsyringe";
 import { Tokens } from "./tokens";
 
 // Core
+import { DebugClient } from "../core/api/clients/DebugClient";
 import { IntrospectClient } from "../core/api/clients/IntrospectClient";
 import { OrchestratorClient } from "../core/api/clients/OrchestratorClient";
 import { FileBus } from "../core/bus/FileBus";
@@ -27,13 +28,18 @@ import { SurfaceNodeFactory } from "../domain/surface-map/providers/SurfaceNodeF
 import { SurfaceMapEngine } from "../domain/surface-map/SurfaceMapEngine";
 
 // Domain - Selection / Interaction
+import { GestureProcessor } from "../domain/interaction/GestureProcessor";
+import { IntegerCycleManager } from "../domain/interaction/IntegerCycleManager";
 import { InteractionService } from "../domain/interaction/InteractionService";
 import { SelectionService } from "../domain/selection/SelectionService";
 
 // Features
 import { EngineBridge } from "../features/engine-bridge/EngineBridge";
+import { ExportService } from "../features/exporting/ExportService";
 import { IntrospectRenderer } from "../features/introspection/IntrospectRenderer";
 import { TokenStripManager } from "../features/introspection/TokenStripManager";
+import { P1Service } from "../features/p1/P1Service";
+import { TestRunnerService } from "../features/testing/TestRunnerService";
 import { TraceRecorder } from "../features/trace-hub/TraceRecorder";
 
 /**
@@ -62,6 +68,11 @@ export function setupDIContainer() {
   container.register(
     IntrospectClient,
     { useClass: IntrospectClient },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    DebugClient,
+    { useClass: DebugClient },
     { lifecycle: Lifecycle.Singleton },
   );
 
@@ -147,6 +158,18 @@ export function setupDIContainer() {
     { lifecycle: Lifecycle.Singleton },
   );
 
+  container.register(
+    GestureProcessor,
+    { useClass: GestureProcessor },
+    { lifecycle: Lifecycle.Singleton },
+  );
+
+  container.register(
+    IntegerCycleManager,
+    { useClass: IntegerCycleManager },
+    { lifecycle: Lifecycle.Singleton },
+  );
+
   // --- Features ---
   container.register(
     EngineBridge,
@@ -166,6 +189,23 @@ export function setupDIContainer() {
   container.register(
     Tokens.ITraceRecorder,
     { useClass: TraceRecorder },
+    { lifecycle: Lifecycle.Singleton },
+  );
+  container.register(
+    ExportService,
+    { useClass: ExportService },
+    { lifecycle: Lifecycle.Singleton },
+  );
+
+  container.register(
+    P1Service,
+    { useClass: P1Service },
+    { lifecycle: Lifecycle.Singleton },
+  );
+
+  container.register(
+    TestRunnerService,
+    { useClass: TestRunnerService },
     { lifecycle: Lifecycle.Singleton },
   );
 }

@@ -4,17 +4,18 @@ import { OrchestratorClient } from "../../core/api/clients/OrchestratorClient";
 import type { BusMessage, IFileBus } from "../../core/interfaces/IFileBus";
 import type { ILogger } from "../../core/logging/ILogger";
 import { Tokens } from "../../di/tokens";
+import type { IStoreService } from "../../store/interfaces/IStoreService";
 
 export interface EngineRequest {
   type: "parse" | "previewStep" | "applyStep" | "getHints";
-  clientEvent: any;
+  clientEvent: unknown;
 }
 
 export interface EngineResponse {
   type: "ok" | "error";
   requestType: string;
   message?: string;
-  result?: any;
+  result?: unknown;
   error?: {
     code: string;
     details: string;
@@ -22,29 +23,37 @@ export interface EngineResponse {
 }
 
 /**
- * EngineBridge - subscribes to ClientEvents on FileBus, orchestrates communication with the backend.
+ * EngineBridge - handles communication with the backend and synchronizes response data with the global store.
  */
+import { TraceRecorder } from "../trace-hub/TraceRecorder";
+
 @singleton()
 export class EngineBridge {
   private unsubscribe: (() => void) | null = null;
   private bus: IFileBus;
   private logger: ILogger;
+  private store: IStoreService;
   private orchestratorClient: OrchestratorClient;
+  private traceRecorder: TraceRecorder;
 
   constructor(
     @inject(Tokens.IFileBus) bus: IFileBus,
     @inject(Tokens.ILogger) logger: ILogger,
-    orchestratorClient: OrchestratorClient,
+    @inject(Tokens.IStoreService) store: IStoreService,
+    @inject(Tokens.ITraceRecorder) traceRecorder: TraceRecorder,
+    @inject(OrchestratorClient) orchestratorClient: OrchestratorClient,
   ) {
     this.bus = bus;
     this.logger = logger;
+    this.store = store;
+    this.traceRecorder = traceRecorder;
     this.orchestratorClient = orchestratorClient;
   }
 
   public start() {
     if (this.unsubscribe) return;
     this.unsubscribe = this.bus.subscribe((msg) => this.handleBusMessage(msg));
-    this.logger.info("[EngineBridge] Started with Orchestrator connection");
+    this.logger.info("[EngineBridge] Started and listening to FileBus");
   }
 
   public stop() {
@@ -55,95 +64,107 @@ export class EngineBridge {
   }
 
   private async handleBusMessage(message: BusMessage) {
-    if (!message || message.messageType !== "ClientEvent") return;
+    if (!message) return;
 
-    const clientEvent = message.payload;
-    const engineRequest = this._toEngineRequest(clientEvent);
+    if (message.messageType === "ClientEvent") {
+      await this._handleClientEvent(message.payload);
+    } else if (message.messageType === "EngineResponse") {
+      this._handleEngineResponse(message.payload as EngineResponse);
+    }
+  }
 
-    if (!this._shouldSendToEngine(clientEvent)) {
+  private async _handleClientEvent(clientEvent: unknown) {
+    if (!this._shouldSendToEngine(clientEvent)) return;
+
+    this.traceRecorder.record("BRIDGE_CLIENT_EVENT", clientEvent);
+    const request = this._toEngineRequest(clientEvent);
+    this.bus.publishEngineRequest(request);
+
+    try {
+      const response = await this._processRequest(request);
+      this.traceRecorder.record("BRIDGE_ENGINE_RESPONSE", response);
+      this.bus.publishEngineResponse(response);
+    } catch (err) {
+      this.traceRecorder.record("BRIDGE_ENGINE_ERROR", err);
+      this.logger.error("[EngineBridge] Orchestrator request failed", err);
+    }
+  }
+
+  private _handleEngineResponse(response: EngineResponse) {
+    if (response.type === "error") {
+      this.logger.error(`[Engine] ${response.message}`, response.error);
       return;
     }
 
-    this.bus.publishEngineRequest(engineRequest);
+    const result = response.result as Record<string, any>;
+    if (!result) return;
 
-    try {
-      const response = await this._processRequest(engineRequest);
-      this.bus.publishEngineResponse(response);
-    } catch (err) {
-      const errorResponse: EngineResponse = {
-        type: "error",
-        requestType: engineRequest.type,
-        message: "Engine processing failed",
-        error: {
-          code: "ENGINE_ERROR",
-          details: err instanceof Error ? err.message : String(err),
-        },
-      };
-      this.bus.publishEngineResponse(errorResponse);
-      this.logger.error("[EngineBridge] Request failed", err);
+    // 1. Sync Latex if applied
+    if (
+      response.requestType === "applyStep" &&
+      result.meta?.backendStatus === "step-applied"
+    ) {
+      if (result.latex) {
+        this.store.setLatex(result.latex);
+      }
     }
-  }
 
-  private _shouldSendToEngine(clientEvent: any): boolean {
-    if (!clientEvent) return false;
-    const t = clientEvent.type;
+    // 2. Handle Choice Popups
+    if (result.meta?.backendStatus === "choice") {
+      this.store.updateEngine({
+        lastEngineResponse: response,
+      });
+      // In a real app, we might trigger a popup service here
+    }
 
-    if (t === "hover") return true;
-    if (t === "click" || t === "dblclick") {
-      const role = clientEvent.surfaceNodeRole || "";
-      const kind = clientEvent.surfaceNodeKind || "";
+    // 3. Update Debug Info
+    this.store.updateEngine({
+      lastEngineResponse: response,
+    });
 
-      // Basic heuristic: send clicks on operators to engine
-      return (
-        role === "operator" ||
-        ["BinaryOp", "Fraction", "Relation"].includes(kind)
+    if (result.meta?.tsa) {
+      this.store.addLog(
+        `[TSA] Applied ${result.meta.tsa.strategy || "Unknown"}`,
       );
     }
-
-    return false;
   }
 
-  private _toEngineRequest(clientEvent: any): EngineRequest {
-    let requestType: EngineRequest["type"] = "parse";
+  private _shouldSendToEngine(clientEvent: unknown): boolean {
+    const ce = clientEvent as any;
+    const t = ce?.type;
+    return (
+      t === "click" || t === "dblclick" || t === "applyChoice" || t === "hover"
+    );
+  }
 
-    switch (clientEvent?.type) {
-      case "click":
-      case "dblclick":
-        requestType = "applyStep";
-        break;
-      case "hover":
-        requestType = "getHints";
-        break;
-      default:
-        requestType = "parse";
+  private _toEngineRequest(clientEvent: unknown): EngineRequest {
+    const ce = clientEvent as any;
+    let type: EngineRequest["type"] = "applyStep";
+
+    if (ce.type === "hover") {
+      type = "getHints";
+    } else if (ce.type === "applyChoice") {
+      type = "applyStep";
     }
 
-    return { type: requestType, clientEvent };
+    return { type, clientEvent };
   }
 
   private async _processRequest(
     request: EngineRequest,
   ): Promise<EngineResponse> {
-    if (request.type === "applyStep") {
-      const payload = {
-        expressionLatex: request.clientEvent.latex,
-        selectionPath: request.clientEvent.astNodeId || null,
-        surfaceNodeId: request.clientEvent.surfaceNodeId || null,
-      };
+    const ce = request.clientEvent as any;
+    const result = await this.orchestratorClient.sendStep({
+      expressionLatex: ce.latex,
+      selectionPath: ce.astNodeId,
+      surfaceNodeId: ce.surfaceNodeId,
+      primitiveId: ce.primitiveId,
+    });
 
-      const result = await this.orchestratorClient.sendStep(payload);
-      return {
-        type: "ok",
-        requestType: request.type,
-        result,
-      };
-    }
-
-    // Default response for non-applied steps
     return {
       type: "ok",
       requestType: request.type,
-      result: { status: "ignored" },
+      result,
     };
   }
 }

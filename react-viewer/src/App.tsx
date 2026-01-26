@@ -1,10 +1,13 @@
 import "katex/dist/katex.min.css";
-import { useEffect, useRef, useState } from "react";
+import { useEffect } from "react";
 import "./App.css";
-import { displayAdapter, eventRecorder, fileBus } from "./app/features/engine";
+
+// Modern Architecture
+import { setupDIContainer } from "./new_app/di/container";
+import { EngineBridge } from "./new_app/features/engine-bridge/EngineBridge";
+import { useService } from "./new_app/useService";
 
 // Components
-import JsonInspector from "./components/console/JsonInspector";
 import ControlToolbar from "./components/controls/ControlToolbar";
 import ManualLatexInput from "./components/controls/ManualLatexInput";
 import TestSelector from "./components/controls/TestSelector";
@@ -14,33 +17,30 @@ import Header from "./components/layout/Header";
 import MainLayout from "./components/layout/MainLayout";
 import FormulaViewer from "./components/viewer/FormulaViewer";
 
-// Hooks
-import "./app/features/trace-hub";
-import { useAppEvents } from "./hooks/useAppEvents";
-import { useEngine } from "./hooks/useEngine";
-import { useFormulaInteraction } from "./hooks/useFormulaInteraction";
+// Store
+import { useAppActions } from "./new_app/hooks/useAppActions";
 import { useViewerStore } from "./store/useViewerStore";
+
+// Initialize DI Container (Singleton)
+setupDIContainer();
 
 const App: React.FC = () => {
   const latex = useViewerStore((state) => state.formula.latex);
   const { setLatex } = useViewerStore((state) => state.actions);
 
-  const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
-  const formulaContainerRef = useRef<HTMLDivElement>(null);
+  // Use the actions hook for global handlers
+  const { handleClearSelection } = useAppActions();
 
-  // Sync ref to state on mount
+  // Engine Bridge Management
+  const engineBridge = useService<EngineBridge>(EngineBridge);
+
   useEffect(() => {
-    if (formulaContainerRef.current) {
-      setContainerEl(formulaContainerRef.current);
-    }
-  }, []);
-
-  // Phase 4 Hooks: Core Logic
-  useEngine();
-  useFormulaInteraction({ current: containerEl }, displayAdapter);
-
-  // Initialize App Control Events
-  const { handleClearSelection } = useAppEvents(eventRecorder, fileBus);
+    // Start the engine bridge when app mounts
+    engineBridge.start();
+    return () => {
+      engineBridge.stop();
+    };
+  }, [engineBridge]);
 
   // Global Key/Window Listeners
   useEffect(() => {
@@ -75,7 +75,8 @@ const App: React.FC = () => {
           title="Display Viewer (KaTeX)"
           footerNote="Формула рендерится KaTeX, затем строится карта интерактивности по DOM + геометрии."
         >
-          <FormulaViewer ref={formulaContainerRef} latex={latex} />
+          {/* FormulaViewer now manages its own refs and interaction */}
+          <FormulaViewer latex={latex} />
         </Card>
 
         <Card
@@ -88,7 +89,7 @@ const App: React.FC = () => {
           </div>
 
           <ManualLatexInput />
-          <JsonInspector />
+          {/* <JsonInspector /> */}
         </Card>
       </div>
 

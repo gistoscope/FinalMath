@@ -1,11 +1,10 @@
-import { eventRecorder, fileBus } from "../../app/features";
-import { useAppEvents } from "../../hooks/useAppEvents";
+import { useAppActions } from "../../new_app/hooks/useAppActions";
 import { useViewerStore } from "../../store/useViewerStore";
 
 const ManualLatexInput = () => {
   const manualInput = useViewerStore((state) => state.formula.manualInput);
   const { setManualInput } = useViewerStore((state) => state.actions);
-  const { handleLoadLatex: onLoad } = useAppEvents(eventRecorder, fileBus);
+  const { handleLoadLatex } = useAppActions();
 
   return (
     <div
@@ -32,7 +31,11 @@ const ManualLatexInput = () => {
         }}
       ></textarea>
       <div style={{ marginTop: "6px" }}>
-        <button id="btn-load-latex" className="secondary" onClick={onLoad}>
+        <button
+          id="btn-load-latex"
+          className="secondary"
+          onClick={() => handleLoadLatex(manualInput)}
+        >
           Load LaTeX into viewer
         </button>
       </div>

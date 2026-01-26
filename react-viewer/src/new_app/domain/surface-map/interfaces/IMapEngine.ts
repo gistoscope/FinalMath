@@ -47,5 +47,16 @@ export interface IGeometryProvider {
 export interface IMapEngine {
   initialize(container: HTMLElement): SurfaceMapResult;
   getCurrentMap(): SurfaceMapResult | null;
-  hitTest(x: number, y: number, container: HTMLElement): SurfaceNode | null;
+  hitTest(
+    x: number,
+    y: number,
+    container: HTMLElement,
+    target?: HTMLElement,
+  ): SurfaceNode | null;
+  hitTestRect(rect: {
+    left: number;
+    top: number;
+    right: number;
+    bottom: number;
+  }): SurfaceNode[];
 }

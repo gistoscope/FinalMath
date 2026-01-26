@@ -45,6 +45,10 @@ export class StoreService implements IStoreService {
     useViewerStore.getState().actions.setSurfaceMap(mapJson);
   }
 
+  public getSurfaceMap(): any {
+    return useViewerStore.getState().system.surfaceMapJson;
+  }
+
   // Hover
   public updateHover(hover: any): void {
     useViewerStore.getState().actions.updateHover(hover);
@@ -59,6 +63,33 @@ export class StoreService implements IStoreService {
 
   public getOperatorSelection(): any {
     return useViewerStore.getState().operatorSelection;
+  }
+
+  // Integer Cycle
+  public updateIntegerCycle(cycle: any): void {
+    useViewerStore.getState().actions.updateIntegerCycle(cycle);
+  }
+
+  public getIntegerCycle(): any {
+    return useViewerStore.getState().integerCycle;
+  }
+
+  // Diagnostics
+  public updateP1Diagnostics(diagnostics: any): void {
+    useViewerStore.getState().actions.updateP1Diagnostics(diagnostics);
+  }
+
+  // Engine & TSA
+  public updateEngine(engine: any): void {
+    useViewerStore.getState().actions.updateEngine(engine);
+  }
+
+  public updateTsa(tsa: any): void {
+    useViewerStore.getState().actions.updateTsa(tsa);
+  }
+
+  public updateStepHint(hint: string | null): void {
+    useViewerStore.getState().actions.updateStepHint(hint);
   }
 
   // System

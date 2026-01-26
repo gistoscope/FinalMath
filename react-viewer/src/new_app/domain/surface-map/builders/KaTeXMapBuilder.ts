@@ -23,8 +23,8 @@ export class KaTeXMapBuilder implements IMapBuilder {
   constructor(
     @inject(Tokens.INodeClassifier) classifier: INodeClassifier,
     @inject(Tokens.IGeometryProvider) geometry: IGeometryProvider,
-    factory: SurfaceNodeFactory,
-    segmenter: ContentSegmenter,
+    @inject(SurfaceNodeFactory) factory: SurfaceNodeFactory,
+    @inject(ContentSegmenter) segmenter: ContentSegmenter,
   ) {
     this.classifier = classifier;
     this.geometry = geometry;
@@ -85,12 +85,23 @@ export class KaTeXMapBuilder implements IMapBuilder {
     const node = new SurfaceNode({
       id: this.factory.nextId(info.idPrefix),
       kind: info.kind,
-      role: info.role,
+      role: element.dataset.role || info.role,
       bbox,
       dom: element,
       latexFragment: text,
       parent,
     });
+
+    // Metadata from \htmlData - lookup directly or on ancestors
+    const astId = this._findInDataset(element, "astId");
+    if (astId) {
+      node.astNodeId = astId;
+    }
+
+    const op = this._findInDataset(element, "operator");
+    if (op) {
+      node.astOperator = op;
+    }
 
     parent.addChild(node);
     this.byElement.set(element, node);
@@ -146,5 +157,20 @@ export class KaTeXMapBuilder implements IMapBuilder {
         this.atoms.push(node);
       }
     });
+  }
+
+  private _findInDataset(element: HTMLElement, key: string): string | null {
+    let curr: HTMLElement | null = element;
+    while (
+      curr &&
+      curr.classList &&
+      !curr.classList.contains("formula-render-area")
+    ) {
+      if (curr.dataset && curr.dataset[key]) {
+        return curr.dataset[key]!;
+      }
+      curr = curr.parentElement;
+    }
+    return null;
   }
 }
