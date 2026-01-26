@@ -67,19 +67,6 @@ export class DisplayAdapter {
   }
 
   emitClick(node: SurfaceNode | null, e: PointerEvent) {
-    console.log("[VIEWER-CLICK] Raw Click Target:", {
-      nodeId: node ? node.id : "null",
-      kind: node ? node.kind : "null",
-      role: node ? node.role : "null",
-      latexFragment: node ? node.latexFragment : "null",
-      operatorIndex:
-        node && typeof node.operatorIndex === "number"
-          ? node.operatorIndex
-          : "undefined",
-      astNodeId: node ? node.astNodeId : "undefined",
-      latex: this._getLatex(),
-    });
-
     const evt = this._baseEvent("click", node, e);
     evt.click = {
       button: e.button === 2 ? "right" : "left",
@@ -180,7 +167,6 @@ export class ClientEventRecorder {
 
   handleEvent(evt: ClientEvent) {
     this.events.push(evt);
-    console.log("[ClientEvent]", evt);
   }
 
   clear() {

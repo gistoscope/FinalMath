@@ -18,8 +18,6 @@ export const displayAdapter = new DisplayAdapter(
   (evt) => {
     // 1) Publish into FileBus (for future EngineAdapter / Recorder)
     fileBus.publishClientEvent(evt);
-    // 2) Mirror into local recorder for JSONL export
-    eventRecorder.handleEvent(evt);
   },
 );
 

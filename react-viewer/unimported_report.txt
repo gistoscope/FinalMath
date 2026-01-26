@@ -1,0 +1,71 @@
+- initializing
+
+       summary               unimported v1.31.0 (node)
+────────────────────────────────────────────────────────────────────────────────
+       entry file          : src/main.tsx
+
+       unresolved imports  : 16
+       unused dependencies : 0
+       unimported files    : 31
+
+
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ 16 unresolved imports
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ ../../ui/hint-indicator.js at src/app/features/p1/cycle-state.ts
+   2 │ ./hint-actions.js at src/app/features/p1/index.ts
+   3 │ ./integer-click-handler.js at src/app/features/p1/index.ts
+   4 │ ./tests.js at src/app/features/p1/index.ts
+   5 │ ./operator-highlight.js at src/app/features/selection/index.ts
+   6 │ ./selection-manager.js at src/app/features/selection/index.ts
+   7 │ ../../client/orchestratorV5Client.js at src/app/features/engine/EngineAdapter.ts
+   8 │ ../../ui/choice-popup.js at src/app/features/engine/response-handler.ts
+   9 │ ../debug/formatters.js at src/app/features/engine/response-handler.ts
+  10 │ ./formula-render.js at src/app/features/rendering/index.ts
+  11 │ ../../ui/hover-panel.js at src/app/features/rendering/surface-map-builder.ts
+  12 │ ../p1/cycle-state.js at src/app/features/rendering/surface-map-builder.ts
+  13 │ ../app/core/api.js at src/hooks/useAppEvents.ts
+  14 │ ../app/core/state.js at src/hooks/useAppEvents.ts
+  15 │ ../app/features/selection/selection-manager.js at src/hooks/useAppEvents.ts
+  16 │ ../../ui/selection-overlay.js at src/app/features/selection/operator-highlight.ts
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+─────┬──────────────────────────────────────────────────────────────────────────
+     │ 31 unimported files
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/client/orchestratorV5Client.ts
+   2 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/core/ApiClient.ts
+   3 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/core/Debugger.ts
+   4 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/core/Logger.ts
+   5 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/p1/hint-actions.ts
+   6 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/p1/HintCycle.ts
+   7 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/p1/integer-click-handler.ts
+   8 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/p1/tests.ts
+   9 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/rendering/formula-render.ts
+  10 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/index.ts
+  11 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/RingBuffer.ts
+  12 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/TraceEvent.ts
+  13 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/TraceExporter.ts
+  14 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/TraceIdGenerator.ts
+  15 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/TraceSummaryBuilder.ts
+  16 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/features/trace-hub/ViewerTraceHub.ts
+  17 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect.ts
+  18 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/constants.ts
+  19 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/HttpIntrospectClient.ts
+  20 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/index.ts
+  21 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/IntrospectPage.ts
+  22 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/IntrospectRenderer.ts
+  23 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/SelectionManager.ts
+  24 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/introspect/TokenStripManager.ts
+  25 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/traceHub.ts
+  26 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/ui/choice-popup.ts
+  27 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/app/ui/index.ts
+  28 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/assets/katex/katex.min.js
+  29 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/components/console/LogConsole.tsx
+  30 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/hooks/useTsaEngine.ts
+  31 │ /media/prince/Works/project/vasily/FinalMath/react-viewer/src/types/viewer-state.ts
+─────┴──────────────────────────────────────────────────────────────────────────
+
+
+       Inspect the results and run npx unimported -u to update ignore lists

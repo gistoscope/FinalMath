@@ -1,16 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useCallback } from "react";
 import { getEngineBaseUrl } from "../app/core/api.js";
-import { appState, setCurrentLatex, TESTS } from "../app/core/state.js";
+import { appState } from "../app/core/state.js";
 import { clearSelection } from "../app/features/selection/selection-manager.js";
-import { useViewerStore } from "../store/useViewerStore";
+import { useFormulaState, useStoreActions } from "../store/useViewerStore";
 
 export function useAppEvents(
   eventRecorder: { download: () => void },
   fileBus: { getHistory: () => any[] },
 ) {
-  const latex = useViewerStore((state) => state.formula.latex);
-  const manualInput = useViewerStore((state) => state.formula.manualInput);
-  const { setLatex, setActiveTest } = useViewerStore((state) => state.actions);
+  const { latex } = useFormulaState();
+  const { setLatex } = useStoreActions();
 
   const handleRebuild = useCallback(() => {
     // Re-trigger state to ensure React reconciliation verifies the view
@@ -115,28 +115,6 @@ export function useAppEvents(
     }
   }, []);
 
-  const handleTestChange = useCallback(
-    (value: string) => {
-      setActiveTest(value);
-      const idx = parseInt(value, 10) || 0;
-      const newLatex = (TESTS as string[])[
-        Math.max(0, Math.min(TESTS.length - 1, idx))
-      ];
-      setCurrentLatex(newLatex);
-      setLatex(newLatex);
-      clearSelection("latex-changed");
-    },
-    [setActiveTest, setLatex],
-  );
-
-  const handleLoadLatex = useCallback(() => {
-    const value = manualInput.trim();
-    if (!value) return;
-    setCurrentLatex(value);
-    setLatex(value);
-    clearSelection("latex-changed");
-  }, [manualInput, setLatex]);
-
   const handleClearSelection = useCallback(() => {
     clearSelection("button");
   }, []);
@@ -149,8 +127,7 @@ export function useAppEvents(
     handleDownloadSnapshot,
     handleDownloadSession,
     handleResetSession,
-    handleTestChange,
-    handleLoadLatex,
+
     handleClearSelection,
   };
 }

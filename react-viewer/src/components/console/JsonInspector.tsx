@@ -1,7 +1,6 @@
-import React from "react";
 import { useViewerStore } from "../../store/useViewerStore";
 
-const JsonInspector: React.FC = () => {
+const JsonInspector = () => {
   const surfaceMapJson = useViewerStore((state) => state.system.surfaceMapJson);
 
   return (

@@ -37,6 +37,7 @@ export function showModeIndicator(
       cursor: pointer;
       user-select: none;
       transition: transform 0.1s, box-shadow 0.1s;
+      display: none;
     `;
 
     const captureBlocker = (e: Event) => {

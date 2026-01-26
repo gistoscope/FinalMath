@@ -1,0 +1,38 @@
+import type { TestOption } from "./types";
+
+export const defaultOptions: TestOption[] = [
+  { label: "T14 · Fraction Addition Same Denom", value: "0" },
+  { label: "T15 · Fraction Subtraction Same Denom", value: "1" },
+  { label: "T0 · Integers 2 + 3", value: "2" },
+  { label: "T1 · Simple fractions", value: "3" },
+  { label: "T2 · Nested fraction", value: "4" },
+  { label: "T3 · Unary minus + brackets", value: "5" },
+  { label: "T4 · Decimals", value: "6" },
+  { label: "T5 · Mixed numbers", value: "7" },
+  { label: "T6 · 2 + 3 - 1", value: "8" },
+  { label: "T7 · Three fractions", value: "9" },
+  { label: "T8 · (1-1/3)·3/4", value: "10" },
+  { label: "T9 · 2/5 - (1/10+3/20)", value: "11" },
+  { label: "T10 · Two bracketed groups", value: "12" },
+  { label: "T11 · Mixed decimals & fractions", value: "13" },
+  { label: "T12 · Stress nested", value: "14" },
+  { label: "T13 · Extra mix", value: "15" },
+];
+export const TESTS: string[] = [
+  String.raw`\frac{1}{7} + \frac{3}{7}`,
+  String.raw`\frac{5}{9} - \frac{2}{9}`,
+  String.raw`2+3`,
+  String.raw`\frac{1}{3}+\frac{2}{5}`,
+  String.raw`\frac{1}{1+\frac{1}{2}}`,
+  String.raw`-\left(\frac{3}{4}-\frac{1}{8}\right)`,
+  String.raw`12.5 + 0.75 - 3.125`,
+  String.raw`1\frac{2}{3} + 2\frac{1}{5}`,
+  String.raw`2 + 3 - 1`,
+  String.raw`\frac{1}{2} + \frac{1}{3} + \frac{1}{6}`,
+  String.raw`\left(1-\frac{1}{3}\right)\cdot\frac{3}{4}`,
+  String.raw`\frac{2}{5} - \left(\frac{1}{10}+\frac{3}{20}\right)`,
+  String.raw`\left(\frac{1}{2}+\frac{2}{3}\right)-\left(\frac{3}{4}-\frac{1}{5}\right)`,
+  String.raw`1.2 + \frac{3}{5} - 0.4`,
+  String.raw`\frac{1}{2} + \left(\frac{3}{4} - \frac{1}{1+\frac{1}{2}}\right)`,
+  String.raw`\left(\frac{5}{6} - \frac{1}{3}\right) + \frac{7}{8}`,
+];

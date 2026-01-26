@@ -1,81 +1,32 @@
-import katex from "katex";
-import {
-  forwardRef,
-  memo,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from "react";
-import { buildAndShowMap } from "../../app/features/rendering/surface-map-builder.js";
-import { useMathInstrumentation } from "../../hooks/useMathInstrumentation";
-import { useViewerStore } from "../../store/useViewerStore";
-import StableIdBanner from "./StableIdBanner";
+import { memo } from "react";
+import { useFormulaViewer } from "../../hooks/useFormulaViewer";
 
-interface FormulaViewerProps {
-  latex: string;
-}
+/**
+ * FormulaViewer Component
+ * Renders mathematical expressions using KaTeX and provides interaction layers.
+ */
+const FormulaViewer = memo(() => {
+  const { containerRef } = useFormulaViewer();
 
-const FormulaViewer = memo(
-  forwardRef<HTMLDivElement, FormulaViewerProps>(({ latex }, ref) => {
-    const internalRef = useRef<HTMLDivElement>(null);
-    const { setSurfaceMap } = useViewerStore((state) => state.actions);
-
-    // Sync external ref if provided
-    useImperativeHandle(ref, () => internalRef.current!);
-
-    const { instrumentedLatex, error, isLoading } =
-      useMathInstrumentation(latex);
-
-    useEffect(() => {
-      if (internalRef.current) {
-        console.log("[FormulaViewer] Rendering and building map for:", latex);
-        try {
-          // 1. Render KaTeX
-          katex.render(instrumentedLatex, internalRef.current, {
-            throwOnError: false,
-            displayMode: true,
-            trust: (context) => context.command === "\\htmlData",
-            strict: (errorCode) =>
-              errorCode === "htmlExtension" ? "ignore" : "warn",
-          });
-
-          // 2. Build and Show Map (Synchronous now, ensuring DOM matches map)
-          const result = buildAndShowMap(internalRef.current, latex);
-          if (result && result.serializable) {
-            setSurfaceMap(result.serializable);
-          }
-        } catch (err) {
-          console.error("KaTeX rendering error:", err);
-        }
-      }
-    }, [instrumentedLatex, latex, setSurfaceMap]);
-
-    return (
+  return (
+    <div className="viewer-container" id="p1-formula-viewer">
       <div
-        className="viewer-container"
-        style={{ opacity: isLoading ? 0.6 : 1 }}
-      >
-        <StableIdBanner reason={error} />
-        <div
-          id="formula-container"
-          ref={internalRef}
-          style={{
-            minHeight: "120px",
-            border: "1px dashed #ccc",
-            padding: "20px",
-            margin: "10px 0",
-            textAlign: "center",
-            transition: "opacity 0.2s",
-          }}
-        >
-          {/* KaTeX will render here */}
-        </div>
-        <div id="selection-overlay" className="selection-overlay"></div>
-        <div id="drag-rect" className="drag-rect"></div>
-      </div>
-    );
-  }),
-);
+        id="formula-container"
+        ref={containerRef}
+        style={{
+          minHeight: "120px",
+          border: "1px dashed #ccc",
+          padding: "20px",
+          margin: "10px 0",
+          textAlign: "center",
+          transition: "opacity 0.2s",
+        }}
+      />
+      <div id="selection-overlay" className="selection-overlay" />
+      <div id="drag-rect" className="drag-rect" />
+    </div>
+  );
+});
 
 FormulaViewer.displayName = "FormulaViewer";
 

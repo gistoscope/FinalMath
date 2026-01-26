@@ -2,14 +2,12 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { MODE_GREEN, TESTS } from "../app/core/constants";
 import type {
-  DebugUIState,
   DragState,
   IntegerCycleState,
   OperatorSelectionState,
-  P1DiagnosticsState,
   SelectionState,
   ViewerState,
-} from "../types/viewer-state";
+} from "./types.store";
 
 interface ViewerActions {
   // Formula Actions
@@ -17,28 +15,15 @@ interface ViewerActions {
   setIsRendering: (isRendering: boolean) => void;
   setManualInput: (input: string) => void;
 
-  // Debug Actions
-  updateHover: (hover: Partial<DebugUIState["hover"]>) => void;
-  updateStepHint: (hint: string | null) => void;
-  updateEngine: (engine: Partial<DebugUIState["engine"]>) => void;
-  updateTsa: (tsa: Partial<DebugUIState["tsa"]>) => void;
-  openChoicePopup: (popup: DebugUIState["choicePopup"]) => void;
-  closeChoicePopup: () => void;
-
   // System Actions
-  addLog: (log: string) => void;
-  clearLogs: () => void;
-  setSurfaceMap: (map: any | null) => void;
-  setActiveTest: (testId: string) => void;
+
+  setSurfaceMap: (map: object | null) => void;
 
   // Interaction Actions
   updateSelection: (selection: Partial<SelectionState>) => void;
   updateDrag: (drag: Partial<DragState>) => void;
   updateIntegerCycle: (cycle: Partial<IntegerCycleState>) => void;
   updateOperatorSelection: (selection: Partial<OperatorSelectionState>) => void;
-
-  // Diagnostics
-  updateP1Diagnostics: (diagnostics: Partial<P1DiagnosticsState>) => void;
 
   // Lifecycle
   resetState: () => void;
@@ -50,26 +35,10 @@ const initialState: ViewerState = {
   formula: {
     latex: (TESTS as string[])[0] || "",
     isRendering: false,
-    manualInput: (TESTS as string[])[0] || "",
   },
-  debug: {
-    hover: { target: null, lastClick: null },
-    choicePopup: null,
-    stepHint: null,
-    engine: {
-      lastClientEvent: null,
-      lastEngineRequest: null,
-      lastEngineResponse: null,
-    },
-    tsa: {
-      lastTsa: null,
-      log: [],
-    },
-  },
+
   system: {
-    logs: [],
     surfaceMapJson: null,
-    activeTestId: "0",
   },
   selection: {
     mode: "none",
@@ -106,23 +75,6 @@ const initialState: ViewerState = {
     context: null,
     boxes: [],
   },
-  p1Diagnostics: {
-    currentLatex: "",
-    selectedSurfaceNodeId: "N/A",
-    resolvedAstNodeId: "N/A",
-    primitiveId: "N/A",
-    hintClickBlocked: "N/A",
-    lastTestResult: "N/A",
-    lastChoiceStatus: "N/A",
-    lastChoiceTargetPath: "N/A",
-    lastChoiceCount: "0",
-    lastHintApplyStatus: "N/A",
-    lastHintApplySelectionPath: "N/A",
-    lastHintApplyPreferredPrimitiveId: "N/A",
-    lastHintApplyEndpoint: "N/A",
-    lastHintApplyNewLatex: "N/A",
-    lastHintApplyError: "N/A",
-  },
 };
 
 export const useViewerStore = create<ViewerStore>()(
@@ -131,134 +83,34 @@ export const useViewerStore = create<ViewerStore>()(
       ...initialState,
       actions: {
         setLatex: (latex) =>
-          set(
-            (state) => ({ formula: { ...state.formula, latex } }),
-            false,
-            "setLatex",
-          ),
+          set((state) => ({ formula: { ...state.formula, latex } })),
         setIsRendering: (isRendering) =>
-          set(
-            (state) => ({ formula: { ...state.formula, isRendering } }),
-            false,
-            "setIsRendering",
-          ),
-        setManualInput: (manualInput) =>
-          set(
-            (state) => ({ formula: { ...state.formula, manualInput } }),
-            false,
-            "setManualInput",
-          ),
-        updateHover: (hover) =>
-          set(
-            (state) => ({
-              debug: {
-                ...state.debug,
-                hover: { ...state.debug.hover, ...hover },
-              },
-            }),
-            false,
-            "updateHover",
-          ),
-        updateStepHint: (stepHint) =>
-          set(
-            (state) => ({ debug: { ...state.debug, stepHint } }),
-            false,
-            "updateStepHint",
-          ),
-        updateEngine: (engine) =>
-          set(
-            (state) => ({
-              debug: {
-                ...state.debug,
-                engine: { ...state.debug.engine, ...engine },
-              },
-            }),
-            false,
-            "updateEngine",
-          ),
-        updateTsa: (tsa) =>
-          set(
-            (state) => ({
-              debug: { ...state.debug, tsa: { ...state.debug.tsa, ...tsa } },
-            }),
-            false,
-            "updateTsa",
-          ),
-        openChoicePopup: (choicePopup) =>
-          set(
-            (state) => ({ debug: { ...state.debug, choicePopup } }),
-            false,
-            "openChoicePopup",
-          ),
-        closeChoicePopup: () =>
-          set(
-            (state) => ({ debug: { ...state.debug, choicePopup: null } }),
-            false,
-            "closeChoicePopup",
-          ),
-        addLog: (log) =>
-          set(
-            (state) => ({
-              system: { ...state.system, logs: [...state.system.logs, log] },
-            }),
-            false,
-            "addLog",
-          ),
-        clearLogs: () =>
-          set(
-            (state) => ({ system: { ...state.system, logs: [] } }),
-            false,
-            "clearLogs",
-          ),
+          set((state) => ({ formula: { ...state.formula, isRendering } })),
+
         setSurfaceMap: (surfaceMapJson) =>
-          set(
-            (state) => ({ system: { ...state.system, surfaceMapJson } }),
-            false,
-            "setSurfaceMap",
-          ),
-        setActiveTest: (activeTestId) =>
-          set(
-            (state) => ({ system: { ...state.system, activeTestId } }),
-            false,
-            "setActiveTest",
-          ),
+          set((state) => ({ system: { ...state.system, surfaceMapJson } })),
         updateSelection: (selection) =>
-          set(
-            (state) => ({ selection: { ...state.selection, ...selection } }),
-            false,
-            "updateSelection",
-          ),
+          set((state) => ({ selection: { ...state.selection, ...selection } })),
         updateDrag: (drag) =>
-          set(
-            (state) => ({ drag: { ...state.drag, ...drag } }),
-            false,
-            "updateDrag",
-          ),
+          set((state) => ({ drag: { ...state.drag, ...drag } })),
         updateIntegerCycle: (cycle) =>
-          set(
-            (state) => ({ integerCycle: { ...state.integerCycle, ...cycle } }),
-            false,
-            "updateIntegerCycle",
-          ),
+          set((state) => ({
+            integerCycle: { ...state.integerCycle, ...cycle },
+          })),
         updateOperatorSelection: (selection) =>
-          set(
-            (state) => ({
-              operatorSelection: { ...state.operatorSelection, ...selection },
-            }),
-            false,
-            "updateOperatorSelection",
-          ),
-        updateP1Diagnostics: (diagnostics) =>
-          set(
-            (state) => ({
-              p1Diagnostics: { ...state.p1Diagnostics, ...diagnostics },
-            }),
-            false,
-            "updateP1Diagnostics",
-          ),
-        resetState: () => set(initialState, false, "resetState"),
+          set((state) => ({
+            operatorSelection: { ...state.operatorSelection, ...selection },
+          })),
+        resetState: () => set(initialState),
       },
     }),
     { name: "ViewerStore" },
   ),
 );
+
+export const useStoreActions: () => ViewerStore["actions"] = () =>
+  useViewerStore((state) => state.actions);
+export const useStoreState: () => ViewerStore = () =>
+  useViewerStore((state) => state);
+export const useFormulaState: () => ViewerStore["formula"] = () =>
+  useViewerStore((state) => state.formula);
