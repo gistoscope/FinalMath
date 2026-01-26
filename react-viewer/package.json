@@ -13,6 +13,8 @@
     "katex": "^0.16.27",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

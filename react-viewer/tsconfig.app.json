@@ -30,7 +30,9 @@
     /* MIGRATION CONFIGURATION */
     "allowJs": true /* Allow JavaScript files to be compiled */,
     "checkJs": false /* Skip type checking of JS files for now */,
-    "noImplicitAny": true /* Disallow 'any' types implicitly */
+    "noImplicitAny": true /* Disallow 'any' types implicitly */,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
     "src"

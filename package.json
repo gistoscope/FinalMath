@@ -18,7 +18,9 @@
     "husky": "^9.1.7"
   },
   "dependencies": {
-    "lint-staged": "^16.2.7"
+    "lint-staged": "^16.2.7",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0"
   },
   "lint-staged": {
     "backend-api-v1.http-server/**/*.test.ts": "cd backend-api-v1.http-server && pnpm vitest --run --passWithNoTests"
