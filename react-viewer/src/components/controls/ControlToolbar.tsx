@@ -1,26 +1,16 @@
-import React from "react";
+import { useAppActions } from "../../new_app/hooks/useAppActions";
 
-interface ControlToolbarProps {
-  onRebuild: () => void;
-  onDownloadJson: () => void;
-  onDownloadEvents: () => void;
-  onDownloadBus: () => void;
-  onDownloadSnapshot: () => void;
-  onDownloadSession: () => void;
-  onResetSession: () => void;
-  onClearSelection: () => void;
-}
-
-const ControlToolbar: React.FC<ControlToolbarProps> = ({
-  onRebuild,
-  onDownloadJson,
-  onDownloadEvents,
-  onDownloadBus,
-  onDownloadSnapshot,
-  onDownloadSession,
-  onResetSession,
-  onClearSelection,
-}) => {
+const ControlToolbar = () => {
+  const {
+    handleRebuild: onRebuild,
+    handleDownloadJson: onDownloadJson,
+    handleDownloadEvents: onDownloadEvents,
+    handleDownloadBus: onDownloadBus,
+    handleDownloadSnapshot: onDownloadSnapshot,
+    handleDownloadSession: onDownloadSession,
+    handleResetSession: onResetSession,
+    handleClearSelection: onClearSelection,
+  } = useAppActions();
   return (
     <>
       <button id="btn-rebuild" className="primary" onClick={onRebuild}>

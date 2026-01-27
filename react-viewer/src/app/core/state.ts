@@ -1,65 +1,14 @@
 // core/state.ts
 // Centralized state management for the viewer application
-
-// ============================================================
-// MODE CONSTANTS
-// ============================================================
-export const MODE_GREEN = 0;
-export const MODE_ORANGE = 1;
-export const MODE_BLUE = 2;
-
-export interface ModeConfig {
-  mode: number;
-  color: string;
-  label: string;
-  primitiveId: string | null;
-}
-
-export const MODE_CONFIG: ModeConfig[] = [
-  { mode: MODE_GREEN, color: "#4CAF50", label: "Selected", primitiveId: null },
-  {
-    mode: MODE_ORANGE,
-    color: "#FF9800",
-    label: "Convert to fraction",
-    primitiveId: "P.INT_TO_FRAC",
-  },
-  {
-    mode: MODE_BLUE,
-    color: "#2196F3",
-    label: "Convert 1 → target denom",
-    primitiveId: "P.ONE_TO_TARGET_DENOM",
-  },
-];
-
-export const P1_DOUBLE_CLICK_THRESHOLD = 350;
-
-// ============================================================
-// TEST EXPRESSIONS
-// ============================================================
-export const TESTS: string[] = [
-  String.raw`\frac{1}{7} + \frac{3}{7}`,
-  String.raw`\frac{5}{9} - \frac{2}{9}`,
-  String.raw`2+3`,
-  String.raw`\frac{1}{3}+\frac{2}{5}`,
-  String.raw`\frac{1}{1+\frac{1}{2}}`,
-  String.raw`-\left(\frac{3}{4}-\frac{1}{8}\right)`,
-  String.raw`12.5 + 0.75 - 3.125`,
-  String.raw`1\frac{2}{3} + 2\frac{1}{5}`,
-  String.raw`2 + 3 - 1`,
-  String.raw`\frac{1}{2} + \frac{1}{3} + \frac{1}{6}`,
-  String.raw`\left(1-\frac{1}{3}\right)\cdot\frac{3}{4}`,
-  String.raw`\frac{2}{5} - \left(\frac{1}{10}+\frac{3}{20}\right)`,
-  String.raw`\left(\frac{1}{2}+\frac{2}{3}\right)-\left(\frac{3}{4}-\frac{1}{5}\right)`,
-  String.raw`1.2 + \frac{3}{5} - 0.4`,
-  String.raw`\frac{1}{2} + \left(\frac{3}{4} - \frac{1}{1+\frac{1}{2}}\right)`,
-  String.raw`\left(\frac{5}{6} - \frac{1}{3}\right) + \frac{7}{8}`,
-];
-
-// ============================================================
-// APPLICATION STATE
-// ============================================================
-
+import { useViewerStore } from "../../store/useViewerStore";
 import { SurfaceNode } from "../surface-map/surface-node";
+import { MODE_GREEN } from "./constants";
+
+export * from "./constants";
+
+// ============================================================
+// APPLICATION STATE (Proxy Objects)
+// ============================================================
 
 /**
  * Primitive definition for integer hints.
@@ -74,74 +23,147 @@ export interface Primitive {
   side?: string;
 }
 
-export const appState: {
-  currentLatex: string;
-  current: { map: { atoms: SurfaceNode[] }; serializable: unknown } | null;
-  lastHoverNode: SurfaceNode | null;
-} = {
-  currentLatex: TESTS[0],
-  current: null,
-  lastHoverNode: null,
+// We keep heavy non-serializable objects here as a legacy container for now,
+// but we will sync them to Zustand where possible.
+export const appState = {
+  get currentLatex() {
+    return useViewerStore.getState().formula.latex;
+  },
+  set currentLatex(v: string) {
+    useViewerStore.getState().actions.setLatex(v);
+  },
+  _current: null as {
+    map: { atoms: SurfaceNode[] };
+    serializable: unknown;
+  } | null,
+  get current() {
+    return this._current;
+  },
+  set current(v) {
+    this._current = v;
+    if (v) {
+      useViewerStore.getState().actions.setSurfaceMap(v.serializable as object);
+    } else {
+      useViewerStore.getState().actions.setSurfaceMap(null);
+    }
+  },
+  lastHoverNode: null as SurfaceNode | null,
 };
 
-export const selectionState: {
-  mode: string;
-  primaryId: string | null;
-  selectedIds: Set<string>;
-} = {
-  mode: "none",
-  primaryId: null,
-  selectedIds: new Set<string>(),
+export const selectionState = {
+  get mode() {
+    return useViewerStore.getState().selection.mode;
+  },
+  set mode(v: string) {
+    useViewerStore.getState().actions.updateSelection({ mode: v });
+  },
+  get primaryId() {
+    return useViewerStore.getState().selection.primaryId;
+  },
+  set primaryId(v: string | null) {
+    useViewerStore.getState().actions.updateSelection({ primaryId: v });
+  },
+  get selectedIds() {
+    return useViewerStore.getState().selection.selectedIds;
+  },
+  set selectedIds(v: Set<string>) {
+    useViewerStore.getState().actions.updateSelection({ selectedIds: v });
+  },
 };
 
-interface OperatorContext {
-  astPath: string;
-  getBoundingBoxes: () => unknown[];
-  isComplete: () => boolean;
-  leftOperandSurfaceNode: SurfaceNode | null;
-  rightOperandSurfaceNode: SurfaceNode | null;
-}
-
-export const operatorSelectionState: {
-  active: boolean;
-  validationType: string | null;
-  context: OperatorContext | null;
-  boxes: unknown[];
-} = {
-  active: false,
-  validationType: null,
-  context: null,
-  boxes: [],
+export const operatorSelectionState = {
+  get active() {
+    return useViewerStore.getState().operatorSelection.active;
+  },
+  set active(v: boolean) {
+    useViewerStore.getState().actions.updateOperatorSelection({ active: v });
+  },
+  get validationType() {
+    return useViewerStore.getState().operatorSelection.validationType;
+  },
+  set validationType(v: string | null) {
+    useViewerStore
+      .getState()
+      .actions.updateOperatorSelection({ validationType: v });
+  },
+  get context() {
+    return useViewerStore.getState().operatorSelection.context;
+  },
+  set context(v: any | null) {
+    useViewerStore.getState().actions.updateOperatorSelection({ context: v });
+  },
+  get boxes() {
+    return useViewerStore.getState().operatorSelection.boxes;
+  },
+  set boxes(v: any[]) {
+    useViewerStore.getState().actions.updateOperatorSelection({ boxes: v });
+  },
 };
 
-export const integerCycleState: {
-  selectedNodeId: string | null;
-  astNodeId: string | null;
-  stableKey: string | null;
-  mode: number;
-  isStep2Context: boolean;
-  step2Info: unknown;
-  primitives: Primitive[];
-  cycleIndex: number;
-  pendingClickTimeout: ReturnType<typeof setTimeout> | null;
-  lastClickTime: number;
-  lastClickNodeId: string | null;
-  dblclickLockUntil: number;
-} = {
-  selectedNodeId: null,
-  astNodeId: null,
-  stableKey: null,
-  mode: MODE_GREEN,
-  isStep2Context: false,
-  step2Info: null,
-  primitives: [
-    { id: "P.INT_TO_FRAC", label: "Convert to fraction", color: "#4CAF50" },
-    { id: "P.INT_FACTOR_PRIMES", label: "Factor to primes", color: "#FF9800" },
-  ],
-  cycleIndex: 0,
-  pendingClickTimeout: null,
-  lastClickTime: 0,
-  lastClickNodeId: null,
+export const integerCycleState = {
+  get selectedNodeId() {
+    return useViewerStore.getState().integerCycle.selectedNodeId;
+  },
+  set selectedNodeId(v: string | null) {
+    useViewerStore.getState().actions.updateIntegerCycle({ selectedNodeId: v });
+  },
+  get astNodeId() {
+    return useViewerStore.getState().integerCycle.astNodeId;
+  },
+  set astNodeId(v: string | null) {
+    useViewerStore.getState().actions.updateIntegerCycle({ astNodeId: v });
+  },
+  get stableKey() {
+    return useViewerStore.getState().integerCycle.stableKey;
+  },
+  set stableKey(v: string | null) {
+    useViewerStore.getState().actions.updateIntegerCycle({ stableKey: v });
+  },
+  get mode() {
+    return useViewerStore.getState().integerCycle.mode;
+  },
+  set mode(v: number) {
+    useViewerStore.getState().actions.updateIntegerCycle({ mode: v });
+  },
+  get isStep2Context() {
+    return useViewerStore.getState().integerCycle.isStep2Context;
+  },
+  set isStep2Context(v: boolean) {
+    useViewerStore.getState().actions.updateIntegerCycle({ isStep2Context: v });
+  },
+  get step2Info() {
+    return useViewerStore.getState().integerCycle.step2Info;
+  },
+  set step2Info(v: any) {
+    useViewerStore.getState().actions.updateIntegerCycle({ step2Info: v });
+  },
+  get primitives() {
+    return useViewerStore.getState().integerCycle.primitives;
+  },
+  set primitives(v: any[]) {
+    useViewerStore.getState().actions.updateIntegerCycle({ primitives: v });
+  },
+  get cycleIndex() {
+    return useViewerStore.getState().integerCycle.cycleIndex;
+  },
+  set cycleIndex(v: number) {
+    useViewerStore.getState().actions.updateIntegerCycle({ cycleIndex: v });
+  },
+  get lastClickTime() {
+    return useViewerStore.getState().integerCycle.lastClickTime;
+  },
+  set lastClickTime(v: number) {
+    useViewerStore.getState().actions.updateIntegerCycle({ lastClickTime: v });
+  },
+  get lastClickNodeId() {
+    return useViewerStore.getState().integerCycle.lastClickNodeId;
+  },
+  set lastClickNodeId(v: string | null) {
+    useViewerStore
+      .getState()
+      .actions.updateIntegerCycle({ lastClickNodeId: v });
+  },
+  pendingClickTimeout: null as ReturnType<typeof setTimeout> | null,
   dblclickLockUntil: 0,
 };
 
@@ -149,42 +171,151 @@ export const hintApplyState = { applying: false };
 
 export const perTokenModeMap = new Map<string, unknown>();
 
-export const stableIdState: {
-  enabled: boolean;
-  reason: string | null;
-  lastExpression: string | null;
-} = {
+export const stableIdState = {
   enabled: false,
-  reason: null,
-  lastExpression: null,
+  reason: null as string | null,
+  lastExpression: null as string | null,
 };
 
-export const dragState: {
-  isDragging: boolean;
-  dragStart: { x: number; y: number } | null;
-  dragEnd: { x: number; y: number } | null;
-} = {
-  isDragging: false,
-  dragStart: null,
-  dragEnd: null,
+export const dragState = {
+  get isDragging() {
+    return useViewerStore.getState().drag.isDragging;
+  },
+  set isDragging(v: boolean) {
+    useViewerStore.getState().actions.updateDrag({ isDragging: v });
+  },
+  get dragStart() {
+    return useViewerStore.getState().drag.dragStart;
+  },
+  set dragStart(v: { x: number; y: number } | null) {
+    useViewerStore.getState().actions.updateDrag({ dragStart: v });
+  },
+  get dragEnd() {
+    return useViewerStore.getState().drag.dragEnd;
+  },
+  set dragEnd(v: { x: number; y: number } | null) {
+    useViewerStore.getState().actions.updateDrag({ dragEnd: v });
+  },
 };
 
 export const p1DiagnosticsState = {
-  currentLatex: "",
-  selectedSurfaceNodeId: "N/A",
-  resolvedAstNodeId: "N/A",
-  primitiveId: "N/A",
-  hintClickBlocked: "N/A",
-  lastTestResult: "N/A",
-  lastChoiceStatus: "N/A",
-  lastChoiceTargetPath: "N/A",
-  lastChoiceCount: "0",
-  lastHintApplyStatus: "N/A",
-  lastHintApplySelectionPath: "N/A",
-  lastHintApplyPreferredPrimitiveId: "N/A",
-  lastHintApplyEndpoint: "N/A",
-  lastHintApplyNewLatex: "N/A",
-  lastHintApplyError: "N/A",
+  get currentLatex() {
+    return useViewerStore.getState().p1Diagnostics.currentLatex;
+  },
+  set currentLatex(v: string) {
+    useViewerStore.getState().actions.updateP1Diagnostics({ currentLatex: v });
+  },
+  get selectedSurfaceNodeId() {
+    return useViewerStore.getState().p1Diagnostics.selectedSurfaceNodeId;
+  },
+  set selectedSurfaceNodeId(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ selectedSurfaceNodeId: v });
+  },
+  get resolvedAstNodeId() {
+    return useViewerStore.getState().p1Diagnostics.resolvedAstNodeId;
+  },
+  set resolvedAstNodeId(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ resolvedAstNodeId: v });
+  },
+  get primitiveId() {
+    return useViewerStore.getState().p1Diagnostics.primitiveId;
+  },
+  set primitiveId(v: string) {
+    useViewerStore.getState().actions.updateP1Diagnostics({ primitiveId: v });
+  },
+  get hintClickBlocked() {
+    return useViewerStore.getState().p1Diagnostics.hintClickBlocked;
+  },
+  set hintClickBlocked(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ hintClickBlocked: v });
+  },
+  get lastTestResult() {
+    return useViewerStore.getState().p1Diagnostics.lastTestResult;
+  },
+  set lastTestResult(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastTestResult: v });
+  },
+  get lastChoiceStatus() {
+    return useViewerStore.getState().p1Diagnostics.lastChoiceStatus;
+  },
+  set lastChoiceStatus(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastChoiceStatus: v });
+  },
+  get lastChoiceTargetPath() {
+    return useViewerStore.getState().p1Diagnostics.lastChoiceTargetPath;
+  },
+  set lastChoiceTargetPath(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastChoiceTargetPath: v });
+  },
+  get lastChoiceCount() {
+    return useViewerStore.getState().p1Diagnostics.lastChoiceCount;
+  },
+  set lastChoiceCount(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastChoiceCount: v });
+  },
+  get lastHintApplyStatus() {
+    return useViewerStore.getState().p1Diagnostics.lastHintApplyStatus;
+  },
+  set lastHintApplyStatus(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplyStatus: v });
+  },
+  get lastHintApplySelectionPath() {
+    return useViewerStore.getState().p1Diagnostics.lastHintApplySelectionPath;
+  },
+  set lastHintApplySelectionPath(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplySelectionPath: v });
+  },
+  get lastHintApplyPreferredPrimitiveId() {
+    return useViewerStore.getState().p1Diagnostics
+      .lastHintApplyPreferredPrimitiveId;
+  },
+  set lastHintApplyPreferredPrimitiveId(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplyPreferredPrimitiveId: v });
+  },
+  get lastHintApplyEndpoint() {
+    return useViewerStore.getState().p1Diagnostics.lastHintApplyEndpoint;
+  },
+  set lastHintApplyEndpoint(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplyEndpoint: v });
+  },
+  get lastHintApplyNewLatex() {
+    return useViewerStore.getState().p1Diagnostics.lastHintApplyNewLatex;
+  },
+  set lastHintApplyNewLatex(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplyNewLatex: v });
+  },
+  get lastHintApplyError() {
+    return useViewerStore.getState().p1Diagnostics.lastHintApplyError;
+  },
+  set lastHintApplyError(v: string) {
+    useViewerStore
+      .getState()
+      .actions.updateP1Diagnostics({ lastHintApplyError: v });
+  },
 };
 
 // ============================================================
@@ -207,7 +338,7 @@ export function restoreTokenModeState(stableKey: string) {
   if (!stableKey || !perTokenModeMap.has(stableKey)) {
     return { mode: MODE_GREEN, isStep2Context: false, step2Info: null };
   }
-  return perTokenModeMap.get(stableKey);
+  return perTokenModeMap.get(stableKey) as any;
 }
 
 export function clearAllTokenModeState() {
@@ -215,9 +346,9 @@ export function clearAllTokenModeState() {
 }
 
 export function getCurrentLatex() {
-  return appState.currentLatex;
+  return useViewerStore.getState().formula.latex;
 }
 
 export function setCurrentLatex(latex: string) {
-  appState.currentLatex = latex;
+  useViewerStore.getState().actions.setLatex(latex);
 }

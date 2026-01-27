@@ -1,9 +1,8 @@
 import React from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 const HoverDebugPanel: React.FC = () => {
-  const { state } = useViewer();
-  const { hover } = state.debug;
+  const hover = useViewerStore((state) => state.debug.hover);
 
   return (
     <div id="hover-panel" className="hover-panel">

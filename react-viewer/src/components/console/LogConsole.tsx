@@ -1,9 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 const LogConsole: React.FC = () => {
-  const { state } = useViewer();
-  const { logs } = state.system;
+  const logs = useViewerStore((state) => state.system.logs);
   const scrollRef = useRef<HTMLPreElement>(null);
 
   useEffect(() => {

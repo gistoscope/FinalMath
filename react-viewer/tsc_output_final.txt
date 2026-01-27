@@ -1,0 +1,56 @@
+src/app/ast-parser/index.ts(8,3): error TS1484: 'AugmentedAstNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/ast-parser/index.ts(9,3): error TS1484: 'IntegerDescriptor' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/ast-parser/index.ts(10,3): error TS1484: 'OperatorDescriptor' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/ast-parser/index.ts(12,10): error TS1484: 'InstrumentationResult' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/ast-parser/index.ts(13,10): error TS1484: 'AstNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/core/Debugger.ts(69,11): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(70,37): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(72,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(85,11): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(87,29): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(90,13): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(91,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(95,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(108,11): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(110,30): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(113,13): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(114,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(118,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(131,11): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(133,35): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(136,13): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(136,27): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(137,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(141,32): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(154,11): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(155,52): error TS18046: 'res' is of type 'unknown'.
+src/app/core/Debugger.ts(158,18): error TS18046: 'res' is of type 'unknown'.
+src/app/core/stable-id.ts(110,36): error TS6133: 'container' is declared but its value is never read.
+src/app/core/stable-id.ts(116,3): error TS6133: 'surfaceNodeId' is declared but its value is never read.
+src/app/core/stable-id.ts(118,3): error TS6133: 'surfaceMap' is declared but its value is never read.
+src/app/features/debug/formatters.ts(136,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/features/debug/formatters.ts(136,36): error TS7006: Parameter 'x' implicitly has an 'any' type.
+src/app/features/engine/EngineAdapter.ts(120,40): error TS6133: 'requestType' is declared but its value is never read.
+src/app/features/p1/hint-actions.ts(54,33): error TS2339: Property 'primitiveId' does not exist on type 'number | ModeConfig | (() => ArrayIterator<ModeConfig>) | { [x: number]: boolean | undefined; length?: boolean | undefined; toString?: boolean | undefined; ... 32 more ...; readonly [Symbol.unscopables]?: boolean | undefined; } | ... 31 more ... | ((index: number) => ModeConfig | undefined)'.
+  Property 'primitiveId' does not exist on type 'number'.
+src/app/features/p1/integer-click-handler.ts(207,7): error TS2322: Type 'Promise<{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }>' is not assignable to type 'void | Promise<void>'.
+  Type 'Promise<{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }>' is not assignable to type 'Promise<void>'.
+    Type '{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }' is not assignable to type 'void'.
+      Type '{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; }' is not assignable to type 'void'.
+src/app/features/p1/integer-click-handler.ts(321,86): error TS2339: Property 'label' does not exist on type 'number | ModeConfig | (() => ArrayIterator<ModeConfig>) | { [x: number]: boolean | undefined; length?: boolean | undefined; toString?: boolean | undefined; ... 32 more ...; readonly [Symbol.unscopables]?: boolean | undefined; } | ... 31 more ... | ((index: number) => ModeConfig | undefined)'.
+  Property 'label' does not exist on type 'number'.
+src/app/features/p1/integer-click-handler.ts(358,5): error TS2322: Type 'Promise<{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }>' is not assignable to type 'void | Promise<void>'.
+  Type 'Promise<{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }>' is not assignable to type 'Promise<void>'.
+    Type '{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; } | { applied: boolean; newLatex: any; reason?: undefined; error?: undefined; } | { applied: boolean; reason: string; error: unknown; newLatex?: undefined; }' is not assignable to type 'void'.
+      Type '{ applied: boolean; reason: string; newLatex?: undefined; error?: undefined; }' is not assignable to type 'void'.
+src/app/features/p1/tests.ts(51,41): error TS2345: Argument of type 'null' is not assignable to parameter of type '(source?: string | undefined) => void | Promise<void>'.
+src/app/features/rendering/surface-map-builder.ts(29,3): error TS2739: Type '{ atoms: SurfaceNode[]; }' is missing the following properties from type '{ root: SurfaceNode; atoms: SurfaceNode[]; byElement: Map<HTMLElement, SurfaceNode>; }': root, byElement
+src/app/features/rendering/surface-map-builder.ts(30,3): error TS2739: Type '{ atoms: SurfaceNode[]; }' is missing the following properties from type '{ root: SurfaceNode; atoms: SurfaceNode[]; byElement: Map<HTMLElement, SurfaceNode>; }': root, byElement
+src/app/features/trace-hub/TraceExporter.ts(2,10): error TS1484: 'TraceEventData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/features/trace-hub/TraceSummaryBuilder.ts(2,10): error TS1484: 'TraceEventData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/features/trace-hub/TraceSummaryBuilder.ts(53,20): error TS2339: Property 'chosenPrimitiveId' does not exist on type '{}'.
+src/app/features/trace-hub/TraceSummaryBuilder.ts(54,45): error TS2339: Property 'chosenPrimitiveId' does not exist on type '{}'.
+src/app/features/trace-hub/TraceSummaryBuilder.ts(56,20): error TS2339: Property 'outputLatex' does not exist on type '{}'.
+src/app/features/trace-hub/TraceSummaryBuilder.ts(57,39): error TS2339: Property 'outputLatex' does not exist on type '{}'.
+src/app/surface-map/bbox-utils.ts(6,10): error TS1484: 'BBox' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/app/surface-map/element-classifier.ts(51,5): error TS6133: 'element' is declared but its value is never read.

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { DebuggerState } from "../../../app/core/Debugger";
 import { Debugger } from "../../../app/core/Debugger";
-import { useViewer } from "../../../context/ViewerContext";
+import { useViewerStore } from "../../../store/useViewerStore";
 import "./AdvancedDebugTool.css";
 import AstTreeView from "./AstTreeView";
 import JsonView from "./JsonView";
@@ -12,7 +12,7 @@ import TraceHubView from "./TraceHubView";
 type TabType = "ast" | "map" | "step" | "json" | "trace";
 
 const AdvancedDebugTool: React.FC = () => {
-  const { state } = useViewer();
+  const latex = useViewerStore((state) => state.formula.latex);
   const [debugState, setDebugState] = useState<DebuggerState | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("ast");
 
@@ -22,13 +22,13 @@ const AdvancedDebugTool: React.FC = () => {
   }, []);
 
   const handleAstDebug = () => {
-    Debugger.fetchAstDebug(state.formula.latex);
+    Debugger.fetchAstDebug(latex);
   };
 
   const handleMapDebug = () => {
     // Basic operator index 0 for now as demo
     Debugger.fetchMapDebug({
-      latex: state.formula.latex,
+      latex: latex,
       selection: { operatorIndex: 0 },
       mode: "structural",
     });

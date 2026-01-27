@@ -4,11 +4,10 @@ import {
   formatEngineRequest,
   formatEngineResponse,
 } from "../../app/features/debug/formatters";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 const EngineDebugPanel: React.FC = () => {
-  const { state } = useViewer();
-  const { engine } = state.debug;
+  const engine = useViewerStore((state) => state.debug.engine);
 
   return (
     <div id="engine-debug-panel" className="hover-panel">

@@ -1,12 +1,10 @@
-import React from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { useAppActions } from "../../new_app/hooks/useAppActions";
+import { useViewerStore } from "../../store/useViewerStore";
 
-interface ManualLatexInputProps {
-  onLoad: () => void;
-}
-
-const ManualLatexInput: React.FC<ManualLatexInputProps> = ({ onLoad }) => {
-  const { state, actions } = useViewer();
+const ManualLatexInput = () => {
+  const manualInput = useViewerStore((state) => state.formula.manualInput);
+  const { setManualInput } = useViewerStore((state) => state.actions);
+  const { handleLoadLatex } = useAppActions();
 
   return (
     <div
@@ -23,8 +21,8 @@ const ManualLatexInput: React.FC<ManualLatexInputProps> = ({ onLoad }) => {
       <textarea
         id="manual-latex-input"
         rows={2}
-        value={state.formula.manualInput}
-        onChange={(e) => actions.setManualInput(e.target.value)}
+        value={manualInput}
+        onChange={(e) => setManualInput(e.target.value)}
         style={{
           width: "100%",
           resize: "vertical",
@@ -33,7 +31,11 @@ const ManualLatexInput: React.FC<ManualLatexInputProps> = ({ onLoad }) => {
         }}
       ></textarea>
       <div style={{ marginTop: "6px" }}>
-        <button id="btn-load-latex" className="secondary" onClick={onLoad}>
+        <button
+          id="btn-load-latex"
+          className="secondary"
+          onClick={() => handleLoadLatex(manualInput)}
+        >
           Load LaTeX into viewer
         </button>
       </div>

@@ -1,9 +1,8 @@
 import React from "react";
-import { useViewer } from "../../context/ViewerContext";
+import { useViewerStore } from "../../store/useViewerStore";
 
 const JsonInspector: React.FC = () => {
-  const { state } = useViewer();
-  const { surfaceMapJson } = state.system;
+  const surfaceMapJson = useViewerStore((state) => state.system.surfaceMapJson);
 
   return (
     <pre
@@ -11,12 +10,10 @@ const JsonInspector: React.FC = () => {
       style={{
         marginTop: "12px",
         padding: "12px",
-        background: "#f8fafc",
-        border: "1px solid #e2e8f0",
         borderRadius: "8px",
-        fontSize: "12px",
         overflowX: "auto",
         maxHeight: "400px",
+        textAlign: "left",
       }}
     >
       {surfaceMapJson

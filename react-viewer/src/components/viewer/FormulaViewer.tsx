@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import katex from "katex";
 import {
   forwardRef,
@@ -6,9 +7,15 @@ import {
   useImperativeHandle,
   useRef,
 } from "react";
-import { buildAndShowMap } from "../../app/features/rendering/surface-map-builder.js";
-import { useViewer } from "../../context/ViewerContext";
-import { useMathInstrumentation } from "../../hooks/useMathInstrumentation";
+
+import { Tokens } from "../../new_app/di/tokens";
+import { MathEngine } from "../../new_app/domain/math/engine/MathEngine";
+import type { IMapEngine } from "../../new_app/domain/surface-map/interfaces/IMapEngine";
+import { useAugmentedLatex } from "../../new_app/hooks/useAugmentedLatex";
+import { useInteraction } from "../../new_app/hooks/useInteraction";
+import type { IStoreService } from "../../new_app/store/interfaces/IStoreService";
+import { useService } from "../../new_app/useService";
+import SelectionOverlay from "./SelectionOverlay";
 import StableIdBanner from "./StableIdBanner";
 
 interface FormulaViewerProps {
@@ -17,21 +24,30 @@ interface FormulaViewerProps {
 
 const FormulaViewer = memo(
   forwardRef<HTMLDivElement, FormulaViewerProps>(({ latex }, ref) => {
-    const internalRef = useRef<HTMLDivElement>(null);
-    const { dispatch } = useViewer();
+    const containerRef = useRef<HTMLDivElement>(null);
+    const renderRef = useRef<HTMLDivElement>(null);
+
+    // Services
+    const mathEngine = useService<MathEngine>(Tokens.IMathEngine);
+    const mapEngine = useService<IMapEngine>(Tokens.IMapEngine);
+    const store = useService<IStoreService>(Tokens.IStoreService);
+
+    // Interaction Hook
+    const { onPointerDown, onPointerMove, onPointerUp } =
+      useInteraction(containerRef);
 
     // Sync external ref if provided
-    useImperativeHandle(ref, () => internalRef.current!);
+    useImperativeHandle(ref, () => containerRef.current!);
 
-    const { instrumentedLatex, error, isLoading } =
-      useMathInstrumentation(latex);
+    // Instrumentation State
+    const { instrumentedLatex, error, isLoading } = useAugmentedLatex(latex);
 
     useEffect(() => {
-      if (internalRef.current) {
+      if (renderRef.current && containerRef.current && instrumentedLatex) {
         console.log("[FormulaViewer] Rendering and building map for:", latex);
         try {
-          // 1. Render KaTeX
-          katex.render(instrumentedLatex, internalRef.current, {
+          // 1. Render KaTeX into the inner target
+          katex.render(instrumentedLatex, renderRef.current, {
             throwOnError: false,
             displayMode: true,
             trust: (context) => context.command === "\\htmlData",
@@ -39,42 +55,47 @@ const FormulaViewer = memo(
               errorCode === "htmlExtension" ? "ignore" : "warn",
           });
 
-          // 2. Build and Show Map (Synchronous now, ensuring DOM matches map)
-          const result = buildAndShowMap(internalRef.current, latex);
-          if (result && result.serializable) {
-            dispatch({
-              type: "SET_SURFACE_MAP",
-              payload: result.serializable,
-            });
+          // 2. Build Surface Map relative to the outer container
+          // This ensures that bboxes match the container's coordinate system
+          const mapResult = mapEngine.initialize(containerRef.current);
+          if (mapResult) {
+            store.setSurfaceMap(mapResult);
+            (window as any).__currentSurfaceMap = mapResult;
           }
         } catch (err) {
           console.error("KaTeX rendering error:", err);
         }
       }
-    }, [instrumentedLatex, latex, dispatch]);
+    }, [instrumentedLatex, latex, mathEngine, mapEngine, store]);
 
     return (
       <div
         className="viewer-container"
         style={{ opacity: isLoading ? 0.6 : 1 }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
       >
         <StableIdBanner reason={error} />
         <div
           id="formula-container"
-          ref={internalRef}
+          ref={containerRef}
+          className="formula-render-area"
           style={{
+            position: "relative",
             minHeight: "120px",
             border: "1px dashed #ccc",
             padding: "20px",
             margin: "10px 0",
             textAlign: "center",
             transition: "opacity 0.2s",
+            touchAction: "none",
           }}
         >
-          {/* KaTeX will render here */}
+          <div ref={renderRef} id="katex-render-target" />
+          <SelectionOverlay />
         </div>
-        <div id="selection-overlay" className="selection-overlay"></div>
-        <div id="drag-rect" className="drag-rect"></div>
       </div>
     );
   }),
