@@ -1,5 +1,7 @@
+import { Response } from "express";
 import { container, injectable } from "tsyringe";
 import { registerController } from "./http/core/controller/register-controller.js";
+import { HttpException, ValidationException } from "./http/core/errors/errors.js";
 import { HttpServer } from "./http/HttpServer.js";
 import { ApiController, AuthController, DebugController } from "./http/index.js";
 import { AuthService } from "./modules/auth/AuthService.js";
@@ -28,6 +30,7 @@ export class Application {
       AuthController,
       OrchestratorController,
     ]);
+    this.handleErrors();
   }
 
   async start(): Promise<number> {
@@ -40,6 +43,30 @@ export class Application {
   async stop(): Promise<void> {
     await this.httpServer.stop();
     console.log("[Application] Stopped");
+  }
+
+  handleErrors(): void {
+    console.log("handler errors");
+
+    // 404 not found handler
+    this.httpServer.app.use((_req, res: Response) => {
+      res.status(404).json({ message: "You requested resource not found!" });
+    });
+
+    // 500 internal server error handler
+    this.httpServer.app.use((err: any, _req: any, res: Response, _next: any) => {
+      if (err instanceof ValidationException) {
+        return res.status(err.statusCode).json({
+          message: err.message,
+          errors: err.all,
+        });
+      }
+      if (err instanceof HttpException) {
+        return res.status(err.statusCode).json({ message: err.message });
+      }
+
+      res.status(500).json({ message: "Internal Server Error" });
+    });
   }
 }
 

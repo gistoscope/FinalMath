@@ -22,7 +22,28 @@ export class OrchestratorClient extends BaseApiClient {
    * Execute a V5 orchestrator step
    */
   async runV5Step(payload: any): Promise<any> {
-    return this.post("/api/orchestrator/v5/step", payload);
+    const v5Payload: any = {
+      sessionId: payload.sessionId || `session-${Date.now()}`,
+      expressionLatex: payload.expressionLatex,
+      selectionPath: payload.selectionPath || null,
+      operatorIndex: payload.selectionPath ? undefined : payload.operatorIndex,
+      courseId: payload.courseId || "default",
+      userRole: payload.userRole || "student",
+      surfaceNodeKind: payload.surfaceNodeKind || null,
+      clickTargetKind:
+        payload.surfaceNodeRole === "operator"
+          ? "operator"
+          : ["Num", "Number", "Integer"].includes(payload.surfaceNodeKind)
+            ? "number"
+            : payload.surfaceNodeKind === "Fraction"
+              ? "fractionBar"
+              : null,
+      operator: payload.operator || null,
+      surfaceNodeId: payload.surfaceNodeId || null,
+      preferredPrimitiveId: payload.preferredPrimitiveId || null,
+    };
+
+    return this.post("/api/orchestrator/v5/step", v5Payload);
   }
 
   /**
