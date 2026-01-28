@@ -153,14 +153,29 @@ export class InteractionService {
       // todo need use run step api
       try {
         const latex = this.store.getLatex();
-        const response = await this.orchestrator.validateOperator(
-          latex,
-          node.astNodeId || "",
-        );
+        const response = await this.orchestrator.runV5Step({
+          expressionLatex: latex,
+          selectionPath: node.astNodeId || "",
+          sessionId: `session-${Date.now()}`,
+          courseId: "default",
+          surfaceNodeId: node.id,
+          surfaceNodeKind: node.kind,
+          surfaceNodeRole: node.role,
+          operator: node.astOperator || null,
+          operatorIndex: node.astOperatorIndex ?? undefined,
+        });
 
+        if (response?.engineResult?.newExpressionLatex) {
+          this.store.setLatex(response?.engineResult.newExpressionLatex);
+        }
         let validationType = "requires-prep";
-        if (response && response.validationType) {
-          validationType = response.validationType;
+        if (response?.status === "no-candidates") {
+          validationType = "invalid";
+        } else if (
+          response?.status === "step-applied" ||
+          response?.status === "choice"
+        ) {
+          validationType = "valid";
         }
 
         // Update with result
