@@ -5,7 +5,7 @@
 /**
  * @typedef {import("./filebus.js").FileBus} FileBus
  */
-import { runV5Step } from "../../client/orchestratorV5Client.js";
+import { runV5Step } from "./client/orchestratorV5Client.js";
 
 /**
  * EngineAdapterConfig
@@ -22,10 +22,8 @@ export class StubEngine {
    * @returns {Promise<import("./protocol-types").EngineResponse>}
    */
   async process(request) {
-    const clientEvent =
-      request && request.clientEvent ? request.clientEvent : {};
-    const latex =
-      typeof clientEvent.latex === "string" ? clientEvent.latex : "";
+    const clientEvent = request && request.clientEvent ? request.clientEvent : {};
+    const latex = typeof clientEvent.latex === "string" ? clientEvent.latex : "";
     const nodeId = clientEvent.surfaceNodeId;
 
     return {
@@ -66,9 +64,7 @@ export class EngineAdapter {
   start() {
     if (this.unsubscribe) return;
     this.unsubscribe = this.bus.subscribe(this.handleBusMessage);
-    console.log(
-      `[EngineAdapter] Started in ${this.config.mode} mode (Pure V5)`,
-    );
+    console.log(`[EngineAdapter] Started in ${this.config.mode} mode (Pure V5)`);
   }
 
   stop() {
@@ -114,6 +110,7 @@ export class EngineAdapter {
     }
   }
 
+
   /**
    * Decide whether a given ClientEvent should be sent to the engine.
    * We keep hover-based getHints, but ignore clicks on non-operator nodes.
@@ -153,22 +150,19 @@ export class EngineAdapter {
         kind === "Fraction";
 
       // NEW: Integer/Number nodes - P1 behavior
-      const isIntegerNode =
-        kind === "Num" || kind === "Number" || kind === "Integer";
+      const isIntegerNode = kind === "Num" || kind === "Number" || kind === "Integer";
 
       // Must be a real surface node inside the formula.
       if (!nodeId) return false;
 
       // IMPORTANT:
-      // Integer/Number nodes are handled locally in main.js (mode cycling + the single apply gateway).
-      // EngineAdapter must NOT send applyStep for numbers, otherwise we get competing apply sources
-      // and Step2 multiplier "1" (BLUE apply) becomes nondeterministic.
-      if (isIntegerNode) {
-        console.log(
-          `[P1] Integer click ignored by EngineAdapter (handled locally): nodeId=${nodeId}, clickCount=${clickCount}, type=${t}`,
-        );
-        return false;
-      }
+// Integer/Number nodes are handled locally in main.js (mode cycling + the single apply gateway).
+// EngineAdapter must NOT send applyStep for numbers, otherwise we get competing apply sources
+// and Step2 multiplier "1" (BLUE apply) becomes nondeterministic.
+if (isIntegerNode) {
+  console.log(`[P1] Integer click ignored by EngineAdapter (handled locally): nodeId=${nodeId}, clickCount=${clickCount}, type=${t}`);
+  return false;
+}
 
       return isOperatorRole || isOperatorKind;
     }
@@ -177,11 +171,12 @@ export class EngineAdapter {
     return false;
   }
 
+
   /**
-   * Map ClientEvent → EngineRequest.type (getHints / previewStep / applyStep / parse).
-   * @param {any} clientEvent
-   * @returns {{ type: "parse" | "previewStep" | "applyStep" | "getHints"; clientEvent: any }}
-   */
+     * Map ClientEvent → EngineRequest.type (getHints / previewStep / applyStep / parse).
+     * @param {any} clientEvent
+     * @returns {{ type: "parse" | "previewStep" | "applyStep" | "getHints"; clientEvent: any }}
+     */
   toEngineRequest(clientEvent) {
     let requestType = "parse";
 
@@ -192,12 +187,10 @@ export class EngineAdapter {
         // double-click → applyStep
         // others → previewStep
         {
-          const isDouble =
-            clientEvent.click && clientEvent.click.clickCount === 2;
+          const isDouble = clientEvent.click && clientEvent.click.clickCount === 2;
           const role = clientEvent.surfaceNodeRole || "";
           const kind = clientEvent.surfaceNodeKind || "";
-          const hasOpIndex =
-            typeof clientEvent.surfaceOperatorIndex === "number";
+          const hasOpIndex = typeof clientEvent.surfaceOperatorIndex === "number";
 
           const isOperator =
             role === "operator" ||
@@ -210,8 +203,7 @@ export class EngineAdapter {
             hasOpIndex;
 
           // NEW: Integer clicks also trigger applyStep for choice menu
-          const isInteger =
-            kind === "Num" || kind === "Number" || kind === "Integer";
+          const isInteger = kind === "Num" || kind === "Number" || kind === "Integer";
 
           if (isDouble || isOperator || isInteger) {
             requestType = "applyStep";
@@ -263,8 +255,8 @@ export class EngineAdapter {
         requestType: request.type,
         result: {
           latex: request.clientEvent.latex,
-          meta: { status: "ignored-by-v5" },
-        },
+          meta: { status: "ignored-by-v5" }
+        }
       };
     }
 
@@ -273,47 +265,30 @@ export class EngineAdapter {
     // --- V5 PIPELINE ONLY ---
     // Derive V5 endpoint: assume it's on the same host/port, just different path
     // e.g. http://localhost:4201/api/entry-step -> http://localhost:4201/api/orchestrator/v5/step
-    const v5Endpoint = endpoint.replace(
-      "/api/entry-step",
-      "/api/orchestrator/v5/step",
-    );
+    const v5Endpoint = endpoint.replace("/api/entry-step", "/api/orchestrator/v5/step");
 
     const v5Payload = {
       sessionId: `session-${Date.now()}`, // Fresh session per request to prevent history bloat
       expressionLatex: request.clientEvent.latex,
       selectionPath: request.clientEvent.astNodeId || null, // Use AST node ID
-      operatorIndex: request.clientEvent.astNodeId
-        ? undefined
-        : request.clientEvent.surfaceOperatorIndex, // FIXED: Only use as fallback
+      operatorIndex: request.clientEvent.astNodeId ? undefined : request.clientEvent.surfaceOperatorIndex, // FIXED: Only use as fallback
       courseId: "default",
       userRole: "student",
       // NEW: Surface node kind so backend can infer click target type
       surfaceNodeKind: request.clientEvent.surfaceNodeKind || null,
       // NEW: Explicit click context fields for operator matching
-      clickTargetKind:
-        request.clientEvent.surfaceNodeRole === "operator"
-          ? "operator"
-          : request.clientEvent.surfaceNodeKind === "Num" ||
-              request.clientEvent.surfaceNodeKind === "Number" ||
-              request.clientEvent.surfaceNodeKind === "Integer"
-            ? "number"
-            : request.clientEvent.surfaceNodeKind === "Fraction"
-              ? "fractionBar"
-              : null,
+      clickTargetKind: request.clientEvent.surfaceNodeRole === "operator" ? "operator" :
+        (request.clientEvent.surfaceNodeKind === "Num" || request.clientEvent.surfaceNodeKind === "Number" || request.clientEvent.surfaceNodeKind === "Integer") ? "number" :
+          request.clientEvent.surfaceNodeKind === "Fraction" ? "fractionBar" : null,
       operator: request.clientEvent.surfaceNodeText || null, // "+" / "-" / "*" / "/" etc.
       surfaceNodeId: request.clientEvent.surfaceNodeId || null, // For debugging
     };
 
     // P1: Inject preferredPrimitiveId for integer double-clicks from cycle state
-    const isIntegerNode =
-      request.clientEvent.surfaceNodeKind === "Num" ||
+    const isIntegerNode = (request.clientEvent.surfaceNodeKind === "Num" ||
       request.clientEvent.surfaceNodeKind === "Number" ||
-      request.clientEvent.surfaceNodeKind === "Integer";
-    if (
-      isIntegerNode &&
-      typeof window !== "undefined" &&
-      window.__p1IntegerCycleState
-    ) {
+      request.clientEvent.surfaceNodeKind === "Integer");
+    if (isIntegerNode && typeof window !== "undefined" && window.__p1IntegerCycleState) {
       const p1State = window.__p1IntegerCycleState;
       const clickedSurfaceId = request.clientEvent.surfaceNodeId;
 
@@ -342,9 +317,7 @@ export class EngineAdapter {
           v5Payload.selectionPath = targetPath;
         }
 
-        console.log(
-          `[P1] Integer double-click: primitiveId=${primitive.id}, selectionPath=${v5Payload.selectionPath}, mode=${cycleIndex}, isSameNode=${isSameNode}`,
-        );
+        console.log(`[P1] Integer double-click: primitiveId=${primitive.id}, selectionPath=${v5Payload.selectionPath}, mode=${cycleIndex}, isSameNode=${isSameNode}`);
       }
     }
 
@@ -353,8 +326,8 @@ export class EngineAdapter {
       payload: v5Payload,
       originalClickContext: {
         surfaceNodeId: request.clientEvent.surfaceNodeId,
-        surfaceNodeKind: request.clientEvent.surfaceNodeKind,
-      },
+        surfaceNodeKind: request.clientEvent.surfaceNodeKind
+      }
     });
 
     const v5Result = await runV5Step(v5Endpoint, v5Payload, timeout);
@@ -365,7 +338,7 @@ export class EngineAdapter {
       v5Result.status,
       v5Result.primitiveId,
       v5Result.engineResult?.newExpressionLatex || "(no change)",
-      v5Result.rawResponse,
+      v5Result.rawResponse
     );
 
     // Handle Statuses
@@ -380,9 +353,9 @@ export class EngineAdapter {
             meta: {
               backendStatus: v5Result.status,
               primitiveId: v5Result.primitiveId,
-              debugInfo: v5Result.rawResponse.debugInfo,
-            },
-          },
+              debugInfo: v5Result.rawResponse.debugInfo
+            }
+          }
         };
       }
     } else if (v5Result.status === "no-candidates") {
@@ -395,16 +368,13 @@ export class EngineAdapter {
           latex: request.clientEvent.latex, // Unchanged
           meta: {
             backendStatus: "no-candidates",
-            primitiveId: null,
-          },
-        },
+            primitiveId: null
+          }
+        }
       };
     } else if (v5Result.status === "choice") {
       // NEW: Multiple actions available - return choices to UI for popup display
-      console.log(
-        "[EngineAdapter] Choice response received:",
-        v5Result.choices,
-      );
+      console.log("[EngineAdapter] Choice response received:", v5Result.choices);
       return {
         type: "ok",
         requestType: request.type,
@@ -416,9 +386,9 @@ export class EngineAdapter {
             clickContext: {
               surfaceNodeId: request.clientEvent.surfaceNodeId,
               selectionPath: request.clientEvent.astNodeId || null,
-            },
-          },
-        },
+            }
+          }
+        }
       };
     } else if (v5Result.status === "engine-error") {
       // Show error indication in console (already logged), maybe helpful meta
@@ -432,8 +402,8 @@ export class EngineAdapter {
         message: "V5 Engine Error",
         error: {
           code: "V5_ENGINE_ERROR",
-          details: JSON.stringify(v5Result.rawResponse),
-        },
+          details: JSON.stringify(v5Result.rawResponse)
+        }
       };
     }
 
@@ -443,8 +413,8 @@ export class EngineAdapter {
       requestType: request.type,
       result: {
         latex: request.clientEvent.latex,
-        meta: { status: "unknown-v5-status", raw: v5Result },
-      },
+        meta: { status: "unknown-v5-status", raw: v5Result }
+      }
     };
   }
 }

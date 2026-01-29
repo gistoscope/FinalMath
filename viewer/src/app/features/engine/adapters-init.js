@@ -2,15 +2,15 @@
 // Adapter initialization (FileBus, DisplayAdapter, EngineAdapter)
 
 import { V5_ENDPOINT_URL, getEngineBaseUrl } from "../../core/api.js";
-import { FileBus } from "../../core/FileBus.js";
 import {
   getCurrentLatex,
   integerCycleState,
   selectionState,
 } from "../../core/state.js";
-import { hitTestPoint } from "../../surface-map/surface-map.js";
-import { ClientEventRecorder, DisplayAdapter } from "./DisplayAdapter.js";
-import { EngineAdapter } from "./EngineAdapter.js";
+import { ClientEventRecorder, DisplayAdapter } from "../../display-adapter.js";
+import { EngineAdapter } from "../../engine-adapter.js";
+import { FileBus } from "../../filebus.js";
+import { hitTestPoint } from "../../surface-map.js";
 
 // C4: FileBus (in-browser demo)
 export const fileBus = new FileBus({ name: "browser-demo-bus" });
