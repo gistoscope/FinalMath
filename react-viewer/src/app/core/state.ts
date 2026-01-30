@@ -2,9 +2,22 @@
 // Centralized state management for the viewer application
 import { useViewerStore } from "../../store/useViewerStore";
 import { SurfaceNode } from "../surface-map/surface-node";
-import { MODE_GREEN } from "./constants";
+import {
+  MODE_BLUE,
+  MODE_CONFIG,
+  MODE_GREEN,
+  MODE_ORANGE,
+  P1_DOUBLE_CLICK_THRESHOLD,
+} from "./constants";
 
 export * from "./constants";
+export {
+  MODE_BLUE,
+  MODE_CONFIG,
+  MODE_GREEN,
+  MODE_ORANGE,
+  P1_DOUBLE_CLICK_THRESHOLD,
+};
 
 // ============================================================
 // APPLICATION STATE (Proxy Objects)

@@ -34,18 +34,18 @@ export class OperatorAnchorFilter {
    * @param resolvedSelectionPath - The resolved AST path from MapMaster
    * @returns Filtered array of candidates, or empty if anchor doesn't match
    */
-  apply(
-    candidates: Candidate[],
+  apply<T extends Candidate>(
+    candidates: T[],
     ast: any,
     selectionPath: string | null,
     operatorIndex: number | null | undefined,
     resolvedSelectionPath: string | undefined
-  ): Candidate[] {
+  ): T[] {
     const operatorAnchorPath = this.getOperatorAnchorPath(
       ast,
       resolvedSelectionPath,
       selectionPath,
-      operatorIndex
+      operatorIndex ?? undefined
     );
 
     if (operatorAnchorPath) {
@@ -53,7 +53,7 @@ export class OperatorAnchorFilter {
 
       // If we have an operator anchor but no matching candidates, return empty
       // This prevents applying transformations to the wrong operator
-      return anchoredCandidates;
+      return anchoredCandidates as T[];
     }
 
     // No operator anchor, return all candidates

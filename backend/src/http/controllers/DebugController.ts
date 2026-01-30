@@ -7,8 +7,8 @@
 import { AstParser } from "@/core/index.js";
 import type { Request, Response } from "express";
 import { injectable } from "tsyringe";
-import { Controller } from "../core/decorator/controller.decorator";
-import { GET, POST } from "../core/decorator/routes.decorator";
+import { Controller } from "../core/decorator/controller.decorator.js";
+import { GET, POST } from "../core/decorator/routes.decorator.js";
 
 @injectable()
 @Controller("/debug")

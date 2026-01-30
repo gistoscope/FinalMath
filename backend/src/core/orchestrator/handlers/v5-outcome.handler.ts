@@ -6,7 +6,8 @@
  */
 
 import { injectable } from "tsyringe";
-import type { SelectedOutcome } from "../../primitive-master/primitive-master.types.js";
+
+import { SelectedOutcome } from "@/core/primitive-master/provider/selector/selector.type.js";
 import type { StepHistory } from "../../stepmaster/step-master.types.js";
 import type { OrchestratorStepRequest, OrchestratorStepResult } from "../orchestrator.types.js";
 import { DebugInfoBuilder } from "../utils/debug-info.builder.js";

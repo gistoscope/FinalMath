@@ -313,7 +313,7 @@ function processSingleClick(
     integerCycleState.mode = newMode;
     integerCycleState.cycleIndex = newMode;
     saveTokenModeState();
-    const modeConfig = MODE_CONFIG[newMode as keyof typeof MODE_CONFIG];
+    const modeConfig = MODE_CONFIG[newMode];
     console.log(
       `[DBL-DET] stableKey=${clickStableKey} dt=${dt} mode=${oldMode} action=CYCLE`,
     );

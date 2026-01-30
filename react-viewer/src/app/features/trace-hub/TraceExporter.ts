@@ -1,5 +1,5 @@
 // features/trace-hub/TraceExporter.ts
-import { TraceEventData } from "./TraceEvent";
+import type { TraceEventData } from "./TraceEvent";
 
 class TraceExporter {
   static toJsonl(events: TraceEventData[]): string {

@@ -3,7 +3,7 @@
  */
 
 import { MathEngine } from "../modules/MathEngine";
-import { BBox } from "./surface-node";
+import type { BBox } from "./surface-node";
 
 /**
  * Utility class for bounding box operations.

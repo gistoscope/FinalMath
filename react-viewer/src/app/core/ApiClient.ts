@@ -14,7 +14,7 @@ class ApiClientService {
     this.baseUrl = url;
   }
 
-  async request(endpoint: string, options: RequestInit = {}): Promise<unknown> {
+  async request(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = `${this.baseUrl}${endpoint}`;
     const headers = { ...this.defaultHeaders, ...options.headers };
 

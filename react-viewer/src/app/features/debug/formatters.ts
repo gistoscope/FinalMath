@@ -133,7 +133,9 @@ export function countAstNodesJSON(node: any): number {
     case "add":
     case "mul": {
       const args = Array.isArray(node.args) ? node.args : [];
-      return 1 + args.reduce((sum, x) => sum + countAstNodesJSON(x), 0);
+      return (
+        1 + args.reduce((sum: number, x: any) => sum + countAstNodesJSON(x), 0)
+      );
     }
     case "sub":
     case "div":

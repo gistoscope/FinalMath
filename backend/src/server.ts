@@ -6,8 +6,8 @@
  */
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { Application } from "./Application";
-import { resolveDependencies } from "./registry";
+import { Application } from "./Application.js";
+import { resolveDependencies } from "./registry.js";
 
 async function bootstrap() {
   try {

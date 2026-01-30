@@ -28,3 +28,6 @@ coverage/
 .DS_Store
 Thumbs.db
 .env
+
+
+backend/data/sessions.json

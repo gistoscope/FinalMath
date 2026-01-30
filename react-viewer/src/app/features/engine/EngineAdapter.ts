@@ -117,7 +117,7 @@ export class EngineAdapter {
     }
   }
 
-  shouldSendToEngine(clientEvent: any, requestType: string): boolean {
+  shouldSendToEngine(clientEvent: any, _requestType: string): boolean {
     if (!clientEvent) return false;
 
     const t = clientEvent.type;

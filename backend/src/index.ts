@@ -21,4 +21,4 @@ export * from "./types/index.js";
 export * from "./debug/index.js";
 
 // Application Bootstrap
-export { Application, createApplication } from "./Application";
+export { Application, createApplication } from "./Application.js";

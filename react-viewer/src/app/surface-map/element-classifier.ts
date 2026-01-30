@@ -48,7 +48,7 @@ export class ElementClassifier {
   }
 
   static classify(
-    element: HTMLElement,
+    _element: HTMLElement,
     classes: string[],
     text: string,
   ): ClassificationResult {

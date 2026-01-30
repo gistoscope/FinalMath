@@ -52,7 +52,7 @@ export class LegacyCandidateHandler {
     const mapResult = this.mapMaster.generate({
       expressionLatex: params.expressionLatex,
       selectionPath: params.selectionPath,
-      operatorIndex: params.operatorIndex,
+      operatorIndex: params.operatorIndex ?? undefined,
       invariantSetIds: params.invariantSetIds,
       registry: params.registry,
     });
@@ -97,7 +97,7 @@ export class LegacyCandidateHandler {
           params.ast,
           mapResult.resolvedSelectionPath,
           params.selectionPath,
-          params.operatorIndex
+          params.operatorIndex ?? undefined
         );
 
         if (candidates.length > 0) {
