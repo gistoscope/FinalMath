@@ -48,7 +48,7 @@ export async function runP1SelfTest(
   integerCycleState.selectedNodeId = firstNum.id;
   integerCycleState.astNodeId = firstNum.astNodeId;
   integerCycleState.cycleIndex = 0; // GREEN mode
-  applyIntegerHighlight(firstNum.id, 0, null);
+  applyIntegerHighlight(firstNum.id, 0, () => {});
   await new Promise((r) => setTimeout(r, 300));
 
   // Apply P1 action (simulating hint click)

@@ -11,7 +11,7 @@
     "build:watch": "tsc --build --watch",
     "clean": "rm -rf dist",
     "typecheck": "tsc --noEmit",
-    "start": "node --enable-source-maps -r tsconfig-paths/register dist/server.js",
+    "start": "tsx dist/server.js",
     "start:dev": "node --import @swc-node/register/esm-register --watch src/server.ts",
     "dev": "node --import @swc-node/register/esm-register --watch src/server.ts",
     "test": "vitest",

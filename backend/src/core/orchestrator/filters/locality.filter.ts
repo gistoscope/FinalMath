@@ -29,14 +29,14 @@ export class LocalityFilter {
    * @param resolvedSelectionPath - The resolved AST path from MapMaster
    * @returns Filtered array of candidates
    */
-  apply(
-    candidates: Candidate[],
+  apply<T extends Candidate>(
+    candidates: T[],
     selectionPath: string | null | undefined,
     resolvedSelectionPath: string | null | undefined
-  ): Candidate[] {
+  ): T[] {
     return candidates.filter((candidate) =>
       this.isLocalToSelection(selectionPath, resolvedSelectionPath, candidate)
-    );
+    ) as T[];
   }
 
   /**

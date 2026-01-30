@@ -1,5 +1,5 @@
 // features/trace-hub/TraceSummaryBuilder.ts
-import { TraceEventData } from "./TraceEvent";
+import type { TraceEventData } from "./TraceEvent";
 
 export interface TraceSummary {
   traceId: string | null;
@@ -50,11 +50,11 @@ class TraceSummaryBuilder {
       if (ev.event === "STEP_RESPONSE") {
         summary.lastResponse = ev.data;
       }
-      if (ev.data?.chosenPrimitiveId) {
-        summary.chosenPrimitiveId = ev.data.chosenPrimitiveId;
+      if ((ev.data as any)?.chosenPrimitiveId) {
+        summary.chosenPrimitiveId = (ev.data as any).chosenPrimitiveId;
       }
-      if (ev.data?.outputLatex) {
-        summary.outputLatex = ev.data.outputLatex;
+      if ((ev.data as any)?.outputLatex) {
+        summary.outputLatex = (ev.data as any).outputLatex;
       }
     }
   }

@@ -1,7 +1,6 @@
-import { StepOrchestrator } from "@/core";
-
+import { StepOrchestrator } from "@/core/index.js";
 import { injectable } from "tsyringe";
-import { OrchestratorEntryDTO } from "./dtos/orchestrator-entry.dto";
+import { OrchestratorEntryDTO } from "./dtos/orchestrator-entry.dto.js";
 
 @injectable()
 export class OrchestratorService {

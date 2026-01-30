@@ -107,15 +107,15 @@ export function scanDOMForStableIds(
   return stableTokenMap;
 }
 
-export function assertDOMStableIds(container: HTMLElement) {}
+export function assertDOMStableIds(_container: HTMLElement) {}
 
 /**
  * STEP 2: Detect if clicked integer is a multiplier "1" that participates in diff-denom flow.
  */
 export function detectStep2MultiplierContext(
-  surfaceNodeId: string,
+  _surfaceNodeId: string,
   astNodeId: string | null,
-  surfaceMap: any,
+  _surfaceMap: any,
   currentLatex: string,
 ): {
   isStep2Context: boolean;

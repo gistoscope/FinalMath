@@ -99,8 +99,8 @@ export class IntegerClickHandler {
         clickedNodePath,
         targetNodeId: targetPath,
         integerValue: intValue,
-        detectedByAst: isIntegerByAst,
-        detectedBySurface: isIntegerBySurface,
+        detectedByAst: !!isIntegerByAst,
+        detectedBySurface: !!isIntegerBySurface,
       }),
     };
 

@@ -27691,5 +27691,131 @@
       ]
     },
     "createdAt": 1769675688331
+  },
+  {
+    "id": "session-1769763146878",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769763146944-pebvoi8go1",
+          "timestamp": 1769763146944,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769763146922
+  },
+  {
+    "id": "session-1769763162860",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769763162884-h6a85lnpnta",
+          "timestamp": 1769763162884,
+          "expressionBefore": "\\frac{5}{9} - \\frac{2}{9}",
+          "expressionAfter": "\\frac{3}{9}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769763162870
+  },
+  {
+    "id": "session-1769763165722",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763165730
+  },
+  {
+    "id": "session-1769763167105",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763167110
+  },
+  {
+    "id": "session-1769763167286",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763167290
+  },
+  {
+    "id": "session-1769763170478",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763170487
+  },
+  {
+    "id": "session-1769763174699",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763174705
+  },
+  {
+    "id": "session-1769763189239",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763189250
+  },
+  {
+    "id": "session-1769763201280",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1769763201289
+  },
+  {
+    "id": "session-1769763693681",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1769763693716-nz61zuj394l",
+          "timestamp": 1769763693716,
+          "expressionBefore": "\\frac{1}{7} + \\frac{3}{7}",
+          "expressionAfter": "\\frac{4}{7}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1769763693693
   }
 ]

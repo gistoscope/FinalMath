@@ -3,7 +3,8 @@
  * Converts AST to instrumented LaTeX with data-ast-id wrappers.
  */
 
-import { AstTraverser, AugmentedAstNode } from "./AstTraverser";
+import type { AugmentedAstNode } from "./AstTraverser";
+import { AstTraverser } from "./AstTraverser";
 import { Parser } from "./Parser";
 
 /**

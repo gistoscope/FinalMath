@@ -1,5 +1,5 @@
 import { injectable } from "tsyringe";
-import { StepPolicyConfig } from "../step-master.types";
+import { StepPolicyConfig } from "../step-master.types.js";
 
 @injectable()
 export class StepPolicyFactory {

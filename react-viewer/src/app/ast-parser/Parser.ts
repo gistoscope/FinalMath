@@ -3,7 +3,8 @@
  * Recursive descent parser for LaTeX arithmetic expressions.
  */
 
-import { Token, Tokenizer, TokenType } from "./Tokenizer";
+import type { Token } from "./Tokenizer";
+import { Tokenizer, TokenType } from "./Tokenizer";
 
 export type AstNodeType =
   | "binaryOp"

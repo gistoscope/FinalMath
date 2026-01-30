@@ -50,7 +50,7 @@ export async function applyCurrentHintForStableKey(
     return { applied: false, reason: "re-entry" };
   }
 
-  const modeConfig = MODE_CONFIG[currentMode as keyof typeof MODE_CONFIG];
+  const modeConfig = MODE_CONFIG[currentMode];
   let primitiveId = modeConfig?.primitiveId;
 
   if (currentMode === MODE_GREEN) {

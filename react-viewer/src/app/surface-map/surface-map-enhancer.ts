@@ -161,25 +161,25 @@ export class SurfaceMapEnhancer {
   }
 }
 
-export function enhanceSurfaceMap(
-  map: { atoms: SurfaceNode[] },
+export function enhanceSurfaceMap<T extends { atoms: SurfaceNode[] }>(
+  map: T,
   containerEl: HTMLElement,
-) {
-  return SurfaceMapEnhancer.enhance(map, containerEl);
+): T {
+  return SurfaceMapEnhancer.enhance(map, containerEl) as T;
 }
 
-export function correlateIntegersWithAST(
-  map: { atoms: SurfaceNode[] },
+export function correlateIntegersWithAST<T extends { atoms: SurfaceNode[] }>(
+  map: T,
   latex: string,
-) {
-  return SurfaceMapEnhancer.correlateIntegers(map, latex);
+): T {
+  return SurfaceMapEnhancer.correlateIntegers(map, latex) as T;
 }
 
-export function correlateOperatorsWithAST(
-  map: { atoms: SurfaceNode[] },
+export function correlateOperatorsWithAST<T extends { atoms: SurfaceNode[] }>(
+  map: T,
   latex: string,
-) {
-  return SurfaceMapEnhancer.correlateOperators(map, latex);
+): T {
+  return SurfaceMapEnhancer.correlateOperators(map, latex) as T;
 }
 
 export function assertStableIdInjection(map: { atoms: SurfaceNode[] }) {

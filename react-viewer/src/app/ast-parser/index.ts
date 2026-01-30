@@ -3,14 +3,16 @@
  * Main entry point for the AST parser module.
  */
 
-import {
-  AstTraverser,
+import type {
   AugmentedAstNode,
   IntegerDescriptor,
   OperatorDescriptor,
 } from "./AstTraverser";
-import { InstrumentationResult, LatexInstrumenter } from "./LatexInstrumenter";
-import { AstNode, Parser } from "./Parser";
+import { AstTraverser } from "./AstTraverser";
+import type { InstrumentationResult } from "./LatexInstrumenter";
+import { LatexInstrumenter } from "./LatexInstrumenter";
+import type { AstNode } from "./Parser";
+import { Parser } from "./Parser";
 import { Tokenizer, TokenType } from "./Tokenizer";
 
 /**

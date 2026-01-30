@@ -16,7 +16,7 @@ export function showModeIndicator(
   primitive: any,
   surfaceNodeId: string,
   _cycleIndex: number,
-  onApply: (source?: string) => Promise<void> | void,
+  onApply: (source?: string) => Promise<any> | any,
 ) {
   let indicator = document.getElementById("p1-hint-indicator");
   if (!indicator) {
@@ -118,7 +118,7 @@ export function hideModeIndicator() {
 export function applyIntegerHighlight(
   surfaceNodeId: string,
   mode: number,
-  onApply: (source?: string) => Promise<void> | void,
+  onApply: (source?: string) => Promise<any> | any,
 ) {
   clearIntegerHighlight();
   const modeConfig = MODE_CONFIG[mode] || MODE_CONFIG[MODE_GREEN];
