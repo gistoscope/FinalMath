@@ -5,5 +5,5 @@
  */
 
 export type { ExecutionResult, PrimitiveExecutor, ValidationResult } from "./base.executor.js";
-export { IntToFracExecutor } from "./int-to-frac.executor.js";
+export { IntToFracExecutor, type IntToFracContext } from "./int-to-frac.executor.js";
 export { OneToTargetDenomExecutor } from "./one-to-target-denom.executor.js";
