@@ -190,6 +190,17 @@ export class AstUtils {
     return false;
   }
 
+  /**
+   * Find a node by its operator index (visual left-to-right order).
+   *
+   * IMPORTANT: Only counts binaryOp nodes as operators.
+   * Fractions and mixed numbers are NOT counted - they are operands, not operators.
+   *
+   * For expression: \frac{1}{3} \cdot \frac{5}{5} + \frac{2}{5} \cdot \frac{3}{3}
+   * - Index 0: first \cdot (term[0])
+   * - Index 1: + (root)
+   * - Index 2: second \cdot (term[1])
+   */
   getNodeByOperatorIndex(
     ast: AstNode,
     targetIndex: number
@@ -200,42 +211,27 @@ export class AstUtils {
     function traverse(node: AstNode, path: string) {
       if (found) return;
 
-      const isOp = node.type === "binaryOp" || node.type === "fraction";
-
+      // Only binaryOp nodes are counted as operators
       if (node.type === "binaryOp") {
+        // In-order traversal: left subtree first (to get left-to-right visual order)
         traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
         if (found) return;
 
+        // Then count this operator
         if (currentIndex === targetIndex) {
           found = { node, path };
           return;
         }
         currentIndex++;
 
+        // Then right subtree
         traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
         return;
       }
 
-      if (node.type === "fraction") {
-        if (currentIndex === targetIndex) {
-          found = { node, path };
-          return;
-        }
-        currentIndex++;
-        return;
-      }
-
-      if (node.type === "mixed") {
-        if (currentIndex === targetIndex) {
-          found = { node, path };
-          return;
-        }
-        currentIndex++;
-        return;
-      }
-
-      // integers are NOT operators - do not count them in operator index
-      // (getNodeByOperatorIndex should only find binaryOp, fraction, mixed)
+      // Fractions and mixed numbers are NOT operators - don't count them
+      // They are leaf nodes (operands) for the purpose of operator indexing
+      // integers and variables are also NOT operators
     }
 
     traverse(ast, "root");
