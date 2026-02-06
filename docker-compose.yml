@@ -15,20 +15,30 @@ services:
       - ./backend/config:/app/config
     restart: always
 
-  viewer:
+  final-math-frontend:
     build:
-      context: ./viewer
-      dockerfile: Dockerfile
+      context: ./final-math-frontend
+      dockerfile: apps/final-math-frontend/Dockerfile
     ports:
-      - "4001:4001"
-    restart: always
-
-  react-viewer:
-    build:
-      context: ./react-viewer
-      dockerfile: Dockerfile
-    ports:
-      - "5173:80"
+      - "4200:80"
     restart: always
     depends_on:
       - backend
+
+  # viewer:
+  #   build:
+  #     context: ./viewer
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "4001:4001"
+  #   restart: always
+
+  # react-viewer:
+  #   build:
+  #     context: ./react-viewer
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "5173:80"
+  #   restart: always
+  #   depends_on:
+  #     - backend
