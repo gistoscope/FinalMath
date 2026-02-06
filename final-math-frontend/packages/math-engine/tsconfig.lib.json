@@ -1,0 +1,41 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler", // New standard for 2025/2026
+    "allowImportingTsExtensions": false,
+    "lib": [
+      "ES2022"
+    ],
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    "emitDeclarationOnly": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "types": [
+      "node"
+    ],
+    "sourceMap": true, // From old repo
+    "declaration": true, // From old repo
+    "declarationMap": true, // From old repo
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/index.ts",
+    "src/lib/**/*.ts",
+    "src/lib/**/*.json"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts"
+  ]
+}

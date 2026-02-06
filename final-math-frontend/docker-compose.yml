@@ -1,0 +1,8 @@
+services:
+  final-math-frontend:
+    build:
+      context: .
+      dockerfile: apps/final-math-frontend/Dockerfile
+    ports:
+      - "4200:80"
+    restart: always

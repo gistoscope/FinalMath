@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "allowJs": false,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "types": [
+      "vite/client",
+      "katex"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "es2022"
+    ]
+  },
+  "files": [],
+  "include": [],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ],
+  "extends": "../../tsconfig.base.json"
+}

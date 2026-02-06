@@ -1,0 +1,21 @@
+{
+  "name": "@acme/lre",
+  "version": "0.0.1",
+  "main": "./index.js",
+  "types": "./index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js"
+    }
+  },
+  "dependencies": {
+    "katex": "^0.16.28",
+    "react-katex": "^3.1.0",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8"
+  }
+}

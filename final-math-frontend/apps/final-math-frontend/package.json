@@ -1,0 +1,13 @@
+{
+  "name": "@final-math-frontend/final-math-frontend",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@acme/lre": "workspace:*",
+    "@acme/math-engine": "workspace:*",
+    "immer": "^11.1.3",
+    "reflect-metadata": "^0.2.2",
+    "tsyringe": "^4.10.0",
+    "zustand": "^5.0.10"
+  }
+}

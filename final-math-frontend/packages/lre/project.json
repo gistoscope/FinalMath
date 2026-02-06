@@ -1,0 +1,9 @@
+{
+  "name": "lre",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/lre/src",
+  "projectType": "library",
+  "tags": [],
+  "// targets": "to see all targets run: nx show project lre --web",
+  "targets": {}
+}
