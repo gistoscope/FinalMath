@@ -91,6 +91,15 @@
       "description": "Сложение дробей с разными знаменателями"
     },
     {
+      "id": "P.FRAC_SUB_DIFF",
+      "name": "Fraction Subtraction (Diff Denom)",
+      "category": "fraction",
+      "tags": [],
+      "pattern": "a/b - c/d",
+      "resultPattern": "(a*d - c*b) / (b*d)",
+      "description": "Вычитание дробей с разными знаменателями"
+    },
+    {
       "id": "P.DEC_ADD",
       "name": "Decimal Addition",
       "category": "decimal",
@@ -531,6 +540,17 @@
           "tags": [],
           "primitiveIds": [
             "P.FRAC_ADD_DIFF"
+          ]
+        },
+        {
+          "id": "R.FRAC_SUB_DIFF",
+          "title": "Fraction Subtraction (Diff Denom)",
+          "shortStudentLabel": "Subtract Fractions",
+          "description": "Subtract fractions with different denominators",
+          "level": "core",
+          "tags": [],
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF"
           ]
         }
       ]

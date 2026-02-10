@@ -1,4 +1,5 @@
 import { InteractiveMath } from './InteractiveMath';
+import { buildASTFromLatex } from './lib/ast-parser';
 import { SurfaceNode } from './lib/surface-map';
 import './styles.css';
 
@@ -20,7 +21,7 @@ export function LatexRenderingEngine(props: LatexRenderingEngineProps) {
     onClickOutside,
     onHoverOutside,
   } = props;
-
+  const ast = buildASTFromLatex(latex);
   return (
     <div className="w-full">
       <InteractiveMath
@@ -33,6 +34,7 @@ export function LatexRenderingEngine(props: LatexRenderingEngineProps) {
           onHoverOutside,
         }}
       />
+      <pre>{JSON.stringify(ast, undefined, 2)}</pre>
     </div>
   );
 }

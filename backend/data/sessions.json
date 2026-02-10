@@ -28293,5 +28293,932 @@
       ]
     },
     "createdAt": 1770211232359
+  },
+  {
+    "id": "session-1770701115649",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770701129687
+  },
+  {
+    "id": "session-1770701198343",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770701204098
+  },
+  {
+    "id": "session-1770716189233",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770716199342
+  },
+  {
+    "id": "session-1770716544039",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770716546623
+  },
+  {
+    "id": "session-1770717559117",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770717561550
+  },
+  {
+    "id": "session-1770721582894",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770721624929-qeaf3ila7yg",
+          "timestamp": 1770721624929,
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - (\\frac{3}{4} - \\frac{1}{5})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770721630869-wb9r6a31e6",
+          "timestamp": 1770721630869,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - (\\frac{3}{4} - \\frac{1}{5})",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{4}{6} - (\\frac{3}{4} - \\frac{1}{5})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770721633071-cs26hjeizo4",
+          "timestamp": 1770721633071,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{4}{6} - (\\frac{3}{4} - \\frac{1}{5})",
+          "expressionAfter": "\\frac{3}{6} + \\frac{4}{6} - (\\frac{3}{4} - \\frac{1}{5})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770721634212-jmr7xcy0kjf",
+          "timestamp": 1770721634212,
+          "expressionBefore": "\\frac{3}{6} + \\frac{4}{6} - (\\frac{3}{4} - \\frac{1}{5})",
+          "expressionAfter": "\\frac{7}{6} - (\\frac{3}{4} - \\frac{1}{5})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770721586423
+  },
+  {
+    "id": "session-1770721730479",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": []
+    },
+    "createdAt": 1770721735759
+  },
+  {
+    "id": "session-1770722173078",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722183812-rqtdru0vpw",
+          "timestamp": 1770722183812,
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF"
+          ]
+        },
+        {
+          "id": "step-1770722269689-77tegv2gy87",
+          "timestamp": 1770722269689,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF"
+          ]
+        },
+        {
+          "id": "step-1770722270690-pdrtjf6tfv",
+          "timestamp": 1770722270690,
+          "expressionBefore": "\\frac{7}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{74}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722175878
+  },
+  {
+    "id": "session-1770722474829",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722477928-00trohvtzs4ki",
+          "timestamp": 1770722477928,
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722484368-bidtngi8ot",
+          "timestamp": 1770722484368,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722486006-z6xi8qmzse",
+          "timestamp": 1770722486006,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722487279-l3949r0251o",
+          "timestamp": 1770722487279,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722488450-21q2fuxjd1q",
+          "timestamp": 1770722488450,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722493122-rrieor2jqi",
+          "timestamp": 1770722493122,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722494151-vad79bo8q0l",
+          "timestamp": 1770722494151,
+          "expressionBefore": "\\frac{3}{6} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722495371-luevtmpfooq",
+          "timestamp": 1770722495371,
+          "expressionBefore": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722496180-44vvwdodgs7",
+          "timestamp": 1770722496180,
+          "expressionBefore": "\\frac{7}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot \\frac{6}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722501261-6gyag0czzoa",
+          "timestamp": 1770722501261,
+          "expressionBefore": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot \\frac{6}{6}",
+          "expressionAfter": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{66}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722502819-42murzok7xm",
+          "timestamp": 1770722502819,
+          "expressionBefore": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{66}{120}",
+          "expressionAfter": "\\frac{140}{120} - \\frac{66}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722503843-y2v0w0fmeo",
+          "timestamp": 1770722503843,
+          "expressionBefore": "\\frac{140}{120} - \\frac{66}{120}",
+          "expressionAfter": "\\frac{74}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722510656-4ra7j5oooe",
+          "timestamp": 1770722510656,
+          "expressionBefore": "\\frac{2}{5} - \\left(\\frac{1}{10}+\\frac{3}{20}\\right)",
+          "expressionAfter": "\\frac{2}{5} - (\\frac{1}{10} \\cdot \\frac{20}{20} + \\frac{3}{20} \\cdot \\frac{10}{10})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722516486-q1jewsuqnzp",
+          "timestamp": 1770722516486,
+          "expressionBefore": "\\frac{2}{5} - (\\frac{1}{10} \\cdot \\frac{20}{20} + \\frac{3}{20} \\cdot \\frac{10}{10})",
+          "expressionAfter": "\\frac{2}{5} - (\\frac{1}{10} \\cdot \\frac{20}{20} + \\frac{30}{200})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722518079-pbz73jv631",
+          "timestamp": 1770722518079,
+          "expressionBefore": "\\frac{2}{5} - (\\frac{1}{10} \\cdot \\frac{20}{20} + \\frac{30}{200})",
+          "expressionAfter": "\\frac{2}{5} - (\\frac{20}{200} + \\frac{30}{200})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722519473-m1jvve2hb7",
+          "timestamp": 1770722519473,
+          "expressionBefore": "\\frac{2}{5} - (\\frac{20}{200} + \\frac{30}{200})",
+          "expressionAfter": "\\frac{2}{5} - \\frac{50}{200}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722520980-0nhukuhcudx",
+          "timestamp": 1770722520980,
+          "expressionBefore": "\\frac{2}{5} - \\frac{50}{200}",
+          "expressionAfter": "\\frac{2}{5} \\cdot \\frac{200}{200} - \\frac{50}{200} \\cdot \\frac{5}{5}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722528060-55iepq7ypzq",
+          "timestamp": 1770722528060,
+          "expressionBefore": "\\frac{2}{5} \\cdot \\frac{200}{200} - \\frac{50}{200} \\cdot \\frac{5}{5}",
+          "expressionAfter": "\\frac{2}{5} \\cdot \\frac{200}{200} - \\frac{250}{1000}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722529290-nnh0q7xtzvl",
+          "timestamp": 1770722529290,
+          "expressionBefore": "\\frac{2}{5} \\cdot \\frac{200}{200} - \\frac{250}{1000}",
+          "expressionAfter": "\\frac{400}{1000} - \\frac{250}{1000}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722530292-q4u2oqypom",
+          "timestamp": 1770722530292,
+          "expressionBefore": "\\frac{400}{1000} - \\frac{250}{1000}",
+          "expressionAfter": "\\frac{150}{1000}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722477915
+  },
+  {
+    "id": "session-1770722553905",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722557357-se0d2in5wwd",
+          "timestamp": 1770722557357,
+          "expressionBefore": "2+3",
+          "expressionAfter": "5",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_ADD"
+          ]
+        },
+        {
+          "id": "step-1770722584216-cpln4dqzqvt",
+          "timestamp": 1770722584216,
+          "expressionBefore": "12.5 + 0.75 - 3.125",
+          "expressionAfter": "13.25 - 3.125",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.INT_ADD"
+          ]
+        },
+        {
+          "id": "step-1770722584969-rnu4b6vaw29",
+          "timestamp": 1770722584969,
+          "expressionBefore": "13.25 - 3.125",
+          "expressionAfter": "\\frac{1}{1}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.INT_SUB"
+          ]
+        },
+        {
+          "id": "step-1770722597459-64a6xorfn1k",
+          "timestamp": 1770722597459,
+          "expressionBefore": "\\frac{1}{2} + \\frac{1}{3} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{1}{3} \\cdot \\frac{2}{2} + \\frac{1}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722603555-cqdlrkpsbjr",
+          "timestamp": 1770722603555,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{1}{3} \\cdot \\frac{2}{2} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{6} + \\frac{1}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722604676-zsw0inmjiog",
+          "timestamp": 1770722604676,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{6} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{2}{6} + \\frac{1}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722605758-9es9zqoqtcr",
+          "timestamp": 1770722605758,
+          "expressionBefore": "\\frac{3}{6} + \\frac{2}{6} + \\frac{1}{6}",
+          "expressionAfter": "\\frac{5}{6} + \\frac{1}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722606796-16s3o9uglnn",
+          "timestamp": 1770722606796,
+          "expressionBefore": "\\frac{5}{6} + \\frac{1}{6}",
+          "expressionAfter": "(\\frac{3}{3} - \\frac{1}{3}) \\cdot \\frac{3}{4}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722634755-ytajx6qmiy",
+          "timestamp": 1770722634755,
+          "expressionBefore": "(\\frac{3}{3} - \\frac{1}{3}) \\cdot \\frac{3}{4}",
+          "expressionAfter": "\\frac{2}{3} \\cdot \\frac{3}{4}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722635502-68dqjt8loft",
+          "timestamp": 1770722635502,
+          "expressionBefore": "\\frac{2}{3} \\cdot \\frac{3}{4}",
+          "expressionAfter": "\\frac{6}{12}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722674895-sewxfqt2ha",
+          "timestamp": 1770722674895,
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722680642-gfay1gdobih",
+          "timestamp": 1770722680642,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722682904-joqgmb69qgi",
+          "timestamp": 1770722682904,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722686230-5cabn3ynm53",
+          "timestamp": 1770722686230,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722689171-f2nkrnjbrt",
+          "timestamp": 1770722689171,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722696516-al4xbmdhlvi",
+          "timestamp": 1770722696516,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{4}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722697967-owta0e96tkh",
+          "timestamp": 1770722697967,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{4}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722700013-00exsvpyvowr7",
+          "timestamp": 1770722700013,
+          "expressionBefore": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722701230-bcejyab7g5g",
+          "timestamp": 1770722701230,
+          "expressionBefore": "\\frac{7}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot \\frac{6}{6}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722706446-w8uw01okl5c",
+          "timestamp": 1770722706446,
+          "expressionBefore": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot \\frac{6}{6}",
+          "expressionAfter": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{66}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722707514-o0h8uvuc0ai",
+          "timestamp": 1770722707514,
+          "expressionBefore": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{66}{120}",
+          "expressionAfter": "\\frac{140}{120} - \\frac{66}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722708489-uf8a1pf4x5f",
+          "timestamp": 1770722708489,
+          "expressionBefore": "\\frac{140}{120} - \\frac{66}{120}",
+          "expressionAfter": "\\frac{1}{2} + \\frac{3}{4} - \\frac{\\frac{4}{4}}{1 + \\frac{1}{2}}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722557348
+  },
+  {
+    "id": "session-1770722768293",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722775051-pg7ttdnfob9",
+          "timestamp": 1770722775051,
+          "expressionBefore": "\\left(\\frac{1}{2}+\\frac{2}{3}\\right)-\\left(\\frac{3}{4}-\\frac{1}{5}\\right)",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722783157-6jw62b0bt4o",
+          "timestamp": 1770722783157,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{1}{5} \\cdot \\frac{4}{4})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722784348-ah0buifc5e8",
+          "timestamp": 1770722784348,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{3}{4} \\cdot \\frac{5}{5} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722786157-0gufpd0r9bke",
+          "timestamp": 1770722786157,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - (\\frac{15}{20} - \\frac{4}{20})",
+          "expressionAfter": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722787614-kjkm0x0scog",
+          "timestamp": 1770722787614,
+          "expressionBefore": "\\frac{1}{2} + \\frac{2}{3} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722793125-gthxurfadf5",
+          "timestamp": 1770722793125,
+          "expressionBefore": "\\frac{1}{2} \\cdot \\frac{3}{3} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722795287-y70nfjkz8yc",
+          "timestamp": 1770722795287,
+          "expressionBefore": "\\frac{3}{6} + \\frac{2}{3} \\cdot \\frac{2}{2} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722796225-kx4qhio0kl",
+          "timestamp": 1770722796225,
+          "expressionBefore": "\\frac{3}{6} + \\frac{4}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} - \\frac{11}{20}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770722797166-f693okrmgd4",
+          "timestamp": 1770722797166,
+          "expressionBefore": "\\frac{7}{6} - \\frac{11}{20}",
+          "expressionAfter": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot 1",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722802777-pw1wnwhby0g",
+          "timestamp": 1770722802777,
+          "expressionBefore": "\\frac{7}{6} \\cdot \\frac{20}{20} - \\frac{11}{20} \\cdot 1",
+          "expressionAfter": "\\frac{140}{120} - \\frac{11}{20} \\cdot \\frac{120}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722805841-qo0tku6qr29",
+          "timestamp": 1770722805841,
+          "expressionBefore": "\\frac{140}{120} - \\frac{11}{20} \\cdot \\frac{120}{120}",
+          "expressionAfter": "\\frac{140}{120} - \\frac{1320}{2400}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722806907-9tcojztqztc",
+          "timestamp": 1770722806907,
+          "expressionBefore": "\\frac{140}{120} - \\frac{1320}{2400}",
+          "expressionAfter": "\\frac{140}{120} \\cdot \\frac{2400}{2400} - \\frac{1320}{2400} \\cdot \\frac{120}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722813496-tl30an9yytr",
+          "timestamp": 1770722813496,
+          "expressionBefore": "\\frac{140}{120} \\cdot \\frac{2400}{2400} - \\frac{1320}{2400} \\cdot \\frac{120}{120}",
+          "expressionAfter": "\\frac{336000}{288000} - \\frac{1320}{2400} \\cdot \\frac{120}{120}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722815232-bqlponi57sw",
+          "timestamp": 1770722815232,
+          "expressionBefore": "\\frac{336000}{288000} - \\frac{1320}{2400} \\cdot \\frac{120}{120}",
+          "expressionAfter": "\\frac{336000}{288000} - \\frac{158400}{288000}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770722817048-nod9rhr5nwn",
+          "timestamp": 1770722817048,
+          "expressionBefore": "\\frac{336000}{288000} - \\frac{158400}{288000}",
+          "expressionAfter": "\\frac{177600}{288000}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722775044
+  },
+  {
+    "id": "session-1770722906695",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722947915-mduptehtfba",
+          "timestamp": 1770722947915,
+          "expressionBefore": "\\frac{5}{5} + \\frac{3}{5} - 0.4",
+          "expressionAfter": "\\frac{8}{5} - 0.4",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722911042
+  },
+  {
+    "id": "session-1770722987348",
+    "userId": "",
+    "role": "student",
+    "history": {
+      "entries": [
+        {
+          "id": "step-1770722994031-6qz06fpbp2b",
+          "timestamp": 1770722994031,
+          "expressionBefore": "\\left(\\frac{5}{6} - \\frac{1}{3}\\right) + \\frac{7}{8}",
+          "expressionAfter": "\\frac{5}{6} \\cdot \\frac{3}{3} - \\frac{1}{3} \\cdot \\frac{6}{6} + \\frac{7}{8}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_SUB_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770722999897-s05tyaqwaa",
+          "timestamp": 1770722999897,
+          "expressionBefore": "\\frac{5}{6} \\cdot \\frac{3}{3} - \\frac{1}{3} \\cdot \\frac{6}{6} + \\frac{7}{8}",
+          "expressionAfter": "\\frac{15}{18} - \\frac{1}{3} \\cdot \\frac{6}{6} + \\frac{7}{8}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770723000871-e6r8wazers",
+          "timestamp": 1770723000871,
+          "expressionBefore": "\\frac{15}{18} - \\frac{1}{3} \\cdot \\frac{6}{6} + \\frac{7}{8}",
+          "expressionAfter": "\\frac{15}{18} - \\frac{6}{18} + \\frac{7}{8}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0].term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770723002522-iwnbjuz8hcg",
+          "timestamp": 1770723002522,
+          "expressionBefore": "\\frac{15}{18} - \\frac{6}{18} + \\frac{7}{8}",
+          "expressionAfter": "\\frac{9}{18} + \\frac{7}{8}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_SUB_SAME_DEN"
+          ]
+        },
+        {
+          "id": "step-1770723003297-p21y0rb4ra",
+          "timestamp": 1770723003297,
+          "expressionBefore": "\\frac{9}{18} + \\frac{7}{8}",
+          "expressionAfter": "\\frac{9}{18} \\cdot \\frac{8}{8} + \\frac{7}{8} \\cdot \\frac{18}{18}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_DIFF_DEN_MUL1"
+          ]
+        },
+        {
+          "id": "step-1770723009284-lb0cornuhh",
+          "timestamp": 1770723009284,
+          "expressionBefore": "\\frac{9}{18} \\cdot \\frac{8}{8} + \\frac{7}{8} \\cdot \\frac{18}{18}",
+          "expressionAfter": "\\frac{72}{144} + \\frac{7}{8} \\cdot \\frac{18}{18}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[0]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770723010671-1ivyssgiwiy",
+          "timestamp": 1770723010671,
+          "expressionBefore": "\\frac{72}{144} + \\frac{7}{8} \\cdot \\frac{18}{18}",
+          "expressionAfter": "\\frac{72}{144} + \\frac{126}{144}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "term[1]",
+          "primitiveIds": [
+            "P.FRAC_MUL"
+          ]
+        },
+        {
+          "id": "step-1770723011842-h90moatwfp7",
+          "timestamp": 1770723011842,
+          "expressionBefore": "\\frac{72}{144} + \\frac{126}{144}",
+          "expressionAfter": "\\frac{198}{144}",
+          "invariantRuleId": "v5-rule",
+          "targetPath": "root",
+          "primitiveIds": [
+            "P.FRAC_ADD_SAME_DEN"
+          ]
+        }
+      ]
+    },
+    "createdAt": 1770722994024
   }
 ]

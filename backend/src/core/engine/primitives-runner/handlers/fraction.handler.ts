@@ -29,6 +29,8 @@ export class FractionPrimitiveHandler implements IPrimitiveHandler {
     "P.FRAC_LIFT_LEFT_BY_RIGHT_DEN",
     "P.FRAC_LIFT_RIGHT_BY_LEFT_DEN",
     "P.FRAC_ADD_AFTER_LIFT",
+    "P.FRAC_ADD_DIFF",
+    "P.FRAC_SUB_DIFF",
   ];
 
   constructor(private readonly fractionUtils: FractionUtilsService) {}

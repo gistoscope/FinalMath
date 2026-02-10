@@ -87,6 +87,13 @@ export class AstTraverser {
         traverse(node.args[0]);
         traverse(node.args[1]);
       } else if (node.type === 'unaryOp') {
+        if (node.id && node.op) {
+          operators.push({
+            nodeId: node.id,
+            operator: node.op,
+            position: position++,
+          });
+        }
         traverse(node.arg);
       }
     };

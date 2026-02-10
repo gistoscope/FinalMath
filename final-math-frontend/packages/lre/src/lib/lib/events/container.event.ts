@@ -50,7 +50,8 @@ export function setupContainerEvents(
     const node = findNodeByElement(container, e, latex);
 
     if (node) {
-      if (['BinaryOp', 'MinusBinary'].includes(node.kind)) {
+      console.log({ node });
+      if (['BinaryOp', 'MinusBinary', 'MinusUnary'].includes(node.kind)) {
         handlers?.onClickOperator?.(node, e);
       } else {
         handlers?.onClickNode?.(node, e);

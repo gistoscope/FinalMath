@@ -204,7 +204,12 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
     const surfaceOperators = map.atoms
       .filter((n) => {
         const k = n.kind;
-        return k === 'BinaryOp' || k === 'MinusBinary' || k === 'Relation';
+        return (
+          k === 'BinaryOp' ||
+          k === 'MinusBinary' ||
+          k === 'MinusUnary' ||
+          k === 'Relation'
+        );
       })
       .sort((a, b) => a.bbox.left - b.bbox.left || a.bbox.top - b.bbox.top);
 

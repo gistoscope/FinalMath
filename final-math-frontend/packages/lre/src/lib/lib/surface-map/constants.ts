@@ -38,6 +38,7 @@ export const ATOMIC_KINDS = new Set<string>([
 export const OPERATOR_SLOT_KINDS = new Set<string>([
   'BinaryOp',
   'MinusBinary',
+  'MinusUnary',
   'Relation',
   'Fraction',
 ]);
@@ -49,5 +50,6 @@ export const INTERACTIVE_KINDS = new Set<string>([
   'Num',
   'BinaryOp',
   'MinusBinary',
+  'MinusUnary',
   'Relation',
 ]);
