@@ -33,6 +33,16 @@ export class AstUtils {
 
       // Handle fraction .num/.den virtual paths
       if (part === "num" || part === "den") {
+        // Support binaryOp division (complex fractions)
+        if (current.type === "binaryOp" && current.op === "/") {
+          if (part === "num") {
+            current = current.left;
+          } else {
+            current = current.right;
+          }
+          continue;
+        }
+
         if (current.type !== "fraction") {
           return undefined; // .num/.den only valid on fraction nodes
         }
@@ -99,6 +109,15 @@ export class AstUtils {
 
       // Handle fraction .num/.den virtual paths
       if (part === "num" || part === "den") {
+        // Support binaryOp division (complex fractions)
+        if (node.type === "binaryOp" && node.op === "/") {
+          if (part === "num") {
+            return { ...node, left: update(node.left, remaining) };
+          } else {
+            return { ...node, right: update(node.right, remaining) };
+          }
+        }
+
         if (node.type !== "fraction") {
           console.warn(`[replaceNodeAt] Cannot apply .${part} to non-fraction node`);
           return node;

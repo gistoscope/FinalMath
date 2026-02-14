@@ -262,4 +262,6 @@ export type PrimitiveId =
   | "P.FRAC_SUB_DIFF_DEN_MUL1"
   | "P.FRAC_MUL"
   | "P.FRAC_DIV"
-  | "P.FRAC_DIV_AS_MUL";
+  | "P.FRAC_DIV_AS_MUL"
+  | "P.INT_PLUS_FRAC"
+  | "P.INT_MINUS_FRAC";

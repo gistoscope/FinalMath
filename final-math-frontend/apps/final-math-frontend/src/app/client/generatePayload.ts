@@ -11,7 +11,7 @@ export function generateV5PayloadFromNode(
     expressionLatex: fullLatex,
     selectionPath: node.astNodeId || null,
     // Use operatorIndex only if we don't have a specific AST ID
-    operatorIndex: node.astNodeId ? undefined : node.operatorIndex,
+    operatorIndex: node.operatorIndex,
     courseId: 'default',
     userRole: 'student',
     surfaceNodeKind: node.kind || null,

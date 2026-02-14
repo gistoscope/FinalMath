@@ -193,7 +193,9 @@ export class MapMasterAstHelpers implements AstHelpers {
 
   isFraction(node: ExpressionAstNode): boolean {
     if (!node) return false;
-    return node.type === "fraction";
+    if (node.type === "fraction") return true;
+    if (node.type === "binaryOp" && (node.op === "/" || node.op === "\\div")) return true;
+    return false;
   }
 
   getFractionParts(
@@ -201,6 +203,11 @@ export class MapMasterAstHelpers implements AstHelpers {
   ): { numerator: ExpressionAstNode; denominator: ExpressionAstNode } | undefined {
     if (!this.isFraction(node)) {
       return undefined;
+    }
+
+    if (node.type === "binaryOp") {
+      const binOp = node as any; // Cast to access concrete fields
+      return { numerator: binOp.left, denominator: binOp.right };
     }
 
     const frac = node as any; // Cast to access concrete fields
@@ -240,15 +247,21 @@ export class MapMasterAstHelpers implements AstHelpers {
 
     // Check if this node is a binary operator
     if (node.type === "binaryOp") {
-      if (state.count === targetIndex) {
-        return currentPath;
-      }
-      state.count++;
-
-      // Traverse children: left then right
+      // First, traverse left child
       const leftRes = this.dfsForOperator(node.left, [...currentPath, "left"], targetIndex, state);
       if (leftRes) return leftRes;
 
+      // Then check current node
+      // Skip counting "quiet" fraction operators (op === "/") which come from \frac
+      // Only count explicit operators like +, -, *, \div
+      if (node.op !== "/") {
+        if (state.count === targetIndex) {
+          return currentPath;
+        }
+        state.count++;
+      }
+
+      // Then traverse right child
       const rightRes = this.dfsForOperator(
         node.right,
         [...currentPath, "right"],

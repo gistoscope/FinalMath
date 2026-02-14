@@ -123,38 +123,24 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
   }
 
   correlateIntegers(map: SurfaceMap, latex: string): SurfaceMap {
-    if (!map || !Array.isArray(map.atoms) || !latex) return map;
+    if (!map || !map.root || !latex) return map;
 
     const ast = buildASTFromLatex(latex);
-    if (!ast) {
-      console.warn(
-        '[SurfaceMap] Failed to parse LaTeX for integer correlation:',
-        latex,
-      );
-      return map;
-    }
+    if (!ast) return map;
 
     const astIntegers = enumerateIntegers(ast);
+    const orderedLeaves = this.getOrderedLeaves(map.root);
 
-    // Build parent map
-    const parentByChild = new Map<SurfaceNode, SurfaceNode>();
-    for (const n of map.atoms) {
-      if (!n || !Array.isArray(n.children)) continue;
-      for (const ch of n.children) parentByChild.set(ch, n);
-    }
-
-    // Get leaf Num nodes
-    const allNums = map.atoms.filter((n) => n && n.kind === 'Num');
-    const leafNums = allNums.filter(
+    // Filter to only Num nodes that are leaves in our "Surface logic"
+    // (Note: The builder's atom list logic was: kind==Num && no Num children)
+    // We replicate that filter on the ordered list.
+    const surfaceNumbers = orderedLeaves.filter(
       (n) =>
+        n.kind === 'Num' &&
         !(
           Array.isArray(n.children) &&
           n.children.some((ch) => ch && ch.kind === 'Num')
         ),
-    );
-
-    const surfaceNumbers = leafNums.sort(
-      (a, b) => a.bbox.left - b.bbox.left || a.bbox.top - b.bbox.top,
     );
 
     // Match and inject
@@ -171,8 +157,8 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
         surfNum.dom.setAttribute('data-role', 'number');
       }
 
-      // Propagate upward
-      let p = parentByChild.get(surfNum);
+      // Propagate upward ID to parent Num containers if any
+      let p = surfNum.parent; // Using direct parent link
       while (p && p.kind === 'Num') {
         if (!p.astNodeId) p.astNodeId = astInt.nodeId;
         if (p.astIntegerValue == null) p.astIntegerValue = astInt.value;
@@ -180,7 +166,7 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
           p.dom.setAttribute('data-ast-id', astInt.nodeId);
           p.dom.setAttribute('data-role', 'number');
         }
-        p = parentByChild.get(p);
+        p = p.parent;
       }
     }
 
@@ -188,30 +174,23 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
   }
 
   correlateOperators(map: SurfaceMap, latex: string): SurfaceMap {
-    if (!map || !Array.isArray(map.atoms) || !latex) return map;
+    if (!map || !map.root || !latex) return map;
 
     const ast = buildASTFromLatex(latex);
-    if (!ast) {
-      console.warn(
-        '[SurfaceMap] Failed to parse LaTeX for AST correlation:',
-        latex,
-      );
-      return map;
-    }
+    if (!ast) return map;
 
     const astOperators = enumerateOperators(ast);
+    const orderedLeaves = this.getOrderedLeaves(map.root);
 
-    const surfaceOperators = map.atoms
-      .filter((n) => {
-        const k = n.kind;
-        return (
-          k === 'BinaryOp' ||
-          k === 'MinusBinary' ||
-          k === 'MinusUnary' ||
-          k === 'Relation'
-        );
-      })
-      .sort((a, b) => a.bbox.left - b.bbox.left || a.bbox.top - b.bbox.top);
+    const surfaceOperators = orderedLeaves.filter((n) => {
+      const k = n.kind;
+      return (
+        k === 'BinaryOp' ||
+        k === 'MinusBinary' ||
+        k === 'MinusUnary' ||
+        k === 'Relation'
+      );
+    });
 
     // Group by normalized symbol
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -263,6 +242,73 @@ export class SurfaceMapEnhancerService implements ISurfaceMapEnhancer {
     }
 
     return map;
+  }
+
+  /**
+   * Recursively traverses the Surface Node tree and returns a list of leaf nodes
+   * sorted by Visual Reading Order (Top-to-Bottom for fractions, Left-to-Right otherwise).
+   */
+  private getOrderedLeaves(node: SurfaceNode): SurfaceNode[] {
+    if (!node.children || node.children.length === 0) {
+      return [node];
+    }
+
+    // 1. Sort children by Left first (baseline sort)
+    // Create a shallow copy to sort
+    const children = [...node.children].sort(
+      (a, b) => a.bbox.left - b.bbox.left,
+    );
+
+    // 2. Group children that are vertically stacked (high horizontal overlap)
+    // We iterate through the left-sorted list and group overlapping items.
+    const groups: SurfaceNode[][] = [];
+    if (children.length > 0) {
+      let currentGroup: SurfaceNode[] = [children[0]];
+      groups.push(currentGroup);
+
+      for (let i = 1; i < children.length; i++) {
+        const curr = children[i];
+        const prev = currentGroup[currentGroup.length - 1]; // Compare with last added to group? Or with group bounds?
+        // Let's compare with the 'group' concept.
+        // If 'curr' significantly overlaps with the 'group' horizontally, add to group.
+        // Simple logic: compare with previous item in sorted list.
+        // If they overlap heavily in X, they are likely a vertical stack column.
+        const overlapX =
+          Math.min(curr.bbox.right, prev.bbox.right) -
+          Math.max(curr.bbox.left, prev.bbox.left);
+        const minWidth = Math.min(
+          curr.bbox.right - curr.bbox.left,
+          prev.bbox.right - prev.bbox.left,
+        );
+
+        // Threshold: 50% overlap of the smaller element
+        const isVerticalStack = overlapX > 0.5 * minWidth;
+
+        if (isVerticalStack) {
+          currentGroup.push(curr);
+        } else {
+          currentGroup = [curr];
+          groups.push(currentGroup);
+        }
+      }
+    }
+
+    // 3. Process groups
+    const result: SurfaceNode[] = [];
+    for (const group of groups) {
+      // If group has multiple items, it effectively represents a vertical construct (like a fraction column)
+      // Sort them by Top to ensure Num comes before Denom
+      if (group.length > 1) {
+        group.sort((a, b) => a.bbox.top - b.bbox.top);
+      }
+
+      // Recurse
+      for (const child of group) {
+        result.push(...this.getOrderedLeaves(child));
+      }
+    }
+
+    return result;
   }
 
   assertStableIdInjection(map: SurfaceMap): void {

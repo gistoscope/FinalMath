@@ -49,8 +49,10 @@ export function buildCandidatesForMixedStage1(ctx: RuleContext): MapMasterCandid
 
     const leftIsInteger = left?.type === "integer";
     const rightIsInteger = right?.type === "integer";
-    const leftIsFraction = left?.type === "fraction";
-    const rightIsFraction = right?.type === "fraction";
+
+    // Use helper to detect fractions (including nested ones)
+    const leftIsFraction = ctx.astHelpers.isFraction(left);
+    const rightIsFraction = ctx.astHelpers.isFraction(right);
 
     // Mixed: one integer, one fraction
     if ((leftIsInteger && rightIsFraction) || (rightIsInteger && leftIsFraction)) {

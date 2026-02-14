@@ -12,6 +12,7 @@ import { PrimitiveId } from "@/core/primitive-master";
 
 import { FractionPrimitiveHandler } from "./handlers/fraction.handler";
 import { IntegerPrimitiveHandler } from "./handlers/integer.handler";
+import { MixedPrimitiveHandler } from "./handlers/mixed.handler";
 import { NormalizationPrimitiveHandler } from "./handlers/normalization.handler";
 import { StructuralPrimitiveHandler } from "./handlers/structural.handler";
 import { PrimitiveExecutionContext } from "./primitive-execution.context";
@@ -29,10 +30,17 @@ export class PrimitiveHandlerRegistry {
   constructor(
     integerHandler: IntegerPrimitiveHandler,
     fractionHandler: FractionPrimitiveHandler,
+    mixedHandler: MixedPrimitiveHandler,
     normalizationHandler: NormalizationPrimitiveHandler,
     structuralHandler: StructuralPrimitiveHandler
   ) {
-    this.handlers = [integerHandler, fractionHandler, normalizationHandler, structuralHandler];
+    this.handlers = [
+      integerHandler,
+      fractionHandler,
+      mixedHandler,
+      normalizationHandler,
+      structuralHandler,
+    ];
     this.buildHandlerMap();
   }
 

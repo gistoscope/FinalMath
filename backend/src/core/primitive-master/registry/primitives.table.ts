@@ -912,6 +912,34 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       enginePrimitiveId: "P.FRAC_TIMES_ONE", // Closest map?
       notes: "Legacy ID",
     },
+    {
+      id: "P.INT_PLUS_FRAC",
+      domain: "mixed",
+      category: "Mixed Operations",
+      clickTargetKind: "operator",
+      operatorLatex: "+",
+      color: "green",
+      uiMode: "auto-apply",
+      actionClass: "normal",
+      label: "Integer + Fraction",
+      enginePrimitiveId: "P.INT_PLUS_FRAC",
+      operandTypes: { left: "any" as any, right: "any" as any }, // Mixed types
+      notes: "Convert integer operand to fraction (n -> n/1) for addition",
+    },
+    {
+      id: "P.INT_MINUS_FRAC",
+      domain: "mixed",
+      category: "Mixed Operations",
+      clickTargetKind: "operator",
+      operatorLatex: "-",
+      color: "green",
+      uiMode: "auto-apply",
+      actionClass: "normal",
+      label: "Integer - Fraction",
+      enginePrimitiveId: "P.INT_MINUS_FRAC",
+      operandTypes: { left: "any" as any, right: "any" as any }, // Mixed types
+      notes: "Convert integer operand to fraction (n -> n/1) for subtraction",
+    },
   ],
 };
 

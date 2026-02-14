@@ -31,6 +31,11 @@ export class SurfaceMapService {
     let map: SurfaceMap;
     map = builder.build(containerElement);
     map = this.enhanceMap(map, containerElement);
+    // MISSING: The following calls are needed to populate AST properties
+    if (latex) {
+      map = this.correlateIntegers(map, latex);
+      map = this.correlateOperators(map, latex);
+    }
     this.map = map;
     return this.map;
   }

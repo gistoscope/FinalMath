@@ -91,6 +91,7 @@ export class MapMasterRuleProvider implements IMapMasterRuleProvider {
       windowRootPath,
       windowRootNode,
       invariantRules,
+      astHelpers: this.astHelpers,
     };
 
     // Step 5: Delegate to rule modules to build candidates

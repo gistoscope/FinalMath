@@ -23,6 +23,9 @@ export interface RuleContext {
 
   /** Invariant rules applicable to this window */
   invariantRules: InvariantRule[];
+
+  /** Helper for AST inspection */
+  astHelpers: import("../../helpers/ast.helpers").AstHelpers;
 }
 
 /**

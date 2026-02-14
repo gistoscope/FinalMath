@@ -280,7 +280,9 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
    * Fallback check for fraction nodes (when astHelpers not available).
    */
   private isFractionFallback(node: ExpressionAstNode): boolean {
-    return node.type === "fraction";
+    if (node.type === "fraction") return true;
+    if (node.type === "binaryOp" && (node.op === "/" || node.op === "\\div")) return true;
+    return false;
   }
 
   /**
@@ -314,15 +316,33 @@ export class DefaultInvariantRegistryAdapter implements InvariantRegistryAdapter
    * Fallback denominator check (without astHelpers).
    */
   private haveSameDenominatorFallback(left: ExpressionAstNode, right: ExpressionAstNode): boolean {
-    const leftDenom = (left as any).denominator;
-    const rightDenom = (right as any).denominator;
+    // Helper to get denominator from either kind of fraction
+    const getDenom = (node: ExpressionAstNode): string | ExpressionAstNode | undefined => {
+      if (node.type === "fraction") return (node as any).denominator; // string
+      if (node.type === "binaryOp") return (node as any).right; // AstNode
+      return undefined;
+    };
+
+    const leftDenom = getDenom(left);
+    const rightDenom = getDenom(right);
 
     if (!leftDenom || !rightDenom) {
       return false;
     }
 
-    // In ast.ts, denominator is string.
-    return leftDenom === rightDenom;
+    // Compare mixed types: string vs Object
+    if (typeof leftDenom === "string" && typeof rightDenom === "string") {
+      return leftDenom === rightDenom;
+    }
+
+    // Convert to nodes for uniform comparison if one is string
+    const toNode = (val: string | ExpressionAstNode): ExpressionAstNode => {
+      if (typeof val !== "string") return val;
+      if (/^-?\d+$/.test(val)) return { type: "integer", value: val };
+      return { type: "variable", name: val };
+    };
+
+    return this.areNodesEqual(toNode(leftDenom), toNode(rightDenom));
   }
 
   /**
