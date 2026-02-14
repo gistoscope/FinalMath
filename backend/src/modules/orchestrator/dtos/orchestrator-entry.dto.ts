@@ -38,4 +38,20 @@ export class OrchestratorEntryDTO {
   @IsOptional()
   @IsString()
   preferredPrimitiveId?: string;
+
+  @IsOptional()
+  @IsString()
+  surfaceNodeKind?: string;
+
+  @IsOptional()
+  @IsString()
+  clickTargetKind?: string;
+
+  @IsOptional()
+  @IsString()
+  operator?: string;
+
+  @IsOptional()
+  @IsString()
+  surfaceNodeId?: string;
 }

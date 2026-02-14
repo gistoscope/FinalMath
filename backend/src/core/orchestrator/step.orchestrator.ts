@@ -96,6 +96,8 @@ export class StepOrchestrator {
       operatorIndex,
       preferredPrimitiveId,
       surfaceNodeKind,
+      operator: frontendOperator,
+      surfaceNodeId,
     } = req;
 
     // 1. Load history from Session Service
@@ -130,7 +132,8 @@ export class StepOrchestrator {
       selectionPath,
       surfaceNodeKind,
       preferredPrimitiveId,
-      history
+      history,
+      surfaceNodeId
     );
     if (intResult.shouldReturnChoice) {
       return intResult.choice!;
@@ -138,7 +141,15 @@ export class StepOrchestrator {
 
     // 5. Handle preferred primitive (direct execution)
     if (preferredPrimitiveId === "P.INT_TO_FRAC") {
-      const result = this.intToFracExecutor.execute(ast, selectionPath || "root");
+      let targetPath = selectionPath || "root";
+
+      // If selection path is root (default) but surfaceNodeId is provided, use that instead.
+      // This is critical when applying choices where selectionPath might be lost but surfaceNodeId is preserved.
+      if (targetPath === "root" && surfaceNodeId) {
+        targetPath = surfaceNodeId;
+      }
+
+      const result = this.intToFracExecutor.execute(ast, targetPath);
       if (result.ok) {
         history = this.stepHistoryService.updateLastStep(history, {
           expressionAfter: result.newLatex,
@@ -200,7 +211,8 @@ export class StepOrchestrator {
       const clickTarget = ctx.primitiveMaster.resolveClickTarget(
         ast,
         selectionPath || "",
-        operatorIndex
+        operatorIndex,
+        frontendOperator
       );
 
       if (clickTarget) {

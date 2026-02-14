@@ -101,7 +101,8 @@ export type GuardId =
   | "divisor-zero"
   | "remainder-zero"
   | "remainder-nonzero"
-  | "is-decimal";
+  | "is-decimal"
+  | "is-unary-negation";
 
 export type ScenarioId =
   | "SC.FRACTIONS_COMMON_DEN"

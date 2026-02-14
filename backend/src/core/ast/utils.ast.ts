@@ -57,6 +57,12 @@ export class AstUtils {
         } else {
           return undefined;
         }
+      } else if (current.type === "unaryOp") {
+        if (part === "argument") {
+          current = current.argument;
+        } else {
+          return undefined;
+        }
       } else if (current.type === "mixed") {
         return undefined;
       } else if (current.type === "fraction") {
@@ -120,6 +126,10 @@ export class AstUtils {
         } else if (part === "term[1]") {
           return { ...node, right: update(node.right, remaining) };
         }
+      } else if (node.type === "unaryOp") {
+        if (part === "argument") {
+          return { ...node, argument: update(node.argument, remaining) };
+        }
       }
       return node;
     }
@@ -142,6 +152,15 @@ export class AstUtils {
     }
     if (node.type === "mixed") {
       return `${node.whole} \\frac{${node.numerator}}{${node.denominator}}`;
+    }
+    if (node.type === "unaryOp") {
+      const arg = this.toLatex(node.argument);
+      // unary minus has high precedence, almost always binds tightest except for power/func.
+      // But if argument is binaryOp (+/-), need parens.
+      // -(a+b)
+      const needsParen =
+        node.argument.type === "binaryOp" && (node.argument.op === "+" || node.argument.op === "-");
+      return `${node.op}${needsParen ? `(${arg})` : arg}`;
     }
     if (node.type === "binaryOp") {
       if (node.op === "/") {
@@ -167,6 +186,8 @@ export class AstUtils {
     return "";
   }
   shouldParen(parentOp: string, child: AstNode, isRightChild: boolean): boolean {
+    if (child.type === "unaryOp") return false; // Unary usually doesn't need paren as child of binary, e.g. a + -b
+
     if (child.type !== "binaryOp") return false;
     const childOp = child.op;
 
@@ -229,6 +250,28 @@ export class AstUtils {
         return;
       }
 
+      // Assume unaryOp is NOT counted as "operator" in this context (usually visual binary slots)
+      // If we want to support click targets on unary minus, we should add it.
+      // Current primitive table has clickTargetKind: "operator" for some sign ops.
+      // So we PROBABLY want to count it if it's visually an operator.
+      // But let's check P.INT_SUB types.
+
+      if (node.type === "unaryOp") {
+        // Count unary op?
+        // For now, let's behave like it's an operator if we want it clickable.
+        // Traversal order: op is first (prefix)? Or we just visit argument?
+        // Usually visual order for -x is -, then x.
+
+        // If we count it:
+        if (currentIndex === targetIndex) {
+          found = { node, path };
+          return;
+        }
+        currentIndex++;
+        traverse(node.argument, path === "root" ? "argument" : `${path}.argument`);
+        return;
+      }
+
       // Fractions and mixed numbers are NOT operators - don't count them
       // They are leaf nodes (operands) for the purpose of operator indexing
       // integers and variables are also NOT operators
@@ -258,6 +301,16 @@ export class AstUtils {
 
     if (ast.type === "integer") {
       return wrapNumber(ast.value, path);
+    }
+
+    if (ast.type === "unaryOp") {
+      const arg = this.toInstrumentedLatex(ast.argument, `${path}.argument`);
+      const op = wrapOperator(ast.op, path);
+      // Parens logic same as toLatex
+      const needsParen =
+        ast.argument.type === "binaryOp" && (ast.argument.op === "+" || ast.argument.op === "-");
+
+      return `${op}${needsParen ? `(${arg})` : arg}`;
     }
 
     if (ast.type === "fraction") {
@@ -332,6 +385,12 @@ export class AstUtils {
           }
           if (node.right) {
             traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);
+          }
+          break;
+
+        case "unaryOp":
+          if (node.argument) {
+            traverse(node.argument, path === "root" ? "argument" : `${path}.argument`);
           }
           break;
 

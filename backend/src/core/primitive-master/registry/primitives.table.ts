@@ -479,6 +479,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Factor Subtraction",
       enginePrimitiveId: "P.FACTOR_SUB",
+      forbiddenGuards: ["is-unary-negation"],
       notes: "Factor common term. Constraints: a,b,c: int/frac; a≠0",
     },
     {
@@ -518,6 +519,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Subtract Zero",
       enginePrimitiveId: "P.ZERO_SUB",
+      forbiddenGuards: ["is-unary-negation"],
       notes: "Subtracting zero. Constraints: Any a",
     },
     {
@@ -660,6 +662,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Double Negative",
       enginePrimitiveId: "P.NEG_NEG",
+      forbiddenGuards: ["is-unary-negation"],
       notes: "Double negative elimination",
     },
     {
@@ -673,6 +676,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Distribute Neg (Add)",
       enginePrimitiveId: "P.NEG_DISTRIBUTE_ADD",
+      requiredGuards: ["is-unary-negation"],
       notes: "Distribute negative over addition",
     },
     {
@@ -686,6 +690,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Distribute Neg (Sub)",
       enginePrimitiveId: "P.NEG_DISTRIBUTE_SUB",
+      requiredGuards: ["is-unary-negation"],
       notes: "Distribute negative over subtraction",
     },
     {
@@ -735,6 +740,7 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       actionClass: "normal",
       label: "Sub to Add Neg",
       enginePrimitiveId: "P.SUB_TO_ADD_NEG",
+      forbiddenGuards: ["is-unary-negation"],
       notes: "Convert subtraction to addition of negative",
     },
     {

@@ -176,10 +176,30 @@ export class AstParser {
         return { type: "variable", name: token.value };
       }
 
-      // Handle unary minus (negative numbers)
+      // Handle unary minus (negation)
       if (token.type === "OP" && token.value === "-") {
-        consume();
+        consume(); // eat "-"
+        // We parsed the operator, now we parse the "primary" expression that follows.
+        // E.g. -5, -x, -(a+b), -\frac{1}{2}
+        // However, standard mathematical precedence binds unary minus tighter than +/-, but looser than ^, and usually looser than multiplication/division depending on convention.
+        // In many parsers, Unary is effectively a high-precedence prefix.
+        // Let's recursively call parsePrimary (or a higher precedence level if we had power).
+        // Since we only have parsePrimary, parseMulDiv, parseAddSub:
+        // If we call parsePrimary, we handle -x, -5, -(...).
+        // If we have -2*x, we want (-2)*x or -(2*x)? Standard is (-2)*x.
+        // If we use parsePrimary here, we get the immediate term.
+
+        // Let's refine:
+        // -5 -> integer -5 (optimization)
+        // -x -> unaryOp(-, x)
+
         const next = peek();
+
+        // Optimization: if next is definitely a number, keep existing behavior for simple negative integers/fractions?
+        // Or strictly use UnaryOpNode for everything?
+        // Existing behavior was: return { type: 'integer', value: '-5' }
+        // Let's keep that optimization for pure numbers to avoid simple -5 becoming unaryOp(-, 5).
+
         if (next?.type === "NUMBER") {
           consume();
           // Check for lookahead slash for negative fraction? -1/2
@@ -196,7 +216,23 @@ export class AstParser {
           }
           return { type: "integer", value: `-${next.value}` };
         }
-        throw new Error("Unexpected token after unary minus");
+
+        if (next?.type === "COMMAND" && next.value === "left") {
+          const argument = parsePrimary();
+          return {
+            type: "unaryOp",
+            op: "-",
+            argument,
+          };
+        }
+
+        // Fallback for non-numeric immediate tokens: use UnaryOpNode
+        const argument = parsePrimary();
+        return {
+          type: "unaryOp",
+          op: "-",
+          argument,
+        };
       }
 
       if (token.type === "LPAREN") {

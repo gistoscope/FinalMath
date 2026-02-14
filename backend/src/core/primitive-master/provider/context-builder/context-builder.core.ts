@@ -85,6 +85,7 @@ export class NodeContextBuilder {
       "remainder-zero": false,
       "remainder-nonzero": false,
       "is-decimal": false,
+      "is-unary-negation": node.type === "unaryOp" && (node as any).op === "-",
     };
 
     // Helper function to extract a comparable key from a denominator (which may be string, number, or AST node)
@@ -271,7 +272,15 @@ export class NodeContextBuilder {
     }
 
     // 3. Named Object Children (Universal check for single-node props like 'whole', 'numerator', 'denominator')
-    const objProps = ["whole", "numerator", "denominator", "base", "exponent", "content"];
+    const objProps = [
+      "whole",
+      "numerator",
+      "denominator",
+      "base",
+      "exponent",
+      "content",
+      "argument",
+    ];
     for (const prop of objProps) {
       const child = (root as any)[prop];
       if (child && typeof child === "object" && child.type) {
@@ -309,7 +318,15 @@ export class NodeContextBuilder {
     }
 
     // 2b. Check Object Children
-    const objProps = ["whole", "numerator", "denominator", "base", "exponent", "content"];
+    const objProps = [
+      "whole",
+      "numerator",
+      "denominator",
+      "base",
+      "exponent",
+      "content",
+      "argument",
+    ];
     for (const prop of objProps) {
       const child = (root as any)[prop];
       if (child && (child as any).id === targetId) return root;

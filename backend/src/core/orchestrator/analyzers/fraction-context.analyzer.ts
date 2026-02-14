@@ -83,9 +83,12 @@ export class FractionContextAnalyzer {
 
     // Calculate target multiplier (what fraction the "1" should become)
     // For expression like 1/3 * 1 + 2/5 * 1, when clicking on left "1":
-    // LCM(3,5) = 15, so 1 → 5/5 (since 3 * 5 = 15)
-    const oppositeDenoms = targetSide === "left" ? rightDenoms : leftDenoms;
-    const targetMultiplier = oppositeDenoms.length > 0 ? oppositeDenoms[0] : calculatedLcm;
+    // LCM(3,5) = 15, target side denom = 3, so multiplier = 15/3 = 5 → 1 becomes 5/5
+    // For -3/4 * 1 + 1/8 * 1, when clicking on left "1":
+    // LCM(4,8) = 8, target side denom = 4, so multiplier = 8/4 = 2 → 1 becomes 2/2
+    const sameSideDenoms = targetSide === "left" ? leftDenoms : rightDenoms;
+    const sameSideDenom = sameSideDenoms.length > 0 ? sameSideDenoms[0] : 1;
+    const targetMultiplier = sameSideDenom > 0 ? calculatedLcm / sameSideDenom : calculatedLcm;
 
     return {
       denominators: allDenoms,

@@ -17,6 +17,8 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
     "P.NEG_NEG",
     "P.NEG_DISTRIB_ADD",
     "P.NEG_DISTRIB_SUB",
+    "P.NEG_DISTRIBUTE_ADD",
+    "P.NEG_DISTRIBUTE_SUB",
     "P.PAREN_AROUND_ATOM_INT",
     "P.PAREN_AROUND_ATOM_FRAC",
     "P.PAREN_AROUND_EXPR_INT",
@@ -42,6 +44,8 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
         return this.handleDoubleNeg(ctx);
       case "P.NEG_DISTRIB_ADD":
       case "P.NEG_DISTRIB_SUB":
+      case "P.NEG_DISTRIBUTE_ADD":
+      case "P.NEG_DISTRIBUTE_SUB":
         return this.handleDistributeNeg(ctx);
       case "P.PAREN_AROUND_ATOM_INT":
       case "P.PAREN_AROUND_ATOM_FRAC":
@@ -80,7 +84,25 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
   private handleDoubleNeg(ctx: PrimitiveExecutionContext): AstNode | undefined {
     const { root, targetNode, targetPath, astUtils } = ctx;
 
-    // a - (-b) -> a + b
+    // Case 1: Unary Double Negation -(-x) -> x
+    if (targetNode?.type === "unaryOp" && targetNode.op === "-") {
+      const inner = targetNode.argument;
+
+      // -(-x) -> x
+      if (inner.type === "unaryOp" && inner.op === "-") {
+        return astUtils.replaceNodeAt(root, targetPath, inner.argument);
+      }
+
+      // -(-5) -> 5 (targetNode is unaryOp, inner is negative integer)
+      if (inner.type === "integer" && inner.value.startsWith("-")) {
+        return astUtils.replaceNodeAt(root, targetPath, {
+          type: "integer",
+          value: inner.value.substring(1),
+        });
+      }
+    }
+
+    // Case 2: Binary Subtraction of Negative: a - (-b) -> a + b
     if (targetNode?.type === "binaryOp" && targetNode.op === "-") {
       if (targetNode.right.type === "integer" && targetNode.right.value.startsWith("-")) {
         const val = targetNode.right.value.substring(1); // remove leading -
@@ -91,6 +113,16 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
           right: { type: "integer", value: val },
         });
       }
+
+      // a - (-x) -> a + x (where -x is UnaryOp)
+      if (targetNode.right.type === "unaryOp" && targetNode.right.op === "-") {
+        return astUtils.replaceNodeAt(root, targetPath, {
+          type: "binaryOp",
+          op: "+",
+          left: targetNode.left,
+          right: targetNode.right.argument,
+        });
+      }
     }
 
     return undefined;
@@ -99,9 +131,55 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
   private handleDistributeNeg(ctx: PrimitiveExecutionContext): AstNode | undefined {
     const { root, targetNode, targetPath, primitiveId, astUtils } = ctx;
 
+    // Helper to negate a node
+    const negate = (node: AstNode): AstNode => {
+      // Optimization: if integer, flip sign
+      if (node.type === "integer") {
+        if (node.value.startsWith("-")) return { type: "integer", value: node.value.substring(1) };
+        return { type: "integer", value: "-" + node.value };
+      }
+      // Optimization: if fraction with negative numerator, flip sign
+      if (node.type === "fraction") {
+        if (node.numerator.startsWith("-"))
+          return {
+            type: "fraction",
+            numerator: node.numerator.substring(1),
+            denominator: node.denominator,
+          };
+        return { type: "fraction", numerator: "-" + node.numerator, denominator: node.denominator };
+      }
+      return { type: "unaryOp", op: "-", argument: node };
+    };
+
+    // Handle Unary Distribution: -(a + b) -> -a - b  OR  -(a - b) -> -a + b
+    if (targetNode?.type === "unaryOp" && targetNode.op === "-") {
+      const inner = targetNode.argument;
+      if (inner.type === "binaryOp") {
+        if (inner.op === "+") {
+          // -(a + b) -> -a - b
+          return astUtils.replaceNodeAt(root, targetPath, {
+            type: "binaryOp",
+            op: "-",
+            left: negate(inner.left),
+            right: inner.right,
+          });
+        }
+
+        if (inner.op === "-") {
+          // -(a - b) -> -a + b
+          return astUtils.replaceNodeAt(root, targetPath, {
+            type: "binaryOp",
+            op: "+",
+            left: negate(inner.left),
+            right: inner.right,
+          });
+        }
+      }
+    }
+
     if (targetNode?.type !== "binaryOp") return undefined;
 
-    if (primitiveId === "P.NEG_DISTRIB_ADD") {
+    if (primitiveId === "P.NEG_DISTRIB_ADD" || primitiveId === "P.NEG_DISTRIBUTE_ADD") {
       // a - (b + c) -> a - b - c
       if (
         targetNode.op === "-" &&
@@ -125,7 +203,7 @@ export class StructuralPrimitiveHandler implements IPrimitiveHandler {
       }
     }
 
-    if (primitiveId === "P.NEG_DISTRIB_SUB") {
+    if (primitiveId === "P.NEG_DISTRIB_SUB" || primitiveId === "P.NEG_DISTRIBUTE_SUB") {
       // a - (b - c) -> a - b + c
       if (
         targetNode.op === "-" &&

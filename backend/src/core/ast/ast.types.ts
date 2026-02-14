@@ -5,7 +5,7 @@
  * supporting integers, fractions, mixed numbers, and binary operations.
  */
 
-export type NodeType = "integer" | "fraction" | "mixed" | "binaryOp" | "variable";
+export type NodeType = "integer" | "fraction" | "mixed" | "binaryOp" | "variable" | "unaryOp";
 
 export interface BaseNode {
   type: NodeType;
@@ -41,7 +41,19 @@ export interface VariableNode extends BaseNode {
   name: string;
 }
 
-export type AstNode = IntegerNode | FractionNode | MixedNumberNode | BinaryOpNode | VariableNode;
+export interface UnaryOpNode extends BaseNode {
+  type: "unaryOp";
+  op: "-" | "+";
+  argument: AstNode;
+}
+
+export type AstNode =
+  | IntegerNode
+  | FractionNode
+  | MixedNumberNode
+  | BinaryOpNode
+  | UnaryOpNode
+  | VariableNode;
 
 // --- Tokenizer ---
 

@@ -40,6 +40,16 @@ export class RepetitionFilter implements ICandidateFilter {
       lastStep.invariantRuleId === candidate.invariantRuleId &&
       lastStep.targetPath === candidate.targetPath
     ) {
+      // For V5 primitives (all share "v5-rule"), also compare primitive IDs
+      // to avoid false positives. Different primitives on the same target path
+      // are NOT repetitive (e.g. P.NEG_DISTRIBUTE_ADD → P.FRAC_ADD_DIFF_DEN_MUL1).
+      if (lastStep.primitiveIds && candidate.primitiveIds) {
+        const lastPrimId = lastStep.primitiveIds[0];
+        const candPrimId = candidate.primitiveIds[0];
+        if (lastPrimId && candPrimId && lastPrimId !== candPrimId) {
+          return false; // Different primitive → not repetitive
+        }
+      }
       return true;
     }
 

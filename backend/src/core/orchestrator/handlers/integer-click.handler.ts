@@ -46,7 +46,8 @@ export class IntegerClickHandler {
     selectionPath: string | null,
     surfaceNodeKind: string | null | undefined,
     preferredPrimitiveId: string | null | undefined,
-    history: StepHistory
+    history: StepHistory,
+    surfaceNodeId?: string | null
   ): IntegerClickResult {
     // Skip if user already made a choice
     if (preferredPrimitiveId) {
@@ -73,11 +74,25 @@ export class IntegerClickHandler {
       intValue = (clickedNode as any).value;
     } else if (isIntegerBySurface && ast) {
       // Surface says it's a number but AST path doesn't resolve to integer
-      // This happens when selectionPath is null/root - try to find first integer in AST
-      const firstIntPath = this.astSearch.findFirstIntegerPath(ast);
-      if (firstIntPath) {
-        targetPath = firstIntPath;
-        const intNode = this.astUtils.getNodeAt(ast, firstIntPath);
+      // Try surfaceNodeId first (the AST map ID from the frontend) before
+      // falling back to findFirstIntegerPath, which always picks the first
+      // integer in DFS order and may target the wrong node.
+      let resolvedPath: string | null = null;
+
+      if (surfaceNodeId) {
+        const surfaceNode = this.astUtils.getNodeAt(ast, surfaceNodeId);
+        if (surfaceNode && surfaceNode.type === "integer") {
+          resolvedPath = surfaceNodeId;
+        }
+      }
+
+      if (!resolvedPath) {
+        resolvedPath = this.astSearch.findFirstIntegerPath(ast);
+      }
+
+      if (resolvedPath) {
+        targetPath = resolvedPath;
+        const intNode = this.astUtils.getNodeAt(ast, resolvedPath);
         intValue = intNode ? (intNode as any).value : null;
       }
     }

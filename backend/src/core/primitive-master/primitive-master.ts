@@ -63,20 +63,24 @@ export class PrimitiveMaster {
         ? defaultNormalizedClick
         : this.normalizeClick(ast, defaultNormalizedClick);
 
+    // 2. Check for negation distribution: if the clicked operator is inside a unaryOp('-'),
+    // re-target to the parent unaryOp so NEG_DISTRIBUTE_* primitives can match.
+    const negDistribClick = this.detectNegDistribution(ast, normalizedClick);
+
     // 3. Build Context
     const ctx: NodeContext = this.contextBuilder.buildContext({
       expressionId,
       ast,
-      click: normalizedClick,
+      click: negDistribClick || normalizedClick,
     });
 
-    // 3. Match
+    // 4. Match
     const matches = this.matcher.match({
       table: PRIMITIVES_V5_TABLE,
       ctx,
     });
 
-    // 4. Select
+    // 5. Select
     const outcome = this.selector.select(matches);
     console.log(
       `[V5-STEPMASTER] chosenPrimitiveId=${
@@ -177,17 +181,67 @@ export class PrimitiveMaster {
   public resolveClickTarget(
     ast: AstNode,
     selectionPath: string,
-    operatorIndex?: number
+    operatorIndex?: number,
+    frontendOperator?: string
   ): { nodeId: string; kind: any; operatorIndex?: number } | undefined {
+    // Normalize the frontend operator for comparison
+    // Frontend uses unicode chars (⋅, −, ×) while backend uses LaTeX ops (+, -, *, \cdot, \times)
+    const normalizedFrontendOp = this.normalizeFrontendOperator(frontendOperator);
+
     // 1. Try Operator Index
     if (typeof operatorIndex === "number") {
       const found = this.astUtils.getNodeByOperatorIndex(ast, operatorIndex);
       if (found) {
-        return {
-          nodeId: found.path,
-          kind: this.classifyNode(found.node),
-          operatorIndex,
-        };
+        // 1a. Verify operator matches if frontend provided one
+        const foundOp = (found.node as any).op;
+        if (!normalizedFrontendOp || this.operatorsMatch(foundOp, normalizedFrontendOp)) {
+          return {
+            nodeId: found.path,
+            kind: this.classifyNode(found.node),
+            operatorIndex,
+          };
+        }
+        // Operator mismatch: the frontend and backend count operators differently
+        // (e.g. visual minus in \frac{-3}{4}). Search for the correct one.
+        console.log(
+          `[V5-CLICK] operatorIndex ${operatorIndex} found '${foundOp}' but frontend expects '${normalizedFrontendOp}'. Searching...`
+        );
+      }
+
+      // 1b. Fallback: Search all operator indices to find one matching the frontend operator
+      if (normalizedFrontendOp) {
+        for (let idx = 0; idx < 20; idx++) {
+          const candidate = this.astUtils.getNodeByOperatorIndex(ast, idx);
+          if (!candidate) break; // No more operators
+          const candidateOp = (candidate.node as any).op;
+          if (this.operatorsMatch(candidateOp, normalizedFrontendOp)) {
+            console.log(
+              `[V5-CLICK] Found matching operator '${candidateOp}' at index ${idx} (frontend sent ${operatorIndex})`
+            );
+            return {
+              nodeId: candidate.path,
+              kind: this.classifyNode(candidate.node),
+              operatorIndex: idx,
+            };
+          }
+        }
+      }
+
+      // 1c. Final fallback: try lower indices (for when no frontend operator provided)
+      if (operatorIndex > 0 && !normalizedFrontendOp) {
+        for (let fallbackIdx = operatorIndex - 1; fallbackIdx >= 0; fallbackIdx--) {
+          const fallback = this.astUtils.getNodeByOperatorIndex(ast, fallbackIdx);
+          if (fallback) {
+            console.log(
+              `[V5-CLICK] operatorIndex ${operatorIndex} not found, falling back to ${fallbackIdx}`
+            );
+            return {
+              nodeId: fallback.path,
+              kind: this.classifyNode(fallback.node),
+              operatorIndex: fallbackIdx,
+            };
+          }
+        }
       }
     }
 
@@ -205,12 +259,103 @@ export class PrimitiveMaster {
     return undefined;
   }
 
+  /**
+   * Normalize frontend operator unicode characters to backend operator strings.
+   */
+  private normalizeFrontendOperator(op?: string): string | undefined {
+    if (!op) return undefined;
+    const map: Record<string, string> = {
+      "⋅": "\\cdot",
+      "×": "\\times",
+      "÷": "\\div",
+      "−": "-",
+      "+": "+",
+      "-": "-",
+      "*": "*",
+      "/": "/",
+    };
+    return map[op] || op;
+  }
+
+  /**
+   * Check if two operator strings refer to the same operation.
+   */
+  private operatorsMatch(astOp: string, frontendOp: string): boolean {
+    if (astOp === frontendOp) return true;
+    // Multiplication variants
+    const mulOps = ["*", "\\cdot", "\\times", "⋅", "×"];
+    if (mulOps.includes(astOp) && mulOps.includes(frontendOp)) return true;
+    // Subtraction/negation variants
+    const subOps = ["-", "−"];
+    if (subOps.includes(astOp) && subOps.includes(frontendOp)) return true;
+    // Division variants
+    const divOps = ["/", "\\div", "÷"];
+    if (divOps.includes(astOp) && divOps.includes(frontendOp)) return true;
+    return false;
+  }
+
   private classifyNode(node: AstNode): "operator" | "number" | "fractionBar" | "bracket" | "other" {
     if (node.type === "binaryOp") return "operator";
+    if (node.type === "unaryOp") return "operator";
     if (node.type === "fraction") return "operator";
     if (node.type === "integer") return "number";
     if (node.type === "mixed") return "number";
     return "other";
+  }
+
+  /**
+   * Detects if a click targets a binary operator inside a unaryOp('-').
+   * If so, returns a new click target pointing to the parent unaryOp
+   * so that NEG_DISTRIBUTE_* primitives can match.
+   *
+   * Example: For -(3/4 - 1/8), clicking the inner '-' should resolve to the outer unary '-'
+   * so that the negation can be distributed: -(a - b) -> -a + b
+   */
+  private detectNegDistribution(
+    ast: AstNode,
+    click: { nodeId: string; kind: string; operatorIndex?: number }
+  ): { nodeId: string; kind: any; operatorIndex?: number } | null {
+    // Only applies to operator clicks
+    if (click.kind !== "operator") return null;
+
+    // Get the clicked node
+    const node = this.astUtils.getNodeAt(ast, click.nodeId);
+    if (!node || node.type !== "binaryOp") return null;
+    if (node.op !== "+" && node.op !== "-") return null;
+
+    // Check if the parent is a unaryOp('-')
+    const parentPath = this.getParentPath(click.nodeId);
+    if (!parentPath) return null;
+
+    const parentNode = parentPath === "root" ? ast : this.astUtils.getNodeAt(ast, parentPath);
+    if (!parentNode || parentNode.type !== "unaryOp" || parentNode.op !== "-") return null;
+
+    // The parent is a unaryOp('-') containing this binary operator.
+    // Re-target the click to the parent unaryOp for negation distribution.
+    console.log(
+      `[V5-NEG-DETECT] Detected negation distribution: binary '${node.op}' inside unaryOp('-'). Re-targeting from '${click.nodeId}' to '${parentPath}'`
+    );
+
+    return {
+      nodeId: parentPath,
+      kind: "operator",
+      operatorIndex: click.operatorIndex,
+    };
+  }
+
+  /**
+   * Gets the parent path for a given node path.
+   * Returns null if the node is at root level.
+   */
+  private getParentPath(nodeId: string): string | null {
+    if (nodeId === "root" || nodeId === "") return null;
+
+    const lastDotIndex = nodeId.lastIndexOf(".");
+    if (lastDotIndex === -1) {
+      // nodeId is like "argument", "term[0]" — parent is root
+      return "root";
+    }
+    return nodeId.substring(0, lastDotIndex);
   }
 
   private normalizeClick(
