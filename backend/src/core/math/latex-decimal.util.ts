@@ -54,7 +54,7 @@ export const preprocessLatexFractions = (expression: string): string => {
     // We limit "clean" to mean 4-5 decimal places for typical math usage.
     const isClean = Math.abs(quotient * 10000 - Math.round(quotient * 10000)) < Number.EPSILON;
 
-    if (hasDecimalContext || isClean) {
+    if (hasDecimalContext) {
       // Use parseFloat + toFixed to handle precision artifacts (e.g. 0.1 + 0.2 = 0.30000000000000004)
       // 6 decimal places is a safe default for "decimal mode".
       return parseFloat(quotient.toFixed(6)).toString();
