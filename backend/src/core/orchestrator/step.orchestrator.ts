@@ -14,7 +14,7 @@ import { SessionService } from "../../modules/index.js";
 import { AstParser } from "../ast/parser.ast.js";
 import { AstUtils } from "../ast/utils.ast.js";
 import { EngineRunner } from "../engine";
-import { preprocessLatexFractions } from "../math/index.js";
+import { preprocessLatex } from "../math/index.js";
 
 import { StepMaster } from "../stepmaster/step-master.core.js";
 import type { StepHistory } from "../stepmaster/step-master.types.js";
@@ -102,12 +102,17 @@ export class StepOrchestrator {
     } = req;
 
     // 0. Preprocessing: Logic for Fraction to Decimal
-    const preprocessedLatex = preprocessLatexFractions(expressionLatex);
+    // 0. Preprocessing: Two-Stage Logic (Mixed -> Improper -> Decimal)
+    const preprocessResult = preprocessLatex(expressionLatex);
+    const preprocessedLatex = preprocessResult.latex;
 
     // If preprocessing changed the expression, we treat it as an implicit step application
     // and return immediately so the frontend receives the updated expression.
     if (preprocessedLatex !== expressionLatex) {
       this.log(`[Orchestrator] Applied Preprocessing: ${expressionLatex} -> ${preprocessedLatex}`);
+      this.log(
+        `[Orchestrator] Transformations: ${preprocessResult.appliedTransformations.join(", ")}`
+      );
 
       let history = await this.getHistory();
 
@@ -115,9 +120,9 @@ export class StepOrchestrator {
       history = this.stepHistoryService.appendStep(history, {
         expressionBefore: expressionLatex,
         expressionAfter: preprocessedLatex,
-        invariantRuleId: "auto-decimal-conversion",
+        invariantRuleId: "auto-preprocessing",
         targetPath: "root",
-        primitiveIds: ["P.FRAC_TO_DECIMAL"], // We use the new ID
+        primitiveIds: preprocessResult.appliedTransformations,
       });
       await this.updateHistory(history);
 
@@ -126,10 +131,10 @@ export class StepOrchestrator {
         engineResult: { ok: true, newExpressionLatex: preprocessedLatex },
         history,
         primitiveDebug: this.debugInfoBuilder.buildPrimitiveDebug({
-          primitiveId: "P.FRAC_TO_DECIMAL",
+          primitiveId: preprocessResult.appliedTransformations[0], // Use first major transformation as debug ID
           status: "ready",
           domain: "preprocessing",
-          reason: "decimal-context-detected",
+          reason: `applied: ${preprocessResult.appliedTransformations.join("+")}`,
         }),
       };
     }

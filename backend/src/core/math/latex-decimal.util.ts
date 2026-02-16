@@ -1,86 +1,104 @@
 /**
- * LaTeX Fraction to Decimal Converter Utility
+ * LaTeX Preprocessor Utility
  *
- * Handles the preprocessing of LaTeX strings to convert standard fraction patterns
- * into their decimal equivalents based on context or precision.
+ * Handles two-stage preprocessing of LaTeX strings:
+ * 1. Mixed Numbers to Improper Fractions (Always)
+ * 2. Fractions to Decimals (Conditional on Decimal Context)
  */
+
+export interface PreprocessResult {
+  latex: string;
+  appliedTransformations: string[];
+}
 
 /**
- * Preprocess a LaTeX expression to convert fractions to decimals.
- *
- * Rules:
- * 1. Identifies `\frac{num}{den}` patterns.
- * 2. Converts only if:
- *    - The expression already contains a decimal point elsewhere.
- *    - OR the division results in a clean (terminating) decimal.
- * 3. Handles floating-point precision to avoid artifacts.
- *
- * @param expression The LaTeX expression string
- * @returns The expression with valid fractions replaced by decimals
+ * Main Preprocessor Function
+ * Pipelines the LaTeX through multiple stages.
  */
-export const preprocessLatexFractions = (expression: string): string => {
-  // Regex to match \frac{num}{den}
-  // Handles potential whitespace, negative numbers, and existing decimals in numerator/denominator
-  // Capture groups: 1 = numerator, 2 = denominator
-  const fractionRegex = /\\frac\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}/g;
+export const preprocessLatex = (expression: string): PreprocessResult => {
+  const applied: string[] = [];
 
-  // Check if strict conversion is needed based on existing decimals in the string.
-  // Note: We check the original expression. If the expression contains a decimal point
-  // (e.g., "1.5 + ..."), we assume the user wants a decimal result for all parts.
+  // Stage 1: Mixed -> Improper (Mandatory)
+  const afterStage1 = convertMixedToImproper(expression);
+  if (afterStage1 !== expression) {
+    applied.push("P.FRAC_MIXED_TO_IMPROPER");
+  }
+
+  // Stage 2: Fraction -> Decimal (Conditional)
+  // We check the *original* (or current) string for decimal context.
+  // The requirement says: "If a decimal is present (e.g. 1.2 + \frac{5}{3})..."
+  // This means if the user typed "1.2 + 1\frac{2}{3}", stage 1 makes it "1.2 + \frac{5}{3}".
+  // Then stage 2 sees "1.2" and converts "\frac{5}{3}" to "1.6667".
+  const afterStage2 = convertFractionsToDecimals(afterStage1);
+  if (afterStage2 !== afterStage1) {
+    applied.push("P.FRAC_TO_DECIMAL");
+  }
+
+  return {
+    latex: afterStage2,
+    appliedTransformations: applied,
+  };
+};
+
+/**
+ * Stage 1: Convert Mixed Numbers to Improper Fractions
+ * Pattern: Whole \frac{Num}{Den} -> \frac{Whole * Den + Num}{Den}
+ */
+const convertMixedToImproper = (expression: string): string => {
+  // Regex Explanation:
+  // (\d+)       -> Capture Group 1: Whole Number (Integer)
+  // \s*         -> Optional whitespace
+  // \\frac      -> Literal \frac
+  // \s*\{\s*    -> Open brace with whitespace
+  // (\d+)       -> Capture Group 2: Numerator (Integer)
+  // \s*\}\s*\{\s* -> Middle braces with whitespace
+  // (\d+)       -> Capture Group 3: Denominator (Integer)
+  // \s*\}       -> Close brace
+  const mixedRegex = /(\d+)\s*\\frac\s*\{\s*(\d+)\s*\}\s*\{\s*(\d+)\s*\}/g;
+
+  return expression.replace(mixedRegex, (match, wholeStr, numStr, denStr) => {
+    const whole = parseInt(wholeStr, 10);
+    const num = parseInt(numStr, 10);
+    const den = parseInt(denStr, 10);
+
+    if (isNaN(whole) || isNaN(num) || isNaN(den) || den === 0) {
+      return match; // Safety fallback
+    }
+
+    const newNum = whole * den + num;
+    return `\\frac{${newNum}}{${den}}`;
+  });
+};
+
+/**
+ * Stage 2: Convert Fractions to Decimals if Context Exists
+ * Reuses previous logic but strictly conditional.
+ */
+const convertFractionsToDecimals = (expression: string): string => {
+  // Check context on the current expression state
   const hasDecimalContext = expression.includes(".");
+  if (!hasDecimalContext) {
+    return expression;
+  }
+
+  // Regex for fractions (integers or decimals)
+  const fractionRegex = /\\frac\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}/g;
 
   return expression.replace(fractionRegex, (match, numStr, denStr) => {
     const num = parseFloat(numStr);
     const den = parseFloat(denStr);
 
-    if (den === 0) {
-      return match; // Division by zero is undefined, keep original LaTeX
-    }
+    if (den === 0) return match;
 
     const quotient = num / den;
 
-    // Determine if the result is a "clean" decimal.
-    // A clean decimal matches its fixed-point representation with a reasonable precision
-    // without loss of information (e.g., 0.5 vs 0.333333...).
-    // We check this by seeing if the number of decimal places is small.
-    // For this utility, we considering "clean" if it has <= 6 significant decimal places equivalent.
-
-    // Strategy: Format to a high precision, parse back to remove trailing zeros,
-    // and check the string length or value equality.
-    const precisionCheck = parseFloat(quotient.toFixed(10));
-
-    // A simplified check for "clean":
-    // If the number, when multiplied by a power of 10, becomes an integer.
-    // We limit "clean" to mean 4-5 decimal places for typical math usage.
-    const isClean = Math.abs(quotient * 10000 - Math.round(quotient * 10000)) < Number.EPSILON;
-
-    if (hasDecimalContext) {
-      // Use parseFloat + toFixed to handle precision artifacts (e.g. 0.1 + 0.2 = 0.30000000000000004)
-      // 6 decimal places is a safe default for "decimal mode".
-      return parseFloat(quotient.toFixed(6)).toString();
-    }
-
-    // If neither condition is met, return the original match (keep as fraction)
-    return match;
+    // Use toFixed(6) to handle precision artifacts, then parseFloat to trim trailing zeros.
+    return parseFloat(quotient.toFixed(6)).toString();
   });
 };
 
-/**
- * Explanation of Regex Strategy for Nested Braces:
- *
- * The regex used is: /\\frac\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}\s*\{\s*(-?\d+(?:\.\d+)?)\s*\}/g
- *
- * 1. Targeted Matching: This regex specifically targets "simple" usage where the numerator
- *    and denominator are purely numeric (integers or decimals).
- *    It uses `[\d.-]+` patterns rather than generic `.` or `[^}]` patterns.
- *
- * 2. Nested Structures: The regex only matches explicit numeric fractions `\frac{a}{b}`.
- *    In a nested structure like `\frac{\frac{1}{2}}{3}`, the outer fraction is initially skipped
- *    (as its numerator `\frac{1}{2}` is not a number). However, the inner `\frac{1}{2}` IS matched
- *    and converted if valid. This creates a partially simplified string like `\frac{0.5}{3}`,
- *    which is often easier for downstream parsers to handle. this strategy effectively resolves
- *    innermost numeric fractions without requiring a recursive parser.
- *
- * 3. Performance: This avoids catastrophic backtracking and recursion, keeping the replacement
- *    pass extremely fast (O(n)).
- */
+// Re-export old function name for compatibility if needed, but bridged to new logic
+// Deprecated: prefer preprocessLatex
+export const preprocessLatexFractions = (expression: string): string => {
+  return preprocessLatex(expression).latex;
+};
