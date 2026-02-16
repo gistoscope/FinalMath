@@ -14,6 +14,7 @@ import { SessionService } from "../../modules/index.js";
 import { AstParser } from "../ast/parser.ast.js";
 import { AstUtils } from "../ast/utils.ast.js";
 import { EngineRunner } from "../engine";
+import { preprocessLatexFractions } from "../math/index.js";
 
 import { StepMaster } from "../stepmaster/step-master.core.js";
 import type { StepHistory } from "../stepmaster/step-master.types.js";
@@ -99,6 +100,39 @@ export class StepOrchestrator {
       operator: frontendOperator,
       surfaceNodeId,
     } = req;
+
+    // 0. Preprocessing: Logic for Fraction to Decimal
+    const preprocessedLatex = preprocessLatexFractions(expressionLatex);
+
+    // If preprocessing changed the expression, we treat it as an implicit step application
+    // and return immediately so the frontend receives the updated expression.
+    if (preprocessedLatex !== expressionLatex) {
+      this.log(`[Orchestrator] Applied Preprocessing: ${expressionLatex} -> ${preprocessedLatex}`);
+
+      let history = await this.getHistory();
+
+      // Update history with this "implicit" step
+      history = this.stepHistoryService.appendStep(history, {
+        expressionBefore: expressionLatex,
+        expressionAfter: preprocessedLatex,
+        invariantRuleId: "auto-decimal-conversion",
+        targetPath: "root",
+        primitiveIds: ["P.FRAC_TO_DECIMAL"], // We use the new ID
+      });
+      await this.updateHistory(history);
+
+      return {
+        status: "step-applied",
+        engineResult: { ok: true, newExpressionLatex: preprocessedLatex },
+        history,
+        primitiveDebug: this.debugInfoBuilder.buildPrimitiveDebug({
+          primitiveId: "P.FRAC_TO_DECIMAL",
+          status: "ready",
+          domain: "preprocessing",
+          reason: "decimal-context-detected",
+        }),
+      };
+    }
 
     // 1. Load history from Session Service
     let history = await this.getHistory();

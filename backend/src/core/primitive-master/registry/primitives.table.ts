@@ -406,6 +406,18 @@ export const PRIMITIVES_V5_TABLE: IPrimitivesTable = {
       notes: "Convert decimal to fraction. Constraints: Decimal with n digits",
     },
     {
+      id: "P.FRAC_TO_DECIMAL",
+      domain: "decimals",
+      category: "Decimal Conversion",
+      clickTargetKind: "fractionBar",
+      color: "green",
+      uiMode: "auto-apply",
+      actionClass: "normal",
+      label: "Fraction to Decimal",
+      enginePrimitiveId: "P.FRAC_TO_DECIMAL",
+      notes: "Convert fraction to decimal. Auto-applied in decimal context.",
+    },
+    {
       id: "P.BRACKETS_REMOVE",
       domain: "brackets",
       category: "Bracket Operations",

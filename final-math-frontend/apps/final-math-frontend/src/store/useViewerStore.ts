@@ -16,7 +16,7 @@ enableMapSet();
 export const useStore = create<ViewerStore>()(
   devtools(
     (set) => ({
-      latex: String.raw`\frac{1}{1+\frac{1}{2}}`,
+      latex: String.raw`1.2 + \frac{3}{5} - 0.4`,
       actions: {
         setLatex: (latex: string) => set({ latex }),
       },
