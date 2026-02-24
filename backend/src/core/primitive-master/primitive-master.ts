@@ -59,7 +59,7 @@ export class PrimitiveMaster {
       operatorIndex: click.operatorIndex,
     };
     const normalizedClick =
-      ["number", "operator"].includes(clickKind) || preferredPrimitiveId
+      ["operator"].includes(clickKind) || preferredPrimitiveId
         ? defaultNormalizedClick
         : this.normalizeClick(ast, defaultNormalizedClick);
 
@@ -378,7 +378,7 @@ export class PrimitiveMaster {
 
     const parentNode = this.astUtils.getNodeAt(ast, parentPath);
     if (parentNode && parentNode.type === "binaryOp") {
-      if (["+", "-", "*", "/", "\\times", "\\div"].includes(parentNode.op)) {
+      if (["/"].includes(parentNode.op)) {
         const normalized = {
           nodeId: parentPath,
           kind: "operator" as const,

@@ -28,7 +28,12 @@ import type {
 import { IntToFracExecutor, OneToTargetDenomExecutor } from "./executors/index.js";
 
 // Handlers
-import { IntegerClickHandler, LegacyCandidateHandler, V5OutcomeHandler } from "./handlers/index.js";
+import {
+  FractionClickHandler,
+  IntegerClickHandler,
+  LegacyCandidateHandler,
+  V5OutcomeHandler,
+} from "./handlers/index.js";
 
 // Filters
 import { PreferredPrimitiveFilter } from "./filters/index.js";
@@ -36,7 +41,7 @@ import { PreferredPrimitiveFilter } from "./filters/index.js";
 // Utils
 import { StepHistoryService } from "../stepmaster/index.js";
 import { ContextGenerator } from "./context-generator.orchestrator.js";
-import { DebugInfoBuilder } from "./utils/index.js";
+import { AstSearch, DebugInfoBuilder } from "./utils/index.js";
 
 /**
  * StepOrchestrator - Coordinates step execution
@@ -57,6 +62,7 @@ export class StepOrchestrator {
     private readonly intToFracExecutor: IntToFracExecutor,
     private readonly oneToTargetDenomExecutor: OneToTargetDenomExecutor,
     // Handlers
+    private readonly fractionClickHandler: FractionClickHandler,
     private readonly integerClickHandler: IntegerClickHandler,
     private readonly v5OutcomeHandler: V5OutcomeHandler,
     private readonly legacyCandidateHandler: LegacyCandidateHandler,
@@ -64,6 +70,7 @@ export class StepOrchestrator {
     private readonly preferredPrimitiveFilter: PreferredPrimitiveFilter,
     // Utils
     private readonly debugInfoBuilder: DebugInfoBuilder,
+    private readonly astSearch: AstSearch,
     // Context Generator
     private readonly contextGenerator: ContextGenerator
   ) {}
@@ -97,6 +104,7 @@ export class StepOrchestrator {
       operatorIndex,
       preferredPrimitiveId,
       surfaceNodeKind,
+      clickTargetKind,
       operator: frontendOperator,
       surfaceNodeId,
     } = req;
@@ -178,6 +186,23 @@ export class StepOrchestrator {
       return intResult.choice!;
     }
 
+    // 4b. Check for fraction click (apply simplification rules)
+    if (!preferredPrimitiveId) {
+      const fracResult = this.fractionClickHandler.handle(ast, selectionPath, history);
+      if (fracResult.shouldHandle && fracResult.result?.engineResult?.ok) {
+        history = this.stepHistoryService.appendStep(history, {
+          expressionBefore: expressionLatex,
+          expressionAfter: fracResult.result.engineResult.newExpressionLatex!,
+          invariantRuleId: "fraction-simplification",
+          targetPath: selectionPath || "root",
+          primitiveIds: ["P.FRAC_SIMPLIFY"],
+        });
+        await this.updateHistory(history);
+        fracResult.result.history = history;
+        return fracResult.result;
+      }
+    }
+
     // 5. Handle preferred primitive (direct execution)
     if (preferredPrimitiveId === "P.INT_TO_FRAC") {
       let targetPath = selectionPath || "root";
@@ -246,10 +271,29 @@ export class StepOrchestrator {
       this.astUtils.augmentAstWithIds(ast);
       this.log(`[V5-ORCH] rootAst.id=${(ast as any).id}, kind=${ast.type}`);
 
+      // Retrieve path for V5 MapMaster
+      let targetPathForV5 = selectionPath || surfaceNodeId || "";
+      let potentialNode = this.astUtils.getNodeAt(ast, targetPathForV5);
+
+      // If the node isn't found (because surfaceNodeId doesn't match AST property paths), and it's a number click:
+      // use AstSearch to find the actual integer path.
+      if (
+        !potentialNode &&
+        (surfaceNodeKind === "Num" ||
+          surfaceNodeKind === "Number" ||
+          surfaceNodeKind === "Integer" ||
+          clickTargetKind === "number")
+      ) {
+        const firstIntPath = this.astSearch.findFirstIntegerPath(ast);
+        if (firstIntPath) {
+          targetPathForV5 = firstIntPath;
+        }
+      }
+
       // Resolve Click Target
       const clickTarget = ctx.primitiveMaster.resolveClickTarget(
         ast,
-        selectionPath || "",
+        targetPathForV5,
         operatorIndex,
         frontendOperator
       );

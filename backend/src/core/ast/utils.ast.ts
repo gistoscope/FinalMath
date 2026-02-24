@@ -222,8 +222,10 @@ export class AstUtils {
     if (cPrec < pPrec) return true;
 
     if (cPrec === pPrec) {
+      // Since +, -, *, /, \div are all left-associative in our parser,
+      // ANY right child with the same precedence must be parenthesized to preserve the tree shape.
       if (isRightChild) {
-        if (parentOp === "-" || parentOp === "/") return true;
+        return true;
       }
       return false;
     }
@@ -257,12 +259,14 @@ export class AstUtils {
         traverse(node.left, path === "root" ? "term[0]" : `${path}.term[0]`);
         if (found) return;
 
-        // Then count this operator
-        if (currentIndex === targetIndex) {
-          found = { node, path };
-          return;
+        // Then count this operator (ignore implicit fraction divisions)
+        if (node.op !== "/") {
+          if (currentIndex === targetIndex) {
+            found = { node, path };
+            return;
+          }
+          currentIndex++;
         }
-        currentIndex++;
 
         // Then right subtree
         traverse(node.right, path === "root" ? "term[1]" : `${path}.term[1]`);

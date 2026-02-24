@@ -97,6 +97,18 @@ export class IntegerClickHandler {
       }
     }
 
+    // Bypass integer handling if this integer is directly part of a complex fraction
+    // (a binaryOp division), allowing PrimitiveMaster or FractionClickHandler to handle it.
+    let parentPath = "root";
+    const lastDotIndex = targetPath.lastIndexOf(".");
+    if (lastDotIndex !== -1) {
+      parentPath = targetPath.substring(0, lastDotIndex);
+    }
+    const parentNode = this.astUtils.getNodeAt(ast, parentPath);
+    if (parentNode && parentNode.type === "binaryOp" && parentNode.op === "/") {
+      return { shouldReturnChoice: false };
+    }
+
     // Build the choice response
     const choice: OrchestratorStepResult = {
       status: "choice",

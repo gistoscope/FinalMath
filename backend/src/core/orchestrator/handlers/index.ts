@@ -7,6 +7,9 @@
 export { IntegerClickHandler } from "./integer-click.handler.js";
 export type { IntegerClickResult } from "./integer-click.handler.js";
 
+export { FractionClickHandler } from "./fraction-click.handler.js";
+export type { FractionClickResult } from "./fraction-click.handler.js";
+
 export { V5OutcomeHandler } from "./v5-outcome.handler.js";
 export type { V5OutcomeResult } from "./v5-outcome.handler.js";
 

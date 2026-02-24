@@ -31,12 +31,17 @@ export class PrimitiveMatcher {
     }
 
     if (row.operatorLatex && row.operatorLatex !== ctx.operatorLatex) {
-      if (row.id === "P.FRAC_ADD_SAME_DEN") {
-        console.log(
-          `[Matcher] FAIL: Operator mismatch. Row: ${row.operatorLatex}, Ctx: ${ctx.operatorLatex}`
-        );
+      const isDivEquiv =
+        (row.operatorLatex === "\\div" && ctx.operatorLatex === "/") ||
+        (row.operatorLatex === "/" && ctx.operatorLatex === "\\div");
+      if (!isDivEquiv) {
+        if (row.id === "P.FRAC_ADD_SAME_DEN") {
+          console.log(
+            `[Matcher] FAIL: Operator mismatch. Row: ${row.operatorLatex}, Ctx: ${ctx.operatorLatex}`
+          );
+        }
+        return false;
       }
-      return false;
     }
 
     if (row.requiredGuards) {

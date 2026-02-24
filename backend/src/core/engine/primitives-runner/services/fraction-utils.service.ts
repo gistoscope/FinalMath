@@ -36,6 +36,13 @@ export class FractionUtilsService {
       };
     }
 
+    if (node.type === "integer") {
+      return {
+        n: parseInt(node.value, 10),
+        d: 1,
+      };
+    }
+
     return null;
   }
 

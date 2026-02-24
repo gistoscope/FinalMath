@@ -145,6 +145,8 @@ export type PrimitiveId =
   | "P.INT_ADD"
   | "P.INT_SUB"
   | "P.INT_MUL"
+  | "P.INT_MUL_FRAC"
+  | "P.FRAC_MUL_INT"
   | "P.INT_DIV_EXACT"
   | "P.INT_DIV_TO_FRAC"
   | "P.FRAC_ADD_SAME_DEN"
