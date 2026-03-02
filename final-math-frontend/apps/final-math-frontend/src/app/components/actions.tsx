@@ -61,17 +61,18 @@ export function Actions() {
   const { setLatex } = useStoreAction();
 
   const [selected, setSelect] = useState<string>('');
+  const [localLatex, setLocalLatex] = useState<string>('');
 
   return (
     <div className="flex-1 bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
       <div className="p-4 border-b border-gray-200">
         <h2 className="text-lg font-bold text-gray-800">Toolbar</h2>
       </div>
-      <div className="p-4 flex flex-wrap items-center gap-3">
-        <div className="">
+      <div className="p-4 gap-3">
+        <div className="mb-4">
           <select
             id="test-select"
-            className="border border-gray-300 rounded px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border border-gray-300 rounded px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-500"
             value={selected}
             onChange={(e) => {
               setSelect(e.target.value);
@@ -85,6 +86,28 @@ export function Actions() {
             ))}
           </select>
         </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setLatex(localLatex);
+            setLocalLatex('');
+          }}
+          className="flex flex-col gap-2"
+        >
+          <textarea
+            value={localLatex}
+            onChange={(e) => setLocalLatex(e.target.value)}
+            placeholder="Enter LaTeX..."
+            className="border border-gray-300 rounded px-2 py-1 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            type="submit"
+            className="bg-blue-500 w-1/6 text-white px-3 py-1 rounded text-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Set
+          </button>
+        </form>
       </div>
     </div>
   );
